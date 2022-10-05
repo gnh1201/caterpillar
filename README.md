@@ -6,6 +6,8 @@ HTTP proxy implementation with PHP socket
 You <-----> HTTP proxy <----> Web hosting (PHP) <-----> On the Web
 ```
 
+HTTP proxy over the web hosting!
+
 ## References
 * https://github.com/anapeksha/python-proxy-server
 
