@@ -3,7 +3,7 @@ HTTP proxy implementation with PHP socket
 
 ## How to works
 ```
-You <-----> HTTP proxy (localhost) <----> PHP based web hosting <-----> On the Web
+You <-----> HTTP proxy <----> Web hosting (PHP) <-----> On the Web
 ```
 
 ## References
