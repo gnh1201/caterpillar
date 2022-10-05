@@ -1,6 +1,6 @@
 <?php
 // HTTP proxy implementation with PHP socket
-// Go Namhyeon <gnh1201@gmail.com>
+// Namhyeon Go <gnh1201@gmail.com>
 // 2022-10-06
 
 ini_set("default_socket_timeout", 1);  // must be. because of `feof()` works
