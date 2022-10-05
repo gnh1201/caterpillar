@@ -96,7 +96,7 @@ def proxy_server(webserver, port, conn, addr, data):
 
         relay = requests.post(proxy_url, headers=headers, json=data, stream=True)
         for chunk in relay.iter_content(chunk_size=buffer_size):
-            print(chunk)
+            #print(chunk)
             conn.send(chunk)
 
         print("[*] Request Done. %s" % (str(addr[0])))
