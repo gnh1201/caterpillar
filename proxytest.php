@@ -3,7 +3,7 @@
 // Go Namhyeon <gnh1201@gmail.com>
 // 2022-10-06
 
-ini_set("default_socket_timeout", 1);
+ini_set("default_socket_timeout", 1);  // must be. because of `feof()` works
 
 $data = json_decode(file_get_contents('php://input'), true);
 
