@@ -53,12 +53,12 @@ def conn_string(conn, data, addr):
         url = first_line.split()[1]
 
         http_pos = url.find(b'://') #Finding the position of ://
-        scheme = "http"  # check http/https or other protocol
+        scheme = b'http'  # check http/https or other protocol
         if http_pos == -1:
             temp = url
         else:
-            scheme = url[0:http_pos]
             temp = url[(http_pos+3):]
+            scheme = url[0:http_pos]
 
         port_pos = temp.find(b':')
 
@@ -73,9 +73,11 @@ def conn_string(conn, data, addr):
         else:
             port = int((temp[(port_pos+1):])[:webserver_pos-port_pos-1])
             webserver = temp[:port_pos]
+            if port == 443:
+                scheme = b'https'
 
         proxy_server(webserver, port, scheme, conn, addr, data)
-    except Exception:
+    except Exception as e:
         pass
 
 def proxy_server(webserver, port, scheme, conn, addr, data):
