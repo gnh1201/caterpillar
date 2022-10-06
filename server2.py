@@ -53,9 +53,11 @@ def conn_string(conn, data, addr):
         url = first_line.split()[1]
 
         http_pos = url.find(b'://') #Finding the position of ://
+        scheme = "http"  # check http/https or other protocol
         if http_pos == -1:
             temp = url
         else:
+            scheme = url[0:http_pos]
             temp = url[(http_pos+3):]
 
         port_pos = temp.find(b':')
@@ -72,31 +74,31 @@ def conn_string(conn, data, addr):
             port = int((temp[(port_pos+1):])[:webserver_pos-port_pos-1])
             webserver = temp[:port_pos]
 
-        if url.find(b'https:') == 0:
-            port = 443
-
-        proxy_server(webserver, port, conn, addr, data)
+        proxy_server(webserver, port, scheme, conn, addr, data)
     except Exception:
         pass
 
-def proxy_server(webserver, port, conn, addr, data):
+def proxy_server(webserver, port, scheme, conn, addr, data):
     try:
         headers = {
-            "User-Agent": "WebProxyTest"
+            "User-Agent": "WebProxyTest",
         }
         data = {
             "data": base64.b64encode(data).decode("utf-8"),
             "client": str(addr[0]),
             "server": webserver.decode("utf-8"),
             "port": str(port),
+            "scheme": scheme.decode("utf-8"),
             "length": str(len(data)),
             "chunksize": str(buffer_size),
             "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
         }
+        
+        print(">>>>>", data)
 
         relay = requests.post(proxy_url, headers=headers, json=data, stream=True)
         for chunk in relay.iter_content(chunk_size=buffer_size):
-            #print(chunk)
+            print("<<<<<", chunk)
             conn.send(chunk)
 
         print("[*] Request Done. %s" % (str(addr[0])))
