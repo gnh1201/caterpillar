@@ -3,7 +3,7 @@ HTTP proxy implementation with PHP socket
 
 ## How to works
 ```
-You <-----> HTTP proxy <----> Web hosting (PHP) <-----> On the Web
+You <-----> HTTP proxy (Python) <----> Web hosting (PHP) <-----> On the Web
 ```
 
 HTTP proxy over the web hosting!
