@@ -4,8 +4,9 @@ import sys
 from _thread import *
 import base64
 from datetime import datetime
-import requests
+from platform import python_version
 
+import requests
 from decouple import config
 
 try:
@@ -83,7 +84,7 @@ def conn_string(conn, data, addr):
 def proxy_server(webserver, port, scheme, url, conn, addr, data):
     try:
         headers = {
-            "User-Agent": "WebProxyTest",
+            "User-Agent": "php-httpproxy/0.1-dev (Client; Python " + python_version() + ")",
         }
         data = {
             "data": base64.b64encode(data).decode("utf-8"),
