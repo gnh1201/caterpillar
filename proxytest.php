@@ -8,16 +8,15 @@ ini_set("default_socket_timeout", 1);  // must be. because of `feof()` works
 $data = json_decode(file_get_contents('php://input'), true);
 
 $buffer_size = $data['chunksize'];
+$out = base64_decode($data['data']);
 
 $port = intval($data['port']);
-$hostname = $data['server'];
-// TODO: HTTPS support
-/*
-if ($port == 443) {
-    $hostname = "ssl://" . $hostname;
-}
-*/
+$scheme = $data['scheme'];
 
+$hostname = $data['server'];
+if ($scheme == "https") {
+    $hostname = sprintf("tls://%s:%s", $hostname, $port);
+}
 $fp = fsockopen($hostname, $port, $errno, $errstr, 1);
 
 if (!$fp) {
