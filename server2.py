@@ -76,11 +76,11 @@ def conn_string(conn, data, addr):
             if port == 443:
                 scheme = b'https'
 
-        proxy_server(webserver, port, scheme, conn, addr, data)
+        proxy_server(webserver, port, scheme, url, conn, addr, data)
     except Exception as e:
         pass
 
-def proxy_server(webserver, port, scheme, conn, addr, data):
+def proxy_server(webserver, port, scheme, url, conn, addr, data):
     try:
         headers = {
             "User-Agent": "WebProxyTest",
@@ -91,6 +91,7 @@ def proxy_server(webserver, port, scheme, conn, addr, data):
             "server": webserver.decode("utf-8"),
             "port": str(port),
             "scheme": scheme.decode("utf-8"),
+            "url": url.decode("utf-8"),
             "length": str(len(data)),
             "chunksize": str(buffer_size),
             "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
