@@ -15,8 +15,9 @@ $scheme = $data['scheme'];
 
 $hostname = $data['server'];
 if ($scheme == "https") {
-    $hostname = sprintf("tls://%s:%s", $hostname, $port);
+    $hostname = sprintf("ssl://%s", $hostname);
 }
+
 $fp = fsockopen($hostname, $port, $errno, $errstr, 1);
 
 if (!$fp) {
