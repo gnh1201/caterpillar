@@ -6,10 +6,9 @@
 ini_set("default_socket_timeout", 1);  // must be. because of `feof()` works
 ini_set("max_execution_time", 0);
 
-// https://stackoverflow.com/questions/16934409/curl-as-proxy-deal-with-https-connect-method
-// https://stackoverflow.com/questions/12433958/how-to-parse-response-headers-in-php
-
 function parse_headers($str) { // Parses HTTP headers into an array
+    // https://stackoverflow.com/questions/16934409/curl-as-proxy-deal-with-https-connect-method
+    // https://stackoverflow.com/questions/12433958/how-to-parse-response-headers-in-php
     $headers = array();
 
     $lines = preg_split("'\r?\n'", $str);
