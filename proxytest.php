@@ -4,6 +4,7 @@
 // 2022-10-06
 
 ini_set("default_socket_timeout", 1);  // must be. because of `feof()` works
+ini_set("max_execution_time", 0);
 
 $data = json_decode(file_get_contents('php://input'), true);
 
