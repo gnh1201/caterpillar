@@ -88,6 +88,8 @@ def conn_string(conn, data, addr):
 
 def proxy_server(webserver, port, scheme, url, conn, addr, data):
     try:
+        print("[*] Started Request. %s" % (str(addr[0])))
+
         headers = {
             "User-Agent": "php-httpproxy/0.1 (Client; Python " + python_version() + ")",
         }
@@ -102,12 +104,9 @@ def proxy_server(webserver, port, scheme, url, conn, addr, data):
             "chunksize": str(buffer_size),
             "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
         }
-        
-        print(">>>>>", data)
 
         relay = requests.post(proxy_url, headers=headers, json=data, stream=True)
         for chunk in relay.iter_content(chunk_size=buffer_size):
-            print("<<<<<", chunk)
             conn.send(chunk)
 
         print("[*] Request Done. %s" % (str(addr[0])))
