@@ -91,7 +91,7 @@ def proxy_server(webserver, port, scheme, url, conn, addr, data):
         print("[*] Started Request. %s" % (str(addr[0])))
 
         headers = {
-            "User-Agent": "php-httpproxy/0.1 (Client; Python " + python_version() + ")",
+            "User-Agent": "php-httpproxy/0.1.1 (Client; Python " + python_version() + ")",
         }
         data = {
             "data": base64.b64encode(data).decode("utf-8"),
