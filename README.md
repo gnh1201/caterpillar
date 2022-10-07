@@ -22,6 +22,9 @@ PROXY_URL=http://example.org
 
 3. Enjoy it
 
+## Screenshot
+![Screenshot, Transferring one megabyte per second](screenshot.png)
+
 ## References
 * https://github.com/anapeksha/python-proxy-server
 
