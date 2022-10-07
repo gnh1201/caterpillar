@@ -1,7 +1,8 @@
 <?php
 // HTTP proxy implementation with PHP socket
 // Namhyeon Go <gnh1201@gmail.com>
-// 2022-10-06
+// Created at: 2022-10-06
+// Updated at: 2022-10-07
 
 if (strpos($_SERVER['HTTP_USER_AGENT'], "php-httpproxy/") !== 0) {
     exit('<!DOCTYPE html><html><head><title>It works!</title><meta charset="utf-8"></head><body><h1>It works!</h1></body></html>');
