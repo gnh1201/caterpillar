@@ -1,3 +1,8 @@
+# gnh1201/php-httpproxy
+# Go Namyheon <gnh1201@gmail.com>
+# Created at: 2022-10-06
+# Updated at: 2022-10-07
+
 import argparse
 import socket
 import sys
