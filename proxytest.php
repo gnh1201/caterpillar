@@ -3,6 +3,10 @@
 // Namhyeon Go <gnh1201@gmail.com>
 // 2022-10-06
 
+if (strpos($_SERVER['HTTP_USER_AGENT'], "php-httpproxy/") !== 0) {
+    exit('<!DOCTYPE html><html><head><title>It works!</title><meta charset="utf-8"></head><body><h1>It works!</h1></body></html>');
+}
+
 ini_set("default_socket_timeout", 1);  // must be. because of `feof()` works
 ini_set("max_execution_time", 0);
 
