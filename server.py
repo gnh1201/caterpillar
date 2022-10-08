@@ -1,13 +1,14 @@
 # gnh1201/php-httpproxy
 # Go Namyheon <gnh1201@gmail.com>
 # Created at: 2022-10-06
-# Updated at: 2022-10-08
+# Updated at: 2022-10-07
 
 import argparse
 import socket
 import sys
 from _thread import *
 import base64
+import json
 from datetime import datetime
 from platform import python_version
 
@@ -84,14 +85,14 @@ def conn_string(conn, data, addr):
 
         proxy_server(webserver, port, scheme, url, conn, addr, data)
     except Exception as e:
-        pass
+        print("[*] Warning: %s, Line %s" % (str(e), str(sys.exc_info()[-1].tb_lineno)))
 
 def proxy_server(webserver, port, scheme, url, conn, addr, data):
     try:
-        print("[*] Started Request. %s" % (str(addr[0])))
-
+        print("[*] Starting Request... %s" % (str(addr[0])))
+    
         headers = {
-            "User-Agent": "php-httpproxy/0.1.1 (Client; Python " + python_version() + ")",
+            "User-Agent": "php-httpproxy/0.1.2 (Client; Python " + python_version() + ")",
         }
         data = {
             "data": base64.b64encode(data).decode("utf-8"),
@@ -104,11 +105,17 @@ def proxy_server(webserver, port, scheme, url, conn, addr, data):
             "chunksize": str(buffer_size),
             "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
         }
+        raw_data = json.dumps(data)
 
-        relay = requests.post(proxy_url, headers=headers, json=data, stream=True)
+        print("[*] Sending %s bytes..." % (str(len(raw_data))))
+
+        i = 0
+        relay = requests.post(proxy_url, headers=headers, data=raw_data, stream=True)
         for chunk in relay.iter_content(chunk_size=buffer_size):
             conn.send(chunk)
+            i = i + 1
 
+        print("[*] Received %s chucks. (%s bytes/chuck)" % (str(i), str(buffer_size)))
         print("[*] Request Done. %s" % (str(addr[0])))
 
         conn.close()
