@@ -20,12 +20,9 @@ PROXY_URL=http://example.org
 
 2. Run `python server.py` and set HTTP proxy in your web browser (e.g. Firefox)
 
-3. Test 3GB download and check the speed (e.g. http://releases.ubuntu.com/22.04.1/ubuntu-22.04.1-desktop-amd64.iso)
+3. Test 10GB download and check the speed (e.g. http://speed.hetzner.de/10GB.bin)
 
 3. Enjoy it
-
-## Screenshot
-![Screenshot, Transferring one megabyte per second](screenshot.png)
 
 ## References
 * https://github.com/anapeksha/python-proxy-server
