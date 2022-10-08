@@ -20,7 +20,7 @@ PROXY_URL=http://example.org
 
 2. Run `python server.py` and set HTTP proxy in your web browser (e.g. Firefox)
 
-3. Test 100MB, 1GB, 10GB download and check the speed (e.g. http://speed.hetzner.de/)
+3. Test [100MB](http://speed.hetzner.de/100MB.bin), [1GB](http://speed.hetzner.de/1GB.bin), [10GB](http://speed.hetzner.de/10GB.bin) download and check the speed (e.g. https://speed.hetzner.de/10GB.bin)
 
 3. Enjoy it
 
