@@ -89,8 +89,8 @@ def conn_string(conn, data, addr):
 
 def proxy_server(webserver, port, scheme, url, conn, addr, data):
     try:
-        print("[*] Starting Request... %s" % (str(addr[0])))
-    
+        print("[*] Started Request. %s" % (str(addr[0])))
+
         headers = {
             "User-Agent": "php-httpproxy/0.1.2 (Client; Python " + python_version() + ")",
         }
