@@ -24,7 +24,7 @@ PROXY_URL=http://example.org
 
 3. Enjoy it
 
-4. (Optional) With [Cloudflare](https://cloudflare.com) proxy, we can expect to accelerate four times the speed.
+4. (Optional) With [Cloudflare](https://cloudflare.com) proxy, we can expect to accelerate the 4x speed.
 
 ## References
 * https://github.com/anapeksha/python-proxy-server
