@@ -1,14 +1,16 @@
 # gnh1201/php-httpproxy
 # Go Namyheon <gnh1201@gmail.com>
 # Created at: 2022-10-06
-# Updated at: 2022-10-07
+# Updated at: 2022-10-24
 
 import argparse
 import socket
 import sys
+import os
 from _thread import *
 import base64
 import json
+import ssl
 from datetime import datetime
 from platform import python_version
 
@@ -57,7 +59,7 @@ def conn_string(conn, data, addr):
     try:
         first_line = data.split(b'\n')[0]
 
-        url = first_line.split()[1]
+        method, url = first_line.split()[0:2]
 
         http_pos = url.find(b'://') #Finding the position of ://
         scheme = b'http'  # check http/https or other protocol
@@ -83,34 +85,43 @@ def conn_string(conn, data, addr):
             if port == 443:
                 scheme = b'https'
 
-        proxy_server(webserver, port, scheme, url, conn, addr, data)
+        proxy_server(webserver, port, scheme, method, url, conn, addr, data)
     except Exception as e:
         print("[*] Warning: %s, Line %s" % (str(e), str(sys.exc_info()[-1].tb_lineno)))
 
-def proxy_server(webserver, port, scheme, url, conn, addr, data):
+def proxy_connect(webserver, conn):
+    # TODO
+    return conn
+
+def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
     try:
         print("[*] Started Request. %s" % (str(addr[0])))
 
-        headers = {
-            "User-Agent": "php-httpproxy/0.1.2 (Client; Python " + python_version() + ")",
-        }
+        if scheme == b'https' and method == b'CONNECT':
+            conn = proxy_connect(conn, url)
+
         data = {
-            "data": base64.b64encode(data).decode("utf-8"),
-            "client": str(addr[0]),
-            "server": webserver.decode("utf-8"),
-            "port": str(port),
-            "scheme": scheme.decode("utf-8"),
-            "url": url.decode("utf-8"),
-            "length": str(len(data)),
-            "chunksize": str(buffer_size),
-            "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
+            'headers': {
+                "User-Agent": "php-httpproxy/0.1.2 (Client; Python " + python_version() + ")",
+            },
+            'data': {
+                "data": base64.b64encode(data).decode("utf-8"),
+                "client": str(addr[0]),
+                "server": webserver.decode("utf-8"),
+                "port": str(port),
+                "scheme": scheme.decode("utf-8"),
+                "url": url.decode("utf-8"),
+                "length": str(len(data)),
+                "chunksize": str(buffer_size),
+                "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
+            }
         }
-        raw_data = json.dumps(data)
+        raw_data = json.dumps(data['data'])
 
         print("[*] Sending %s bytes..." % (str(len(raw_data))))
 
         i = 0
-        relay = requests.post(proxy_url, headers=headers, data=raw_data, stream=True)
+        relay = requests.post(proxy_url, headers=data['headers'], data=raw_data, stream=True)
         for chunk in relay.iter_content(chunk_size=buffer_size):
             conn.send(chunk)
             i = i + 1
