@@ -19,7 +19,7 @@ from decouple import config
 
 try:
     listening_port = config('PORT', cast=int)
-    proxy_url = config('PROXY_URL')
+    server_url = config('SERVER_URL')
 except KeyboardInterrupt:
     print("\n[*] User has requested an interrupt")
     print("[*] Application Exiting.....")
@@ -121,7 +121,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
         print("[*] Sending %s bytes..." % (str(len(raw_data))))
 
         i = 0
-        relay = requests.post(proxy_url, headers=data['headers'], data=raw_data, stream=True)
+        relay = requests.post(server_url, headers=data['headers'], data=raw_data, stream=True)
         for chunk in relay.iter_content(chunk_size=buffer_size):
             conn.send(chunk)
             i = i + 1
