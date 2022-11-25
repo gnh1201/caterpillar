@@ -26,7 +26,7 @@ CLIENT_ENCODING=utf-8
 
 2. Run `python server.py` and set HTTP(S) proxy in your web browser (e.g. Firefox)
 
-3. Test [100MB](http://speed.hetzner.de/100MB.bin), [1GB](http://speed.hetzner.de/1GB.bin), [10GB](http://speed.hetzner.de/10GB.bin) download and check the speed (e.g. http://speed.hetzner.de/1GB.bin)
+3. Test [100MB](http://speed.hetzner.de/100MB.bin)/[HTTPS](https://speed.hetzner.de/100MB.bin), [1GB](http://speed.hetzner.de/1GB.bin)/[HTTPS](https://speed.hetzner.de/1GB.bin), [10GB](http://speed.hetzner.de/10GB.bin)/[HTTPS](http://speed.hetzner.de/10GB.bin) download and check the speed (e.g. https://speed.hetzner.de/1GB.bin)
 
 3. Enjoy it
 
