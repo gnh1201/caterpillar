@@ -15,7 +15,11 @@ HTTP proxy over the web hosting!
 ```
 [settings]
 PORT=5555
-PROXY_URL=http://example.org
+SERVER_URL=http://example.org
+CA_KEY=ca.key
+CA_CERT=ca.crt
+CERT_KEY=cert.key
+CERT_DIR=certs/
 ```
 
 2. Run `python server.py` and set HTTP proxy in your web browser (e.g. Firefox)
