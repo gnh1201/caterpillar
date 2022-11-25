@@ -26,6 +26,7 @@ try:
     cacert = config('CA_CERT')
     certkey = config('CERT_KEY')
     certdir = config('CERT_DIR')
+    openssl_binpath = config('OPENSSL_BINPATH')
     client_encoding = config('CLIENT_ENCODING')
 except KeyboardInterrupt:
     print("\n[*] User has requested an interrupt")
@@ -109,8 +110,8 @@ def proxy_connect(webserver, conn):
     try:
         if not os.path.isfile(certpath):
             epoch = "%d" % (time.time() * 1000)
-            p1 = Popen(["openssl", "req", "-new", "-key", certkey, "-subj", "/CN=%s" % hostname], stdout=PIPE)
-            p2 = Popen(["openssl", "x509", "-req", "-days", "3650", "-CA", cacert, "-CAkey", cakey, "-set_serial", epoch, "-out", certpath], stdin=p1.stdout, stderr=PIPE)
+            p1 = Popen([openssl_binpath, "req", "-new", "-key", certkey, "-subj", "/CN=%s" % hostname], stdout=PIPE)
+            p2 = Popen([openssl_binpath, "x509", "-req", "-days", "3650", "-CA", cacert, "-CAkey", cakey, "-set_serial", epoch, "-out", certpath], stdin=p1.stdout, stderr=PIPE)
             p2.communicate()
     except Exception as e:
         print("[*] Skipped generating the certificate. Because of %s" % (str(e)))
