@@ -6,7 +6,7 @@ HTTP(S) proxy implementation with PHP socket
 You <-----> HTTP(S) proxy (Python) <-----> Web hosting (PHP) <-----> On the Web
 ```
 
-HTTP proxy over the web hosting!
+HTTP(S) proxy over the web hosting!
 
 ## How to use
 
