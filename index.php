@@ -2,10 +2,10 @@
 // HTTP proxy implementation with PHP socket
 // Namhyeon Go <gnh1201@gmail.com>
 // Created at: 2022-10-06
-// Updated at: 2022-10-07
+// Updated at: 2022-11-25
 
 if (strpos($_SERVER['HTTP_USER_AGENT'], "php-httpproxy/") !== 0) {
-    exit('<!DOCTYPE html><html><head><title>It works!</title><meta charset="utf-8"></head><body><h1>It works!</h1></body></html>');
+    exit('<!DOCTYPE html><html><head><title>It works!</title><meta charset="utf-8"></head><body><h1>It works!</h1><p>Version: 0.1.3</p></body></html>');
 }
 
 ini_set("default_socket_timeout", 1);  // must be. because of `feof()` works
@@ -39,13 +39,16 @@ $relay_port = intval($data['port']);
 $relay_scheme = $data['scheme'];
 $relay_hostname = $data['server'];
 
+if ($relay_scheme == "https") {
+    $relay_hostname = "tls://" . $relay_hostname;
+}
+
 switch ($relay_headers['@method'][0]) {
-    case "CONNECT": // {
+    case "CONNECT":
         echo sprintf("%s 200 Connection Established\r\n\r\n", $relay_headers['@method'][2]);
         break;
-    // }
 
-    default: // {
+    default:
         $fp = fsockopen($relay_hostname, $relay_port, $errno, $errstr, 1);
 
         if (!$fp) {
@@ -61,5 +64,4 @@ switch ($relay_headers['@method'][0]) {
 
             fclose($fp);
         }
-    // }
 }

@@ -1,7 +1,7 @@
 # gnh1201/php-httpproxy
 # Go Namyheon <gnh1201@gmail.com>
 # Created at: 2022-10-06
-# Updated at: 2022-10-24
+# Updated at: 2022-11-25
 
 import argparse
 import socket
@@ -63,33 +63,38 @@ def start():    #Main Program
             sys.exit(1)
 
 def conn_string(conn, data, addr):
-    first_line = data.split(b'\n')[0]
+    try:
+        first_line = data.split(b'\n')[0]
 
-    method, url = first_line.split()[0:2]
+        method, url = first_line.split()[0:2]
 
-    http_pos = url.find(b'://') #Finding the position of ://
-    scheme = b'http'  # check http/https or other protocol
-    if http_pos == -1:
-        temp = url
-    else:
-        temp = url[(http_pos+3):]
-        scheme = url[0:http_pos]
+        http_pos = url.find(b'://') #Finding the position of ://
+        scheme = b'http'  # check http/https or other protocol
+        if http_pos == -1:
+            temp = url
+        else:
+            temp = url[(http_pos+3):]
+            scheme = url[0:http_pos]
 
-    port_pos = temp.find(b':')
+        port_pos = temp.find(b':')
 
-    webserver_pos = temp.find(b'/')
-    if webserver_pos == -1:
-        webserver_pos = len(temp)
-    webserver = ""
-    port = -1
-    if port_pos == -1 or webserver_pos < port_pos:
-        port = 80
-        webserver = temp[:webserver_pos]
-    else:
-        port = int((temp[(port_pos+1):])[:webserver_pos-port_pos-1])
-        webserver = temp[:port_pos]
-        if port == 443:
-            scheme = b'https'
+        webserver_pos = temp.find(b'/')
+        if webserver_pos == -1:
+            webserver_pos = len(temp)
+        webserver = ""
+        port = -1
+        if port_pos == -1 or webserver_pos < port_pos:
+            port = 80
+            webserver = temp[:webserver_pos]
+        else:
+            port = int((temp[(port_pos+1):])[:webserver_pos-port_pos-1])
+            webserver = temp[:port_pos]
+            if port == 443:
+                scheme = b'https'
+    except Exception as e:
+        conn.close()
+        print("[*] Exception on parsing the header of %s. Because of %s" % (str(addr[0]), str(e)))
+        return
 
     proxy_server(webserver, port, scheme, method, url, conn, addr, data)
 
@@ -97,8 +102,10 @@ def proxy_connect(webserver, conn):
     hostname = webserver.decode('utf-8')
     certpath = "%s/%s.crt" % (certdir.rstrip('/'), hostname)
 
-    conn.send(b'HTTP/1.1 200 Connection Established\r\n')
+    # https://stackoverflow.com/questions/24055036/handle-https-request-in-proxy-server-by-c-sharp-connect-tunnel
+    conn.send(b'HTTP/1.1 200 Connection Established\r\n\r\n')
 
+    # https://github.com/inaz2/proxy2/blob/master/proxy2.py
     try:
         if not os.path.isfile(certpath):
             epoch = "%d" % (time.time() * 1000)
@@ -108,24 +115,30 @@ def proxy_connect(webserver, conn):
     except Exception as e:
         print("[*] Skipped generating the key. %s" % (str(e)))
 
+    # https://stackoverflow.com/questions/11255530/python-simple-ssl-socket-server
+    # https://docs.python.org/3/library/ssl.html
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
     context.load_cert_chain(certpath, certkey)
 
-    # what the heck? why hang?
+    # https://stackoverflow.com/questions/11255530/python-simple-ssl-socket-server
     conn = context.wrap_socket(conn, server_side=True)
+    data = conn.recv(buffer_size)
 
-    return conn
+    return (conn, data)
 
 def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
     try:
         print("[*] Started Request. %s" % (str(addr[0])))
 
-        if scheme in [b'https', b'tls', b'ssl'] and method == b'CONNECT':
-            conn = proxy_connect(webserver, conn)
+        try:
+            if scheme in [b'https', b'tls', b'ssl'] and method == b'CONNECT':
+                conn, data = proxy_connect(webserver, conn)
+        except Exception as e:
+            raise Exception("SSL negotiation failed. %s" % (str(e)))
 
         proxy_data = {
             'headers': {
-                "User-Agent": "php-httpproxy/0.1.3-dev (Client; Python " + python_version() + ")",
+                "User-Agent": "php-httpproxy/0.1.3 (Client; Python " + python_version() + "); abuse@catswords.com",
             },
             'data': {
                 "data": base64.b64encode(data).decode("utf-8"),
@@ -139,8 +152,6 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                 "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
             }
         }
-        print (proxy_data)
-        
         raw_data = json.dumps(proxy_data['data'])
 
         print("[*] Sending %s bytes..." % (str(len(raw_data))))
@@ -151,12 +162,12 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
             conn.send(chunk)
             i = i + 1
 
-        print("[*] Received %s chucks. (%s bytes/chuck)" % (str(i), str(buffer_size)))
-        print("[*] Request Done. %s" % (str(addr[0])))
+        print("[*] Received %s chucks. (%s bytes per chuck)" % (str(i), str(buffer_size)))
+        print("[*] Request and received. Done. %s" % (str(addr[0])))
 
         conn.close()
     except Exception as e:
-        print("[*] f: proxy_server: %s" % (str(e)))
+        print("[*] Exception on requesting the data. Because of %s" % (str(e)))
         conn.close()
 
 if __name__== "__main__":
