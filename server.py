@@ -22,6 +22,11 @@ from decouple import config
 try:
     listening_port = config('PORT', cast=int)
     server_url = config('SERVER_URL')
+    cakey = config('CA_KEY')
+    cacert = config('CA_CERT')
+    certkey = config('CERT_KEY')
+    certdir = config('CERT_DIR')
+    client_encoding = config('CLIENT_ENCODING')
 except KeyboardInterrupt:
     print("\n[*] User has requested an interrupt")
     print("[*] Application Exiting.....")
@@ -35,11 +40,6 @@ parser.add_argument('--buffer_size', help="Number of samples to be used", defaul
 args = parser.parse_args()
 max_connection = args.max_conn
 buffer_size = args.buffer_size
-
-cakey = config('CA_KEY')
-cacert = config('CA_CERT')
-certkey = config('CERT_KEY')
-certdir = config('CERT_DIR')
 
 def start():    #Main Program
     try:
@@ -99,7 +99,7 @@ def conn_string(conn, data, addr):
     proxy_server(webserver, port, scheme, method, url, conn, addr, data)
 
 def proxy_connect(webserver, conn):
-    hostname = webserver.decode('utf-8')
+    hostname = webserver.decode(client_encoding)
     certpath = "%s/%s.crt" % (certdir.rstrip('/'), hostname)
 
     # https://stackoverflow.com/questions/24055036/handle-https-request-in-proxy-server-by-c-sharp-connect-tunnel
@@ -141,12 +141,12 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                 "User-Agent": "php-httpproxy/0.1.3 (Client; Python " + python_version() + "); abuse@catswords.com",
             },
             'data': {
-                "data": base64.b64encode(data).decode("utf-8"),
+                "data": base64.b64encode(data).decode(client_encoding),
                 "client": str(addr[0]),
-                "server": webserver.decode("utf-8"),
+                "server": webserver.decode(client_encoding),
                 "port": str(port),
-                "scheme": scheme.decode("utf-8"),
-                "url": url.decode("utf-8"),
+                "scheme": scheme.decode(client_encoding),
+                "url": url.decode(client_encoding),
                 "length": str(len(data)),
                 "chunksize": str(buffer_size),
                 "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")

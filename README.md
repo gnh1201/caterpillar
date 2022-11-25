@@ -20,6 +20,7 @@ CA_KEY=ca.key
 CA_CERT=ca.crt
 CERT_KEY=cert.key
 CERT_DIR=certs/
+CLIENT_ENCODING=utf-8
 ```
 
 2. Run `python server.py` and set HTTP proxy in your web browser (e.g. Firefox)
