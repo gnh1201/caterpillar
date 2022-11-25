@@ -34,6 +34,7 @@ CLIENT_ENCODING=utf-8
 
 ## References
 * https://github.com/anapeksha/python-proxy-server
+* https://github.com/inaz2/proxy2
 
 ## Contact
-* gnh1201@gmail.com
+* abuse@catswords.net

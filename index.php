@@ -1,6 +1,6 @@
 <?php
 // HTTP proxy implementation with PHP socket
-// Namhyeon Go <gnh1201@gmail.com>
+// Namhyeon Go <abuse@catswords.net>
 // Created at: 2022-10-06
 // Updated at: 2022-11-25
 
