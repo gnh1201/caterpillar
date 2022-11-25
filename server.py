@@ -113,7 +113,7 @@ def proxy_connect(webserver, conn):
             p2 = Popen(["openssl", "x509", "-req", "-days", "3650", "-CA", cacert, "-CAkey", cakey, "-set_serial", epoch, "-out", certpath], stdin=p1.stdout, stderr=PIPE)
             p2.communicate()
     except Exception as e:
-        print("[*] Skipped generating the key. %s" % (str(e)))
+        print("[*] Skipped generating the certificate. Because of %s" % (str(e)))
 
     # https://stackoverflow.com/questions/11255530/python-simple-ssl-socket-server
     # https://docs.python.org/3/library/ssl.html
