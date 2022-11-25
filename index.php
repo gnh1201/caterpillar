@@ -4,8 +4,10 @@
 // Created at: 2022-10-06
 // Updated at: 2022-11-25
 
+define("PHP_HTTPPROXY_VERSION", "0.1.3");
+
 if (strpos($_SERVER['HTTP_USER_AGENT'], "php-httpproxy/") !== 0) {
-    exit('<!DOCTYPE html><html><head><title>It works!</title><meta charset="utf-8"></head><body><h1>It works!</h1><p>Version: 0.1.3</p></body></html>');
+    exit('<!DOCTYPE html><html><head><title>It works!</title><meta charset="utf-8"></head><body><h1>It works!</h1><p>Version: ' . PHP_HTTPPROXY_VERSION . '</p></body></html>');
 }
 
 ini_set("default_socket_timeout", 1);  // must be. because of `feof()` works
