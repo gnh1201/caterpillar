@@ -184,13 +184,13 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                 conn.send(chunk)
                 i += 1
 
-            print("[*] Received %s chucks. (%s bytes per chuck)" % (str(i), str(buffer_size)))
+            print("[*] Received %s chunks. (%s bytes per chunk)" % (str(i), str(buffer_size)))
 
         else:
 
             proxy_data = {
                 'headers': {
-                    "User-Agent": "php-httpproxy/0.1.4 (Client; Python " + python_version() + "; abuse@catswords.net)",
+                    "User-Agent": "php-httpproxy/0.1.3 (Client; Python " + python_version() + "; abuse@catswords.net)",
                 },
                 'data': {
                     "data": base64.b64encode(data).decode(client_encoding),
@@ -211,13 +211,13 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
             i = 0
             relay = requests.post(server_url, headers=proxy_data['headers'], data=raw_data, stream=True)
             for chunk in relay.iter_content(chunk_size=buffer_size):
-                response += chuck
-                if not proxy_check_filtered(response, webserver, port):
+                response += chunk
+                if proxy_check_filtered(response, webserver, port):
                     break
                 conn.send(chunk)
                 i += 1
 
-            print("[*] Received %s chucks. (%s bytes per chuck)" % (str(i), str(buffer_size)))
+            print("[*] Received %s chunks. (%s bytes per chunk)" % (str(i), str(buffer_size)))
 
         print("[*] Request and received. Done. %s" % (str(addr[0])))
         conn.close()
