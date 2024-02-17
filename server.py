@@ -183,7 +183,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
 
             proxy_data = {
                 'headers': {
-                    "User-Agent": "php-httpproxy/0.1.3 (Client; Python " + python_version() + "; abuse@catswords.net)",
+                    "User-Agent": "php-httpproxy/0.1.4 (Client; Python " + python_version() + "; abuse@catswords.net)",
                 },
                 'data': {
                     "data": base64.b64encode(data).decode(client_encoding),
