@@ -40,8 +40,8 @@ sudo update-ca-certificates
 4. (Optional) With [Cloudflare](https://cloudflare.com), we can expect to accelerate the 4x speed and reduce the network stuck.
 
 ## (Optional) For Mastodon users
-1. set `SERVER_URL` variable to `localhost` in settings.ini (e.g. `SERVER_URL=localhost`)
-2. set `http_proxy` variable to `http://localhost:5555` in env.production (e.g. `http_proxy=http://localhost:5555`)
+1. set `SERVER_URL` variable to `localhost` in `.env` or `settings.ini` (e.g. `SERVER_URL=localhost`)
+2. set `http_proxy` variable to `http://localhost:5555` in `env.production` (e.g. `http_proxy=http://localhost:5555`)
 
 ## References
 * https://github.com/anapeksha/python-proxy-server
