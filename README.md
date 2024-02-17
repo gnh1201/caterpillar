@@ -22,6 +22,7 @@ CERT_KEY=cert.key
 CERT_DIR=certs/
 OPENSSL_BINPATH=openssl
 CLIENT_ENCODING=utf-8
+APPLICATION=none
 ```
 
 1.1. (Optional) Install ca.cert
