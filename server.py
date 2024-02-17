@@ -187,7 +187,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                 #conn.send(chunk)
                 i += 1
 
-            if proxy_check_filtered(response, webserver, port):
+            if not proxy_check_filtered(response, webserver, port):
                 conn.sendall(response)
 
             print("[*] Received %s chunks. (%s bytes per chunk)" % (str(i), str(buffer_size)))
@@ -223,7 +223,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                 #conn.send(chunk)
                 i += 1
 
-            if proxy_check_filtered(response, webserver, port):
+            if not proxy_check_filtered(response, webserver, port):
                 conn.sendall(response)
 
             print("[*] Received %s chunks. (%s bytes per chunk)" % (str(i), str(buffer_size)))
