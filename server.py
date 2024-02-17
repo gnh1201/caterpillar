@@ -192,7 +192,19 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
         except Exception as e:
             raise Exception("SSL negotiation failed. (%s:%s) %s" % (webserver.decode(client_encoding), str(port), str(e)))
 
-        # check request data
+        # Wait to see if there is more data to transmit
+        if len(data) == buffer_size:
+            conn.settimeout(5)
+            while True:
+                try:
+                    chunk = conn.recv(buffer_size)
+                    if not chunk:
+                        break
+                    data += chunk
+                except:
+                    break
+
+        # check requested data
         if proxy_check_filtered(data, webserver, port, scheme, method, url):
             conn.sendall(b"HTTP/1.1 403 Forbidden\n\n{\"status\":403}")
             conn.close()
