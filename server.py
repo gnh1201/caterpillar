@@ -1,5 +1,6 @@
 # gnh1201/php-httpproxy
-# Go Namyheon <gnh1201@gmail.com>
+# Namyheon Go (Catswords Research) <gnh1201@gmail.com>
+# https://github.com/gnh1201
 # Created at: 2022-10-06
 # Updated at: 2024-12-17
 
@@ -127,9 +128,13 @@ def proxy_connect(webserver, conn):
 
     return (conn, data)
 
-def proxy_filter(response):
-    # todo
-    pass
+def proxy_check_filtered(response):
+    filtered = response.find(b'@misskey.io') > -1
+
+    if filtered:
+        print ("[*] filtered: %s" % (response.decode(client_encoding)))
+
+    return filtered
 
 def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
     try:
@@ -139,32 +144,40 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
             if scheme in [b'https', b'tls', b'ssl'] and method == b'CONNECT':
                 conn, data = proxy_connect(webserver, conn)
         except Exception as e:
-            raise Exception("SSL negotiation failed. %s" % (str(e)))
+            raise Exception("SSL negotiation failed. (%s:%s) %s" % (webserver.decode(client_encoding), str(port), str(e)))
 
         response = b''
+
         if server_url == "localhost":
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-            context = ssl.create_default_context()
-            context.check_hostname = False
-            context.verify_mode = ssl.CERT_NONE
+            if scheme in [b'https', b'tls', b'ssl']:
+                context = ssl.create_default_context()
+                context.check_hostname = False
+                context.verify_mode = ssl.CERT_NONE
 
-            ssl_sock = context.wrap_socket(sock, server_hostname=webserver)
-            ssl_sock.connect((webserver, port))
-            ssl_sock.sendall(data)
+                sock = context.wrap_socket(sock, server_hostname=webserver.decode(client_encoding))
+                sock.connect((webserver, port))
+                sock.sendall(data)
+            else:
+                sock.connect((webserver, port))
+                sock.sendall(data)
 
             i = 0
             while True:
-                chunk = ssl_sock.recv(buffer_size)
+                chunk = sock.recv(buffer_size)
                 if not chunk:
                     break
-                response += chuck
-                proxy_filter(response)
+                response += chunk
+                if proxy_check_filtered(response):
+                    break
                 conn.send(chunk)
                 i += 1
 
             print("[*] Received %s chucks. (%s bytes per chuck)" % (str(i), str(buffer_size)))
+
         else:
+
             proxy_data = {
                 'headers': {
                     "User-Agent": "php-httpproxy/0.1.3 (Client; Python " + python_version() + "; abuse@catswords.net)",
@@ -189,7 +202,8 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
             relay = requests.post(server_url, headers=proxy_data['headers'], data=raw_data, stream=True)
             for chunk in relay.iter_content(chunk_size=buffer_size):
                 response += chuck
-                proxy_filter(response)
+                if not proxy_check_filtered(response):
+                    break
                 conn.send(chunk)
                 i += 1
 
