@@ -143,10 +143,12 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
     try:
         print("[*] Started the request. %s" % (str(addr[0])))
 
-        while True:
+        retry = True
+        while retry:
             try:
                 if scheme in [b'https', b'tls', b'ssl'] and method == b'CONNECT':
                     conn, data = proxy_connect(webserver, conn)
+                retry = False
             except IOError as e:
                 print ("[*] Retrying SSL negotiation... (%s:%s) %s" % (webserver.decode(client_encoding), str(port), str(e)))
             except Exception as e:
