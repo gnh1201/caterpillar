@@ -137,34 +137,52 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
         except Exception as e:
             raise Exception("SSL negotiation failed. %s" % (str(e)))
 
-        proxy_data = {
-            'headers': {
-                "User-Agent": "php-httpproxy/0.1.3 (Client; Python " + python_version() + "; abuse@catswords.net)",
-            },
-            'data': {
-                "data": base64.b64encode(data).decode(client_encoding),
-                "client": str(addr[0]),
-                "server": webserver.decode(client_encoding),
-                "port": str(port),
-                "scheme": scheme.decode(client_encoding),
-                "url": url.decode(client_encoding),
-                "length": str(len(data)),
-                "chunksize": str(buffer_size),
-                "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
+        if server_url == "localhost":
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            
+            context = ssl.create_default_context()
+            context.check_hostname = False
+            context.verify_mode = ssl.CERT_NONE
+            
+            ssl_sock = context.wrap_socket(sock, server_hostname=webserver)
+            ssl_sock.connect((webserver, port))
+            ssl_sock.sendall(data)
+
+            while True:
+                data = ssl_sock.recv(1024)
+                if not data:
+                    break
+                conn.send(data)
+            print("[*] Request and received. Done. %s" % (str(addr[0])))
+        else:
+            proxy_data = {
+                'headers': {
+                    "User-Agent": "php-httpproxy/0.1.3 (Client; Python " + python_version() + "; abuse@catswords.net)",
+                },
+                'data': {
+                    "data": base64.b64encode(data).decode(client_encoding),
+                    "client": str(addr[0]),
+                    "server": webserver.decode(client_encoding),
+                    "port": str(port),
+                    "scheme": scheme.decode(client_encoding),
+                    "url": url.decode(client_encoding),
+                    "length": str(len(data)),
+                    "chunksize": str(buffer_size),
+                    "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
+                }
             }
-        }
-        raw_data = json.dumps(proxy_data['data'])
-
-        print("[*] Sending %s bytes..." % (str(len(raw_data))))
-
-        i = 0
-        relay = requests.post(server_url, headers=proxy_data['headers'], data=raw_data, stream=True)
-        for chunk in relay.iter_content(chunk_size=buffer_size):
-            conn.send(chunk)
-            i = i + 1
-
-        print("[*] Received %s chucks. (%s bytes per chuck)" % (str(i), str(buffer_size)))
-        print("[*] Request and received. Done. %s" % (str(addr[0])))
+            raw_data = json.dumps(proxy_data['data'])
+    
+            print("[*] Sending %s bytes..." % (str(len(raw_data))))
+    
+            i = 0
+            relay = requests.post(server_url, headers=proxy_data['headers'], data=raw_data, stream=True)
+            for chunk in relay.iter_content(chunk_size=buffer_size):
+                conn.send(chunk)
+                i = i + 1
+    
+            print("[*] Received %s chucks. (%s bytes per chuck)" % (str(i), str(buffer_size)))
+            print("[*] Request and received. Done. %s" % (str(addr[0])))
 
         conn.close()
     except Exception as e:
