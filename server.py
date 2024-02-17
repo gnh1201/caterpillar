@@ -14,6 +14,7 @@ import json
 import ssl
 import time
 import re
+import traceback
 from subprocess import Popen, PIPE
 from datetime import datetime
 from platform import python_version
@@ -171,7 +172,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                 conn, data = proxy_connect(webserver, conn)
         except OSError as e:
              if not retry:
-                 print ("[*] Retrying SSL negotiation..." % (webserver.decode(client_encoding), str(port), str(e)))
+                 print ("[*] Retrying SSL negotiation... (%s:%s) %s" % (webserver.decode(client_encoding), str(port), str(e)))
                  retry = True
              else:
                  raise Exception("SSL negotiation failed. (%s:%s) %s" % (webserver.decode(client_encoding), str(port), str(e)))
@@ -256,6 +257,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
         print("[*] Request and received. Done. %s" % (str(addr[0])))
         conn.close()
     except Exception as e:
+        print(traceback.format_exc())
         print("[*] Exception on requesting the data. Because of %s" % (str(e)))
         conn.close()
 
