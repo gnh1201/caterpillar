@@ -128,11 +128,14 @@ def proxy_connect(webserver, conn):
 
     return (conn, data)
 
-def proxy_check_filtered(response):
+def proxy_check_filtered(response, webserver, port):
     filtered = response.find(b'@misskey.io') > -1
 
     if filtered:
-        print ("[*] filtered: %s" % (response.decode(client_encoding)))
+        print ("[*] filtered from %s:%s" % (webserver.decode(client_encoding), str(port)))
+        print ("[*] ====== start response data =====")
+        print ("%s" % (response.decode(client_encoding)))
+        print ("[*] ====== end response data =====")
 
     return filtered
 
@@ -169,7 +172,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                 if not chunk:
                     break
                 response += chunk
-                if proxy_check_filtered(response):
+                if proxy_check_filtered(response, webserver, port):
                     break
                 conn.send(chunk)
                 i += 1
@@ -202,7 +205,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
             relay = requests.post(server_url, headers=proxy_data['headers'], data=raw_data, stream=True)
             for chunk in relay.iter_content(chunk_size=buffer_size):
                 response += chuck
-                if not proxy_check_filtered(response):
+                if not proxy_check_filtered(response, webserver, port):
                     break
                 conn.send(chunk)
                 i += 1
