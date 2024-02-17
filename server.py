@@ -134,9 +134,20 @@ def proxy_check_filtered(response, webserver, port):
 
     text = response.decode(client_encoding, errors='ignore')
 
-    filtered = text.find('@misskey.io') > -1 or text.find('ctkpaarr') > -1 or bool(re.search(r'\b\w{10}@(?:\w+\.)+\w+\b', text))
+    # dump response data
+    #print ("****************************")
+    #print (text)
+    #print ("****************************")
+
+    #filtered = text.find('@misskey.io') > -1
+    #filtered = filtered or text.find("https://misskey.io") > -1
+    filtered = filtered or text.find('ctkpaarr') > -1
+    filtered = filtered or bool(re.search(r'\b\w{10}@(?:\w+\.)+\w+\b', text))
+    filtered = filtered or bool(re.search(r"https://[^\s/@]+@([a-zA-Z0-9]{10})", text))
+    filtered = filtered or bool(re.search(r'https://[a-zA-Z0-9.-]+/users/[a-zA-Z0-9]{10}/statuses/[0-9]+', text))
+
     if filtered:
-        print ("[*] filtered from %s:%s" % (webserver.decode(client_encoding), str(port)))
+        print ("[*] Filtered response from %s:%s" % (webserver.decode(client_encoding), str(port)))
         #print ("[*] ====== start response data =====")
         #print ("%s" % (text))
         #print ("[*] ====== end response data =====")
@@ -190,6 +201,9 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
 
             if not proxy_check_filtered(response, webserver, port):
                 conn.sendall(response)
+            else:
+                #add_domain_route(webserver.decode(client_encoding), '127.0.0.1')
+                conn.sendall(b"HTTP/1.1 403 Forbidden\n\n{ \"status\": 403 }")
 
             print("[*] Received %s chunks. (%s bytes per chunk)" % (str(i), str(buffer_size)))
 
@@ -226,6 +240,9 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
 
             if not proxy_check_filtered(response, webserver, port):
                 conn.sendall(response)
+            else:
+                #add_domain_route(webserver.decode(client_encoding), '127.0.0.1')
+                conn.sendall(b"HTTP/1.1 403 Forbidden\n\n{ \"status\": 403 }")
 
             print("[*] Received %s chunks. (%s bytes per chunk)" % (str(i), str(buffer_size)))
 
@@ -234,6 +251,19 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
     except Exception as e:
         print("[*] Exception on requesting the data. Because of %s" % (str(e)))
         conn.close()
+
+'''
+def add_domain_route(domain, ip_address):
+    hosts_path = '/etc/hosts'
+    with open(hosts_path, 'r') as file:
+        lines = file.readlines()
+
+    domain_exists = any(domain in line for line in lines)
+    if not domain_exists:
+        lines.append(f"{ip_address}\t{domain}\n")
+        with open(hosts_path, 'w') as file:
+            file.writelines(lines)
+'''
 
 if __name__== "__main__":
     start()
