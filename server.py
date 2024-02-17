@@ -194,7 +194,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
 
         # Wait to see if there is more data to transmit
         if len(data) == buffer_size:
-            conn.settimeout(5)
+            conn.settimeout(1)
             while True:
                 try:
                     chunk = conn.recv(buffer_size)
