@@ -143,7 +143,7 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
     filtered = False
 
     # allowed conditions
-    if method == b'GET':
+    if method == b'GET' or url.find(b'/api') > -1:
         return filtered
 
     # convert to text
