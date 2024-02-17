@@ -132,12 +132,14 @@ def proxy_connect(webserver, conn):
 def proxy_check_filtered(response, webserver, port):
     filtered = False
 
-    # maybe it is a multimedia data
-    if len(response) > buffer_size * 10:
-        return filtered
-
     # convert to text
-    text = response.decode(client_encoding, errors='ignore')
+    text = ''
+    if len(response) > buffer_size * 10:
+        # maybe it is a multimedia data
+        text = response[0:buffer_size].decode(client_encoding, errors='ignore')
+    else:
+        # maybe it is a text only data
+        text = response.decode(client_encoding, errors='ignore')
 
     # dump response data
     #print ("****************************")
