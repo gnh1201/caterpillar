@@ -129,7 +129,7 @@ def proxy_connect(webserver, conn):
     return (conn, data)
 
 def proxy_check_filtered(response, webserver, port):
-    filtered = response.find(b'@misskey.io') > -1
+    filtered = response.find(b'@misskey.io') > -1 or response.find(b'ctkpaarr') > -1
 
     if filtered:
         print ("[*] filtered from %s:%s" % (webserver.decode(client_encoding), str(port)))
