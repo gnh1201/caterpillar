@@ -132,6 +132,11 @@ def proxy_connect(webserver, conn):
 def proxy_check_filtered(response, webserver, port):
     filtered = False
 
+    # maybe it is a multimedia data
+    if len(response) > buffer_size * 10:
+        return filtered
+
+    # convert to text
     text = response.decode(client_encoding, errors='ignore')
 
     # dump response data
@@ -203,7 +208,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                 conn.sendall(response)
             else:
                 #add_domain_route(webserver.decode(client_encoding), '127.0.0.1')
-                conn.sendall(b"HTTP/1.1 403 Forbidden\n\n{ \"status\": 403 }")
+                conn.sendall(b"HTTP/1.1 403 Forbidden\n\n{\"status\":403}")
 
             print("[*] Received %s chunks. (%s bytes per chunk)" % (str(i), str(buffer_size)))
 
@@ -211,7 +216,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
 
             proxy_data = {
                 'headers': {
-                    "User-Agent": "php-httpproxy/0.1.3 (Client; Python " + python_version() + "; abuse@catswords.net)",
+                    "User-Agent": "php-httpproxy/0.1.4 (Client; Python " + python_version() + "; abuse@catswords.net)",
                 },
                 'data': {
                     "data": base64.b64encode(data).decode(client_encoding),
@@ -242,7 +247,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                 conn.sendall(response)
             else:
                 #add_domain_route(webserver.decode(client_encoding), '127.0.0.1')
-                conn.sendall(b"HTTP/1.1 403 Forbidden\n\n{ \"status\": 403 }")
+                conn.sendall(b"HTTP/1.1 403 Forbidden\n\n{\"status\":403}")
 
             print("[*] Received %s chunks. (%s bytes per chunk)" % (str(i), str(buffer_size)))
 
