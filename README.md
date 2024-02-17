@@ -48,4 +48,5 @@ sudo update-ca-certificates
 * https://github.com/inaz2/proxy2
 
 ## Contact
+* ActivityPub [@gnh1201@catswords.social](https://catswords.social/@gnh1201)
 * abuse@catswords.net
