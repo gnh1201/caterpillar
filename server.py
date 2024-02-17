@@ -31,6 +31,8 @@ try:
     certdir = config('CERT_DIR')
     openssl_binpath = config('OPENSSL_BINPATH')
     client_encoding = config('CLIENT_ENCODING')
+    local_domain = config('LOCAL_DOMAIN')
+    proxy_pass = config('PROXY_PASS')
 except KeyboardInterrupt:
     print("\n[*] User has requested an interrupt")
     print("[*] Application Exiting.....")
@@ -85,7 +87,7 @@ def conn_string(conn, data, addr):
         webserver_pos = temp.find(b'/')
         if webserver_pos == -1:
             webserver_pos = len(temp)
-        webserver = ""
+        webserver = b''
         port = -1
         if port_pos == -1 or webserver_pos < port_pos:
             port = 80
@@ -99,6 +101,13 @@ def conn_string(conn, data, addr):
         conn.close()
         print("[*] Exception on parsing the header of %s. Because of %s" % (str(addr[0]), str(e)))
         return
+
+    # if it is reverse proxy
+    if local_domain != '' and data.find(("\nHost: %s\n" % (local_domain)).encode(client_encoding)) > -1:
+        print ("[*] ** Detected the reverse proxy request: %s" % (local_domain))
+        scheme, _webserver, _port = proxy_pass.encode(client_encoding).split(b':')
+        webserver = _webserver[2:]
+        port = int(_port.decode(client_encoding))
 
     proxy_server(webserver, port, scheme, method, url, conn, addr, data)
 
@@ -130,19 +139,23 @@ def proxy_connect(webserver, conn):
 
     return (conn, data)
 
-def proxy_check_filtered(response, webserver, port):
+def proxy_check_filtered(data, webserver, port, url):
     filtered = False
+
+    # allowed conditions
+    if url.find(b'/api') > -1:
+        return filtered
 
     # convert to text
     text = ''
-    if len(response) > buffer_size * 10:
+    if len(data) > buffer_size * 10:
         # maybe it is a multimedia data
-        text = response[0:buffer_size].decode(client_encoding, errors='ignore')
+        text = data[0:buffer_size].decode(client_encoding, errors='ignore')
     else:
         # maybe it is a text only data
-        text = response.decode(client_encoding, errors='ignore')
+        text = data.decode(client_encoding, errors='ignore')
 
-    # dump response data
+    # dump data
     #print ("****************************")
     #print (text)
     #print ("****************************")
@@ -156,9 +169,9 @@ def proxy_check_filtered(response, webserver, port):
 
     if filtered:
         print ("[*] Filtered response from %s:%s" % (webserver.decode(client_encoding), str(port)))
-        #print ("[*] ====== start response data =====")
+        #print ("[*] ====== start preview data =====")
         #print ("%s" % (text))
-        #print ("[*] ====== end response data =====")
+        #print ("[*] ====== end preview data =====")
 
     return filtered
 
@@ -179,8 +192,14 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
         except Exception as e:
             raise Exception("SSL negotiation failed. (%s:%s) %s" % (webserver.decode(client_encoding), str(port), str(e)))
 
-        response = b''
+        # check request data
+        if proxy_check_filtered(data, webserver, port, url):
+            conn.sendall(b"HTTP/1.1 403 Forbidden\n\n{\"status\":403}")
+            conn.close()
+            return
 
+        # make response data
+        response = b''
         if server_url == "localhost":
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -202,12 +221,12 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                 if not chunk:
                     break
                 response += chunk
-                #if proxy_check_filtered(response, webserver, port):
+                #if proxy_check_filtered(response, webserver, port, url):
                 #    break
                 #conn.send(chunk)
                 i += 1
 
-            if not proxy_check_filtered(response, webserver, port):
+            if not proxy_check_filtered(response, webserver, port, url):
                 conn.sendall(response)
             else:
                 #add_domain_route(webserver.decode(client_encoding), '127.0.0.1')
@@ -241,12 +260,12 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
             relay = requests.post(server_url, headers=proxy_data['headers'], data=raw_data, stream=True)
             for chunk in relay.iter_content(chunk_size=buffer_size):
                 response += chunk
-                #if proxy_check_filtered(response, webserver, port):
+                #if proxy_check_filtered(response, webserver, port, url):
                 #    break
                 #conn.send(chunk)
                 i += 1
 
-            if not proxy_check_filtered(response, webserver, port):
+            if not proxy_check_filtered(response, webserver, port, url):
                 conn.sendall(response)
             else:
                 #add_domain_route(webserver.decode(client_encoding), '127.0.0.1')
