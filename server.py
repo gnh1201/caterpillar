@@ -132,17 +132,14 @@ def proxy_connect(webserver, conn):
 def proxy_check_filtered(response, webserver, port):
     filtered = False
 
-    try:
-        text = response.decode(client_encoding)
-    
-        filtered = text.find('@misskey.io') > -1 or text.find('ctkpaarr') > -1 or re.search(r'\b\w{10}@\w+\.\w+\b', text)
-        if filtered:
-            print ("[*] filtered from %s:%s" % (webserver.decode(client_encoding), str(port)))
-            print ("[*] ====== start response data =====")
-            print ("%s" % (text))
-            print ("[*] ====== end response data =====")
-    except:
-        print ("[*] multimedia is allowed")
+    text = response.decode(client_encoding, errors='ignore')
+
+    filtered = text.find('@misskey.io') > -1 or text.find('ctkpaarr') > -1 or re.search(r'\b\w{10}@\w+\.\w+\b', text)
+    if filtered:
+        print ("[*] filtered from %s:%s" % (webserver.decode(client_encoding), str(port)))
+        #print ("[*] ====== start response data =====")
+        #print ("%s" % (text))
+        #print ("[*] ====== end response data =====")
 
     return filtered
 
