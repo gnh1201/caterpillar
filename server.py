@@ -143,7 +143,7 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
     filtered = False
 
     # prevent cache confusing
-    if data.find(b'Welcome to nginx') > -1:
+    if data.find(b'<title>Welcome to nginx!</title>') > -1:
         return True
 
     # allowed conditions
