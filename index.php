@@ -3,8 +3,9 @@
 // Namhyeon Go <abuse@catswords.net>
 // Created at: 2022-10-06
 // Updated at: 2022-11-25
+// Client updated at: 2024-02-17
 
-define("PHP_HTTPPROXY_VERSION", "0.1.3");
+define("PHP_HTTPPROXY_VERSION", "0.1.4");
 
 if (strpos($_SERVER['HTTP_USER_AGENT'], "php-httpproxy/") !== 0) {
     exit('<!DOCTYPE html><html><head><title>It works!</title><meta charset="utf-8"></head><body><h1>It works!</h1><p><a href="https://github.com/gnh1201/php-httpproxy">Download the client</a></p><hr><p>php-httpproxy/' . PHP_HTTPPROXY_VERSION . ' (Server; PHP ' . phpversion() . '; abuse@catswords.net)</p></body></html>');
