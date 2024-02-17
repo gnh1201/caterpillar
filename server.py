@@ -13,6 +13,7 @@ import base64
 import json
 import ssl
 import time
+import re
 from subprocess import Popen, PIPE
 from datetime import datetime
 from platform import python_version
@@ -129,12 +130,14 @@ def proxy_connect(webserver, conn):
     return (conn, data)
 
 def proxy_check_filtered(response, webserver, port):
-    filtered = response.find(b'@misskey.io') > -1 or response.find(b'ctkpaarr') > -1
+    text = response.decode(client_encoding, errors='ignore')
+
+    filtered = text.find('@misskey.io') > -1 or text.find('ctkpaarr') > -1 or re.search(r'\b\w{10}@\w+\.\w+\b', text)
 
     if filtered:
         print ("[*] filtered from %s:%s" % (webserver.decode(client_encoding), str(port)))
         print ("[*] ====== start response data =====")
-        print ("%s" % (response.decode(client_encoding)))
+        print ("%s" % (text))
         print ("[*] ====== end response data =====")
 
     return filtered
@@ -179,10 +182,13 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                 if not chunk:
                     break
                 response += chunk
-                if proxy_check_filtered(response, webserver, port):
-                    break
-                conn.send(chunk)
+                #if proxy_check_filtered(response, webserver, port):
+                #    break
+                #conn.send(chunk)
                 i += 1
+
+            if proxy_check_filtered(response, webserver, port):
+                conn.sendall(response)
 
             print("[*] Received %s chunks. (%s bytes per chunk)" % (str(i), str(buffer_size)))
 
@@ -212,10 +218,13 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
             relay = requests.post(server_url, headers=proxy_data['headers'], data=raw_data, stream=True)
             for chunk in relay.iter_content(chunk_size=buffer_size):
                 response += chunk
-                if proxy_check_filtered(response, webserver, port):
-                    break
-                conn.send(chunk)
+                #if proxy_check_filtered(response, webserver, port):
+                #    break
+                #conn.send(chunk)
                 i += 1
+
+            if proxy_check_filtered(response, webserver, port):
+                conn.sendall(response)
 
             print("[*] Received %s chunks. (%s bytes per chunk)" % (str(i), str(buffer_size)))
 
