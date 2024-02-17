@@ -1,5 +1,5 @@
 # php-httpproxy
-HTTP(S) proxy implementation with PHP socket
+HTTP(S) proxy implementation with PHP (PHP is no required) socket
 
 ## How to works
 ```
