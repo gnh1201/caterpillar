@@ -134,7 +134,7 @@ def proxy_check_filtered(response, webserver, port):
 
     text = response.decode(client_encoding, errors='ignore')
 
-    filtered = text.find('@misskey.io') > -1 or text.find('ctkpaarr') > -1 or bool(re.search(r'\b\w{10}@\w+\.\w+\b', text))
+    filtered = text.find('@misskey.io') > -1 or text.find('ctkpaarr') > -1 or bool(re.search(r'\b\w{10}@(?:\w+\.)+\w+\b', text))
     if filtered:
         print ("[*] filtered from %s:%s" % (webserver.decode(client_encoding), str(port)))
         #print ("[*] ====== start response data =====")
