@@ -103,7 +103,7 @@ def conn_string(conn, data, addr):
         return
 
     # if it is reverse proxy
-    if local_domain != '' and data.find(("\nHost: %s\n" % (local_domain)).encode(client_encoding)) > -1:
+    if local_domain != '' and data.find(b'\nHost: ' + local_domain.encode(client_encoding)) > -1:
         print ("[*] ** Detected the reverse proxy request: %s" % (local_domain))
         scheme, _webserver, _port = proxy_pass.encode(client_encoding).split(b':')
         webserver = _webserver[2:]
@@ -139,11 +139,11 @@ def proxy_connect(webserver, conn):
 
     return (conn, data)
 
-def proxy_check_filtered(data, webserver, port, url):
+def proxy_check_filtered(data, webserver, port, scheme, method, url):
     filtered = False
 
     # allowed conditions
-    if url.find(b'/api') > -1:
+    if method == b'GET':
         return filtered
 
     # convert to text
@@ -168,7 +168,7 @@ def proxy_check_filtered(data, webserver, port, url):
     filtered = filtered or bool(re.search(r'https://[a-zA-Z0-9.-]+/users/[a-zA-Z0-9]{10}/statuses/[0-9]+', text))
 
     if filtered:
-        print ("[*] Filtered response from %s:%s" % (webserver.decode(client_encoding), str(port)))
+        print ("[*] Filtered data from %s:%s" % (webserver.decode(client_encoding), str(port)))
         #print ("[*] ====== start preview data =====")
         #print ("%s" % (text))
         #print ("[*] ====== end preview data =====")
@@ -193,7 +193,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
             raise Exception("SSL negotiation failed. (%s:%s) %s" % (webserver.decode(client_encoding), str(port), str(e)))
 
         # check request data
-        if proxy_check_filtered(data, webserver, port, url):
+        if proxy_check_filtered(data, webserver, port, scheme, method, url):
             conn.sendall(b"HTTP/1.1 403 Forbidden\n\n{\"status\":403}")
             conn.close()
             return
@@ -221,12 +221,12 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                 if not chunk:
                     break
                 response += chunk
-                #if proxy_check_filtered(response, webserver, port, url):
+                #if proxy_check_filtered(response, webserver, port, scheme, method, url):
                 #    break
                 #conn.send(chunk)
                 i += 1
 
-            if not proxy_check_filtered(response, webserver, port, url):
+            if not proxy_check_filtered(response, webserver, port, scheme, method, url):
                 conn.sendall(response)
             else:
                 #add_domain_route(webserver.decode(client_encoding), '127.0.0.1')
@@ -260,12 +260,12 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
             relay = requests.post(server_url, headers=proxy_data['headers'], data=raw_data, stream=True)
             for chunk in relay.iter_content(chunk_size=buffer_size):
                 response += chunk
-                #if proxy_check_filtered(response, webserver, port, url):
+                #if proxy_check_filtered(response, webserver, port, scheme, method, url):
                 #    break
                 #conn.send(chunk)
                 i += 1
 
-            if not proxy_check_filtered(response, webserver, port, url):
+            if not proxy_check_filtered(response, webserver, port, scheme, method, url):
                 conn.sendall(response)
             else:
                 #add_domain_route(webserver.decode(client_encoding), '127.0.0.1')
