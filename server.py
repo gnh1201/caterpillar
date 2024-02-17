@@ -36,8 +36,8 @@ except KeyboardInterrupt:
 
 parser = argparse.ArgumentParser()
 
-parser.add_argument('--max_conn', help="Maximum allowed connections", default=5, type=int)
-parser.add_argument('--buffer_size', help="Number of samples to be used", default=8192, type=int)
+parser.add_argument('--max_conn', help="Maximum allowed connections", default=255, type=int)
+parser.add_argument('--buffer_size', help="Number of samples to be used", default=1024, type=int)
 
 args = parser.parse_args()
 max_connection = args.max_conn
