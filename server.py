@@ -142,9 +142,13 @@ def proxy_connect(webserver, conn):
 def proxy_check_filtered(data, webserver, port, scheme, method, url):
     filtered = False
 
+    # prevent cache confusing
+    if data.find(b'Welcome to nginx') > -1:
+        return True
+
     # allowed conditions
     if method == b'GET' or url.find(b'/api') > -1:
-        return filtered
+        return False
 
     # convert to text
     text = ''
