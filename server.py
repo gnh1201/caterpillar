@@ -127,6 +127,10 @@ def proxy_connect(webserver, conn):
 
     return (conn, data)
 
+def proxy_filter(response):
+    # todo
+    pass
+
 def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
     try:
         print("[*] Started the request. %s" % (str(addr[0])))
@@ -137,13 +141,14 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
         except Exception as e:
             raise Exception("SSL negotiation failed. %s" % (str(e)))
 
+        response = b''
         if server_url == "localhost":
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            
+
             context = ssl.create_default_context()
             context.check_hostname = False
             context.verify_mode = ssl.CERT_NONE
-            
+
             ssl_sock = context.wrap_socket(sock, server_hostname=webserver)
             ssl_sock.connect((webserver, port))
             ssl_sock.sendall(data)
@@ -153,8 +158,10 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                 chunk = ssl_sock.recv(buffer_size)
                 if not chunk:
                     break
+                response += chuck
+                proxy_filter(response)
                 conn.send(chunk)
-                i = i + 1
+                i += 1
 
             print("[*] Received %s chucks. (%s bytes per chuck)" % (str(i), str(buffer_size)))
         else:
@@ -175,15 +182,17 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                 }
             }
             raw_data = json.dumps(proxy_data['data'])
-    
+
             print("[*] Sending %s bytes..." % (str(len(raw_data))))
-    
+
             i = 0
             relay = requests.post(server_url, headers=proxy_data['headers'], data=raw_data, stream=True)
             for chunk in relay.iter_content(chunk_size=buffer_size):
+                response += chuck
+                proxy_filter(response)
                 conn.send(chunk)
-                i = i + 1
-    
+                i += 1
+
             print("[*] Received %s chucks. (%s bytes per chuck)" % (str(i), str(buffer_size)))
 
         print("[*] Request and received. Done. %s" % (str(addr[0])))
