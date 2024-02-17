@@ -129,7 +129,7 @@ def proxy_connect(webserver, conn):
 
 def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
     try:
-        print("[*] Started Request. %s" % (str(addr[0])))
+        print("[*] Started the request. %s" % (str(addr[0])))
 
         try:
             if scheme in [b'https', b'tls', b'ssl'] and method == b'CONNECT':
@@ -148,12 +148,15 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
             ssl_sock.connect((webserver, port))
             ssl_sock.sendall(data)
 
+            i = 0
             while True:
-                data = ssl_sock.recv(1024)
-                if not data:
+                chunk = ssl_sock.recv(buffer_size)
+                if not chunk:
                     break
-                conn.send(data)
-            print("[*] Request and received. Done. %s" % (str(addr[0])))
+                conn.send(chunk)
+                i = i + 1
+
+            print("[*] Received %s chucks. (%s bytes per chuck)" % (str(i), str(buffer_size)))
         else:
             proxy_data = {
                 'headers': {
@@ -182,8 +185,8 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                 i = i + 1
     
             print("[*] Received %s chucks. (%s bytes per chuck)" % (str(i), str(buffer_size)))
-            print("[*] Request and received. Done. %s" % (str(addr[0])))
 
+        print("[*] Request and received. Done. %s" % (str(addr[0])))
         conn.close()
     except Exception as e:
         print("[*] Exception on requesting the data. Because of %s" % (str(e)))
