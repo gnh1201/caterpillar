@@ -217,22 +217,24 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                     raise Exception("SSL negotiation failed. (%s:%s) %s" % (webserver.decode(client_encoding), str(port), str(e)))
 
         # Wait to see if there is more data to transmit
-        if len(data) == buffer_size:
+        def sendall(sock, data):
+            if len(data) < buffer_size:
+                return
+
+            buffered = b''
             conn.settimeout(1)
             while True:
                 try:
                     chunk = conn.recv(buffer_size)
                     if not chunk:
                         break
-                    data += chunk
+                    buffered += chunk
+                    if proxy_check_filtered(buffered, webserver, port, scheme, method, url):
+                        raise Exception("Filtered request")
+                    if len(buffered) > buffer_size:
+                        buffered = buffered[:-buffer_size]   # reduce memory usage
                 except:
                     break
-
-        # check requested data
-        if proxy_check_filtered(data, webserver, port, scheme, method, url):
-            conn.sendall(b"HTTP/1.1 403 Forbidden\n\n{\"status\":403}")
-            conn.close()
-            return
 
         # do response
         if server_url == "localhost":
@@ -245,10 +247,12 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
 
                 sock = context.wrap_socket(sock, server_hostname=webserver.decode(client_encoding))
                 sock.connect((webserver, port))
-                sock.sendall(data)
+                #sock.sendall(data)
+                sendall(sock, data)
             else:
                 sock.connect((webserver, port))
-                sock.sendall(data)
+                #sock.sendall(data)
+                sendall(sock, data)
 
             i = 0
             buffered = b''
@@ -259,8 +263,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                 buffered += chunk
                 if proxy_check_filtered(buffered, webserver, port, scheme, method, url):
                     add_filtered_host(webserver.decode(client_encoding), '127.0.0.1')
-                    conn.sendall(b"HTTP/1.1 403 Forbidden\n\n{\"status\":403}")
-                    break
+                    raise Exception("Filtered response")
                 conn.send(chunk)
                 if len(buffered) > buffer_size:
                     buffered = buffered[:-buffer_size]   # reduce memory usage
@@ -297,8 +300,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                 buffered += chunk
                 if proxy_check_filtered(buffered, webserver, port, scheme, method, url):
                     add_filtered_host(webserver.decode(client_encoding), '127.0.0.1')
-                    conn.sendall(b"HTTP/1.1 403 Forbidden\n\n{\"status\":403}")
-                    break
+                    raise Exception("Filtered response")
                 conn.send(chunk)
                 if len(buffered) > buffer_size:
                     buffered = buffered[:-buffer_size]   # reduce memory usage
@@ -310,7 +312,8 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
         conn.close()
     except Exception as e:
         print(traceback.format_exc())
-        print("[*] Exception on requesting the data. Because of %s" % (str(e)))
+        print("[*] Exception on requesting the data. Cause: %s" % (str(e)))
+        conn.sendall(b"HTTP/1.1 403 Forbidden\n\n{\"status\":403}")
         conn.close()
 
 # journaling a filtered hosts
