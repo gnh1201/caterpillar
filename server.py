@@ -181,7 +181,17 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
     filtered = filtered or bool(re.search(r'https://[a-zA-Z0-9.-]+/users/[a-zA-Z0-9]{10}/statuses/[0-9]+', text))
 
     if filtered:
-        print ("[*] Filtered data from %s:%s" % (webserver.decode(client_encoding), str(port)))
+        print ("[*] Filtered from %s:%s" % (webserver.decode(client_encoding), str(port)))
+
+        try:
+            current_time = datetime.now().strftime("%Y%m%d%H%M%S")
+            file_path = ("./savedfiles/%s_%s.bin" % (current_time, webserver.decode(client_encoding)))
+            with open(file_path, 'wb') as file:
+                file.write(data)
+            print ("[*] Saved the file: %s" % (file_path))
+        except Exception as e:
+            print ("[*] Failed to save the file: %s" % (str(e)))
+
         #print ("[*] ====== start preview data =====")
         #print ("%s" % (text))
         #print ("[*] ====== end preview data =====")
