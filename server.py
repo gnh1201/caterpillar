@@ -103,11 +103,13 @@ def conn_string(conn, data, addr):
         return
 
     # if it is reverse proxy
-    if local_domain != '' and data.find(b'\nHost: ' + local_domain.encode(client_encoding)) > -1:
-        print ("[*] ** Detected the reverse proxy request: %s" % (local_domain))
-        scheme, _webserver, _port = proxy_pass.encode(client_encoding).split(b':')
-        webserver = _webserver[2:]
-        port = int(_port.decode(client_encoding))
+    if local_domain != '':
+        localserver = local_domain.encode(client_encoding)
+        if webserver == localserver or data.find(b'\nHost: ' + localserver) > -1:
+            print ("[*] ** Detected the reverse proxy request: %s" % (local_domain))
+            scheme, _webserver, _port = proxy_pass.encode(client_encoding).split(b':')
+            webserver = _webserver[2:]
+            port = int(_port.decode(client_encoding))
 
     proxy_server(webserver, port, scheme, method, url, conn, addr, data)
 
