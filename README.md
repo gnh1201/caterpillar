@@ -24,6 +24,7 @@ OPENSSL_BINPATH=openssl
 CLIENT_ENCODING=utf-8
 LOCAL_DOMAIN=example.org
 PROXY_PASS=http://127.0.0.1:3000
+USER_TOKEN=
 ```
 
 1.1. (Optional) Install ca.cert
