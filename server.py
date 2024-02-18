@@ -209,6 +209,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
         def sendall(sock, conn, data):
             # send first chuck
             if proxy_check_filtered(data, webserver, port, scheme, method, url):
+                sock.close()
                 raise Exception("Filtered request")
             sock.send(data)
             if len(data) < buffer_size:
@@ -224,6 +225,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                         break
                     buffered += chunk
                     if proxy_check_filtered(buffered, webserver, port, scheme, method, url):
+                        sock.close()
                         raise Exception("Filtered request")
                     sock.send(chunk)
                     if len(buffered) > buffer_size*2:
@@ -257,6 +259,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                     break
                 buffered += chunk
                 if proxy_check_filtered(buffered, webserver, port, scheme, method, url):
+                    sock.close()
                     add_filtered_host(webserver.decode(client_encoding), '127.0.0.1')
                     raise Exception("Filtered response")
                 conn.send(chunk)
