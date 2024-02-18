@@ -160,18 +160,7 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
         return False
 
     # convert to text
-    text = ''
-    if len(data) > buffer_size * 10:
-        # maybe it is a multimedia data
-        text = data[0:buffer_size].decode(client_encoding, errors='ignore')
-    else:
-        # maybe it is a text only data
-        text = data.decode(client_encoding, errors='ignore')
-
-    # dump data
-    #print ("****************************")
-    #print (text)
-    #print ("****************************")
+    text = data.decode(client_encoding, errors='ignore')
 
     #filtered = text.find('@misskey.io') > -1
     #filtered = filtered or text.find("https://misskey.io") > -1
@@ -235,8 +224,8 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                     if proxy_check_filtered(buffered, webserver, port, scheme, method, url):
                         raise Exception("Filtered request")
                     sock.send(chunk)
-                    if len(buffered) > buffer_size:
-                        buffered = buffered[:-buffer_size]   # reduce memory usage
+                    if len(buffered) > buffer_size*2:
+                        buffered = buffered[:-buffer_size*2]   # reduce memory usage
                 except:
                     break
 
@@ -269,8 +258,8 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                     add_filtered_host(webserver.decode(client_encoding), '127.0.0.1')
                     raise Exception("Filtered response")
                 conn.send(chunk)
-                if len(buffered) > buffer_size:
-                    buffered = buffered[:-buffer_size]   # reduce memory usage
+                if len(buffered) > buffer_size*2:
+                    buffered = buffered[:-buffer_size*2]   # reduce memory usage
                 i += 1
 
             print("[*] Received %s chunks. (%s bytes per chunk)" % (str(i), str(buffer_size)))
@@ -306,8 +295,8 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                     add_filtered_host(webserver.decode(client_encoding), '127.0.0.1')
                     raise Exception("Filtered response")
                 conn.send(chunk)
-                if len(buffered) > buffer_size:
-                    buffered = buffered[:-buffer_size]   # reduce memory usage
+                if len(buffered) > buffer_size*2:
+                    buffered = buffered[:-buffer_size*2]   # reduce memory usage
                 i += 1
 
             print("[*] Received %s chunks. (%s bytes per chunk)" % (str(i), str(buffer_size)))
