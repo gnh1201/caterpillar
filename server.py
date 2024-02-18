@@ -1,6 +1,6 @@
 # gnh1201/php-httpproxy
 # Namyheon Go (Catswords Research) <gnh1201@gmail.com>
-# https://github.com/gnh1201
+# https://github.com/gnh1201/php-httpproxy
 # Created at: 2022-10-06
 # Updated at: 2024-12-18
 
@@ -34,6 +34,7 @@ try:
     client_encoding = config('CLIENT_ENCODING')
     local_domain = config('LOCAL_DOMAIN')
     proxy_pass = config('PROXY_PASS')
+    user_token = config('USER_TOKEN')
 except KeyboardInterrupt:
     print("\n[*] User has requested an interrupt")
     print("[*] Application Exiting.....")
@@ -251,7 +252,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
             if not proxy_check_filtered(response, webserver, port, scheme, method, url):
                 conn.sendall(response)
             else:
-                #add_domain_route(webserver.decode(client_encoding), '127.0.0.1')
+                add_filtered_host(webserver.decode(client_encoding), '127.0.0.1')
                 conn.sendall(b"HTTP/1.1 403 Forbidden\n\n{\"status\":403}")
 
             print("[*] Received %s chunks. (%s bytes per chunk)" % (str(i), str(buffer_size)))
@@ -290,7 +291,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
             if not proxy_check_filtered(response, webserver, port, scheme, method, url):
                 conn.sendall(response)
             else:
-                #add_domain_route(webserver.decode(client_encoding), '127.0.0.1')
+                add_filtered_host(webserver.decode(client_encoding), '127.0.0.1')
                 conn.sendall(b"HTTP/1.1 403 Forbidden\n\n{\"status\":403}")
 
             print("[*] Received %s chunks. (%s bytes per chunk)" % (str(i), str(buffer_size)))
@@ -302,9 +303,9 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
         print("[*] Exception on requesting the data. Because of %s" % (str(e)))
         conn.close()
 
-'''
-def add_domain_route(domain, ip_address):
-    hosts_path = '/etc/hosts'
+# journaling a filtered hosts
+def add_filtered_host(domain, ip_address):
+    hosts_path = './filtered.hosts'
     with open(hosts_path, 'r') as file:
         lines = file.readlines()
 
@@ -313,7 +314,28 @@ def add_domain_route(domain, ip_address):
         lines.append(f"{ip_address}\t{domain}\n")
         with open(hosts_path, 'w') as file:
             file.writelines(lines)
-'''
+        if user_token != '':    # notify to catswords.social
+            post_status(f"[catswords.social]\r\n\r\n{domain} is a domain with suspicious spam activity.\r\n\r\n\#catswords")
+
+# notify to catswords.social
+def post_status(text, media_ids=None, poll_options=None, poll_expires_in=None, scheduled_at=None, idempotency_key=None):
+    url = "https://catswords.social/api/v1/statuses"
+    headers = {
+        "Authorization": f"Bearer {user_token}",
+        "Content-Type": "application/x-www-form-urlencoded",
+    }
+    form_data = {
+        "status": text,
+        "media_ids[]": media_ids,
+        "poll[options][]": poll_options,
+        "poll[expires_in]": poll_expires_in,
+        "scheduled_at": scheduled_at,
+    }
+    if idempotency_key:
+        headers["Idempotency-Key"] = idempotency_key
+
+    response = requests.post(url, headers=headers, data=form_data)
+    return response.json()
 
 if __name__== "__main__":
     start()
