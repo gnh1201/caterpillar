@@ -184,8 +184,11 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
         print ("[*] Filtered from %s:%s" % (webserver.decode(client_encoding), str(port)))
 
         try:
+            savedir = './savedfiles'
+            if not os.path.exists(savedir):
+                os.makedirs(savedir)
             current_time = datetime.now().strftime("%Y%m%d%H%M%S")
-            file_path = ("./savedfiles/%s_%s.bin" % (current_time, webserver.decode(client_encoding)))
+            file_path = os.path.join(savedir, ("%s_%s.bin" % (current_time, webserver.decode(client_encoding))))
             with open(file_path, 'wb') as file:
                 file.write(data)
             print ("[*] Saved the file: %s" % (file_path))
