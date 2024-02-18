@@ -14,6 +14,7 @@ import json
 import ssl
 import time
 import re
+import resource
 import traceback
 from subprocess import Popen, PIPE
 from datetime import datetime
@@ -46,6 +47,11 @@ parser.add_argument('--buffer_size', help="Number of samples to be used", defaul
 args = parser.parse_args()
 max_connection = args.max_conn
 buffer_size = args.buffer_size
+
+# https://stackoverflow.com/questions/25475906/set-ulimit-c-from-outside-shell
+resource.setrlimit(
+    resource.RLIMIT_CORE,
+    (resource.RLIM_INFINITY, resource.RLIM_INFINITY))
 
 def start():    #Main Program
     try:
