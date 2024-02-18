@@ -217,7 +217,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                     raise Exception("SSL negotiation failed. (%s:%s) %s" % (webserver.decode(client_encoding), str(port), str(e)))
 
         # Wait to see if there is more data to transmit
-        def sendall(sock, data):
+        def sendall(sock, conn, data):
             # send first chuck
             sock.send(data)
             if len(data) < buffer_size:
@@ -252,11 +252,11 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                 sock = context.wrap_socket(sock, server_hostname=webserver.decode(client_encoding))
                 sock.connect((webserver, port))
                 #sock.sendall(data)
-                sendall(sock, data)
+                sendall(sock, conn, data)
             else:
                 sock.connect((webserver, port))
                 #sock.sendall(data)
-                sendall(sock, data)
+                sendall(sock, conn, data)
 
             i = 0
             buffered = b''
