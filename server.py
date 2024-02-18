@@ -234,8 +234,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
             conn.close()
             return
 
-        # make response data
-        response = b''
+        # do response
         if server_url == "localhost":
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -259,17 +258,13 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                     break
                 buffered += chunk
                 if proxy_check_filtered(buffered, webserver, port, scheme, method, url):
+                    add_filtered_host(webserver.decode(client_encoding), '127.0.0.1')
+                    conn.sendall(b"HTTP/1.1 403 Forbidden\n\n{\"status\":403}")
                     break
                 conn.send(chunk)
                 if len(buffered) > buffer_size:
                     buffered = buffered[:-buffer_size]   # reduce memory usage
                 i += 1
-
-            if not proxy_check_filtered(response, webserver, port, scheme, method, url):
-                conn.sendall(response)
-            else:
-                add_filtered_host(webserver.decode(client_encoding), '127.0.0.1')
-                conn.sendall(b"HTTP/1.1 403 Forbidden\n\n{\"status\":403}")
 
             print("[*] Received %s chunks. (%s bytes per chunk)" % (str(i), str(buffer_size)))
 
@@ -301,17 +296,13 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
             for chunk in relay.iter_content(chunk_size=buffer_size):
                 buffered += chunk
                 if proxy_check_filtered(buffered, webserver, port, scheme, method, url):
+                    add_filtered_host(webserver.decode(client_encoding), '127.0.0.1')
+                    conn.sendall(b"HTTP/1.1 403 Forbidden\n\n{\"status\":403}")
                     break
                 conn.send(chunk)
                 if len(buffered) > buffer_size:
                     buffered = buffered[:-buffer_size]   # reduce memory usage
                 i += 1
-
-            if not proxy_check_filtered(response, webserver, port, scheme, method, url):
-                conn.sendall(response)
-            else:
-                add_filtered_host(webserver.decode(client_encoding), '127.0.0.1')
-                conn.sendall(b"HTTP/1.1 403 Forbidden\n\n{\"status\":403}")
 
             print("[*] Received %s chunks. (%s bytes per chunk)" % (str(i), str(buffer_size)))
 
