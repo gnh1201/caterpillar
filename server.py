@@ -16,7 +16,7 @@ import time
 import re
 import hashlib
 import resource
-import traceback
+#import traceback
 from subprocess import Popen, PIPE
 from datetime import datetime
 from platform import python_version
@@ -309,7 +309,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
         print("[*] Request and received. Done. %s" % (str(addr[0])))
         conn.close()
     except Exception as e:
-        print(traceback.format_exc())
+        #print(traceback.format_exc())
         print("[*] Exception on requesting the data. Cause: %s" % (str(e)))
         conn.sendall(b"HTTP/1.1 403 Forbidden\n\n{\"status\":403}")
         conn.close()
