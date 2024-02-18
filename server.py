@@ -208,6 +208,8 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
         # Wait to see if there is more data to transmit
         def sendall(sock, conn, data):
             # send first chuck
+            if proxy_check_filtered(data, webserver, port, scheme, method, url):
+                raise Exception("Filtered request")
             sock.send(data)
             if len(data) < buffer_size:
                 return
