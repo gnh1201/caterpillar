@@ -2,7 +2,7 @@
 # Namyheon Go (Catswords Research) <gnh1201@gmail.com>
 # https://github.com/gnh1201/php-httpproxy
 # Created at: 2022-10-06
-# Updated at: 2024-12-18
+# Updated at: 2024-12-19
 
 import argparse
 import socket
@@ -106,7 +106,7 @@ def conn_string(conn, data, addr):
                 scheme = b'https'
     except Exception as e:
         conn.close()
-        print("[*] Exception on parsing the header of %s. Because of %s" % (str(addr[0]), str(e)))
+        print("[*] Exception on parsing the header of %s. Cause: %s" % (str(addr[0]), str(e)))
         return
 
     # if it is reverse proxy
@@ -135,7 +135,7 @@ def proxy_connect(webserver, conn):
             p2 = Popen([openssl_binpath, "x509", "-req", "-days", "3650", "-CA", cacert, "-CAkey", cakey, "-set_serial", epoch, "-out", certpath], stdin=p1.stdout, stderr=PIPE)
             p2.communicate()
     except Exception as e:
-        print("[*] Skipped generating the certificate. Because of %s" % (str(e)))
+        print("[*] Skipped generating the certificate. Cause: %s" % (str(e)))
 
     # https://stackoverflow.com/questions/11255530/python-simple-ssl-socket-server
     # https://docs.python.org/3/library/ssl.html
