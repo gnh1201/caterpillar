@@ -166,7 +166,7 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
     text = data.decode(client_encoding, errors='ignore')
 
     # ID validation with K-Anonymity
-    pattern = r'(?<=\/@)([a-zA-Z0-9]{10})'
+    pattern = r'\b(?:(?<=\/@)|(?<=acct:))([a-zA-Z0-9]{10})\b'
     matches = list(set(re.findall(pattern, text)))
     if len(matches) > 0:
         print ("[*] Found ID: %s" % (', '.join(matches)))
