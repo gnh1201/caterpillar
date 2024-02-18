@@ -252,14 +252,17 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                 sock.sendall(data)
 
             i = 0
+            buffered = b''
             while True:
                 chunk = sock.recv(buffer_size)
                 if not chunk:
                     break
-                response += chunk
-                #if proxy_check_filtered(response, webserver, port, scheme, method, url):
-                #    break
-                #conn.send(chunk)
+                buffered += chunk
+                if proxy_check_filtered(buffered, webserver, port, scheme, method, url):
+                    break
+                conn.send(chunk)
+                if len(buffered) > buffer_size:
+                    buffered = buffered[:-buffer_size]   # reduce memory usage
                 i += 1
 
             if not proxy_check_filtered(response, webserver, port, scheme, method, url):
@@ -294,11 +297,14 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
 
             i = 0
             relay = requests.post(server_url, headers=proxy_data['headers'], data=raw_data, stream=True)
+            buffered = b''   
             for chunk in relay.iter_content(chunk_size=buffer_size):
-                response += chunk
-                #if proxy_check_filtered(response, webserver, port, scheme, method, url):
-                #    break
-                #conn.send(chunk)
+                buffered += chunk
+                if proxy_check_filtered(buffered, webserver, port, scheme, method, url):
+                    break
+                conn.send(chunk)
+                if len(buffered) > buffer_size:
+                    buffered = buffered[:-buffer_size]   # reduce memory usage
                 i += 1
 
             if not proxy_check_filtered(response, webserver, port, scheme, method, url):
