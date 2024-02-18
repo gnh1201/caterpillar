@@ -197,8 +197,8 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                 try:
                     conn, data = proxy_connect(webserver, conn)
                     break   # success
-                except OSError as e:
-                    print ("[*] Retrying SSL negotiation... (%s:%s) %s" % (webserver.decode(client_encoding), str(port), str(e)))
+                #except OSError as e:
+                #    print ("[*] Retrying SSL negotiation... (%s:%s) %s" % (webserver.decode(client_encoding), str(port), str(e)))
                 except Exception as e:
                     raise Exception("SSL negotiation failed. (%s:%s) %s" % (webserver.decode(client_encoding), str(port), str(e)))
 
