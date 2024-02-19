@@ -1,6 +1,6 @@
-# gnh1201/php-httpproxy
+# Caterpillar - The simple and parasitic web debugging proxy
 # Namyheon Go (Catswords Research) <gnh1201@gmail.com>
-# https://github.com/gnh1201/php-httpproxy
+# https://github.com/gnh1201/caterpillar
 # Created at: 2022-10-06
 # Updated at: 2024-12-19
 
