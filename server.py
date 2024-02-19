@@ -192,7 +192,7 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
 
         urls = []
         if not filtered:
-            urls = re.findall(r'https?://[^\s]+?\.webp(?:\b|\W)', text)
+            urls = re.findall(r'https://[^\s"]+\.webp', text)
         if len(urls) > 0:
             for url in urls:
                 if not filtered:
