@@ -204,7 +204,7 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
                     print ("[*] downloaded.")
                     if encoded_image:
                         print ("[*] solving...")
-                        solved = truecaptcha_solve(base64string)
+                        solved = truecaptcha_solve(encoded_image)
                         if solved:
                             print ("[*] solved: %s" % (solved))
                             filtered = solved in ['ctkpaarr', 'SPAM']
