@@ -419,6 +419,7 @@ def truecaptcha_solve(base64string):
     }
     response = requests.post(url = url, json = data)
     data = response.json()
+    print (data)
     return data['result']
 
 if __name__== "__main__":
