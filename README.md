@@ -1,6 +1,8 @@
 # gnh1201/caterpillar
 Caterpillar - The simple and parasitic web proxy with spam filter
 
+![](title.jfif)
+
 ## How to works
 ```
 You <-> Proxy client (Python) <-> Server-side scripting file (Optional, e.g. PHP) <-> On the Web
