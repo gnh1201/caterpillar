@@ -196,6 +196,7 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
             for url in urls:
                 if not filtered:
                     base64string = download_base64string(url)
+                    print ("[*] solving...")
                     solved = truecaptcha_solve(base64string)
                     print ("[*] solved: %s" % (solved))
                     filtered = solved in ['ctkpaarr', 'SPAM']
