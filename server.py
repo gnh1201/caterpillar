@@ -171,7 +171,7 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
     matches = list(set(re.findall(pattern, text)))
     if len(matches) > 0:
         print ("[*] Found ID: %s" % (', '.join(matches)))
-        filtered = not all(map(validate_string_with_k_anonymity, matches))
+        filtered = not all(map(pwnedpasswords_test, matches))
 
     # take action
     if filtered:
@@ -349,8 +349,8 @@ def post_status_to_mastodon(text, media_ids=None, poll_options=None, poll_expire
     response = requests.post(url, headers=headers, data=form_data)
     return response.json()
 
-# k-anonymity validation
-def validate_string_with_k_anonymity(s):
+# K-Anonymity test
+def pwnedpasswords_test(s):
     # SHA1 of the password
     p_sha1 = hashlib.sha1(s.encode()).hexdigest()
 
