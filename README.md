@@ -1,5 +1,5 @@
 # gnh1201/caterpillar
-Caterpillar - The simple and parasitic web debugging proxy
+Caterpillar - The simple and parasitic web proxy and spam filter
 
 ## How to works
 ```
