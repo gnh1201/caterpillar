@@ -1,14 +1,19 @@
 # gnh1201/caterpillar
 Caterpillar - The simple and parasitic web proxy with spam filter
 
-![](title.jfif)
+![title image](title.jfif)
 
 ## How to works
+
+### Basic structure
 ```
 You <-> Proxy client (Python) <-> Parasitized proxy server (Optional, PHP) <-> On the Web
 ```
+For example, build a simple web debugging proxy on the shared servers.
 
-Build a simple web debugging proxy on the shared servers!
+### Spam filters
+* [K-Anonymity](https://en.wikipedia.org/wiki/K-anonymity) test based filter (use pwnedpasswords.com)
+* image spam
 
 ## (Optional) Before to use
 If you have an ***will be parasitize*** server that you want to proxy, you can install the `index.php` file.
