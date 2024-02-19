@@ -12,8 +12,8 @@ You <-> Proxy client (Python) <-> Parasitized proxy server (Optional, PHP) <-> O
 For example, build a simple web debugging proxy on the shared servers.
 
 ### Spam filtering strategy
-* [K-Anonymity](https://en.wikipedia.org/wiki/K-anonymity) test - Estimating whether the string of characters has been arranged by humans (use [Have I Been Pwned](https://haveibeenpwned.com/))
-* Image spam containing characters that look very similar to CAPTCHA (use [TrueCaptcha](https://truecaptcha.org/))
+* [K-Anonymity](https://en.wikipedia.org/wiki/K-anonymity) test - Estimating whether the characters has been arranged by humans. (use [Have I Been Pwned](https://haveibeenpwned.com/))
+* Image spam containing characters that look very similar to CAPTCHA. (use [TrueCaptcha](https://truecaptcha.org/))
 
 ## (Optional) Before to use
 If you have an ***will be parasitize*** server that you want to proxy, you can install the `index.php` file.
