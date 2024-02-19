@@ -380,8 +380,8 @@ def pwnedpasswords_test(s):
 def truecaptcha_solve(userid, apikey, encoded_string):
     url = 'https://api.apitruecaptcha.org/one/gettext'
     data = { 
-        'userid': userid, 
-        'apikey': apikey,  
+        'userid': truecaptcha_userid, 
+        'apikey': truecaptcha_apikey,  
         'data': encoded_string
     }
     response = requests.post(url = url, json = data)
