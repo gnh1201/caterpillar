@@ -1,5 +1,5 @@
 <?php
-// Caterpillar - The simple and parasitic web debugging proxy
+// Caterpillar - The simple and parasitic web proxy and spam filter
 // Namhyeon Go <abuse@catswords.net>
 // https://github.com/gnh1201/caterpillar
 // Created at: 2022-10-06
