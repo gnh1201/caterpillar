@@ -197,10 +197,11 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
                 if not filtered:
                     print ("[*] downloading...")
                     base64string = download_base64string(url)
-                    print ("[*] solving...")
-                    solved = truecaptcha_solve(base64string)
-                    print ("[*] solved: %s" % (solved))
-                    filtered = solved in ['ctkpaarr', 'SPAM']
+                    if base64string:
+                        print ("[*] solving...")
+                        solved = truecaptcha_solve(base64string)
+                        print ("[*] solved: %s" % (solved))
+                        filtered = solved in ['ctkpaarr', 'SPAM']
 
     # take action
     if filtered:
