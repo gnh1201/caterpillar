@@ -170,7 +170,7 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
     # convert to text
     text = data.decode(client_encoding, errors='ignore')
 
-    # ID validation with K-Anonymity
+    # ID validation with K-Anonymity test
     pattern = r'\b(?:(?<=\/@)|(?<=acct:))([a-zA-Z0-9]{10})\b'
     matches = list(set(re.findall(pattern, text)))
     if len(matches) > 0:
@@ -374,7 +374,7 @@ def post_status_to_mastodon(text, media_ids=None, poll_options=None, poll_expire
     response = requests.post(url, headers=headers, data=form_data)
     return response.json()
 
-# K-Anonymity test
+# K-Anonymity test - pwnedpasswords.com
 def pwnedpasswords_test(s):
     # SHA1 of the password
     p_sha1 = hashlib.sha1(s.encode()).hexdigest()
