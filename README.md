@@ -29,10 +29,10 @@ PROXY_PASS=http://127.0.0.1:3000
 USER_TOKEN=
 ```
 
-1.1. (Optional) Install ca.cert
+1.1. (Optional) Install RootCA
 ```bash
 sudo apt-get install -y ca-certificates
-sudo cp ca.crt /usr/local/share/ca-certificates/php-httpproxy-ca.crt
+sudo cp ca.crt /usr/local/share/ca-certificates/caterpillar-ca.crt
 sudo update-ca-certificates
 ```
 
