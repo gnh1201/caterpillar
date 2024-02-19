@@ -3,7 +3,6 @@
 // Namhyeon Go <abuse@catswords.net>
 // Created at: 2022-10-06
 // Updated at: 2022-11-25
-// Client updated at: 2024-02-17
 
 define("PHP_HTTPPROXY_VERSION", "0.1.4");
 
