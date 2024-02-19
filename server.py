@@ -412,12 +412,12 @@ def pwnedpasswords_test(s):
         return False
 
 # TrueCaptcha - truecaptcha.org
-def truecaptcha_solve(base64string):
+def truecaptcha_solve(encoded_image):
     url = 'https://api.apitruecaptcha.org/one/gettext'
     data = { 
         'userid': truecaptcha_userid, 
         'apikey': truecaptcha_apikey,  
-        'data': base64string,
+        'data': encoded_image,
         'mode': 'human'
     }
     response = requests.post(url = url, json = data)
