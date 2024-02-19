@@ -39,7 +39,7 @@ TRUECAPTCHA_USERID=
 TRUECAPTCHA_APIKEY=
 ```
 
-1.1. (Optional) Install RootCA
+1.1. (Optional) Install RootCA for SSL decryption
 ```bash
 sudo apt-get install -y ca-certificates
 sudo cp ca.crt /usr/local/share/ca-certificates/caterpillar-ca.crt
