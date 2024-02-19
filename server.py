@@ -183,11 +183,12 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
             try:
                 response = requests.get(url)
                 if response.status_code == 200:
-                    return base64.b64encode(response.content).decode('utf-8')
+                    content = response.content
+                    return (base64.b64encode(content).decode(client_encoding), len(content))
                 else:
-                    return None
+                    return (None, 0)
             except:
-                return None
+                return (None, 0)
 
         urls = []
         if not filtered:
@@ -196,7 +197,8 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
             for url in urls:
                 if not filtered:
                     print ("[*] downloading...")
-                    base64string = download_base64string(url)
+                    base64string, length = download_base64string(url)
+                    print ("[*] downloaded %s bytes." % (length))
                     if base64string:
                         print ("[*] solving...")
                         solved = truecaptcha_solve(base64string)
