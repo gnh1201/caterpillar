@@ -376,5 +376,17 @@ def pwnedpasswords_test(s):
     else:
         return False
 
+# TrueCaptcha - truecaptcha.org
+def truecaptcha_solve(userid, apikey, encoded_string):
+    url = 'https://api.apitruecaptcha.org/one/gettext'
+    data = { 
+        'userid': userid, 
+        'apikey': apikey,  
+        'data': encoded_string
+    }
+    response = requests.post(url = url, json = data)
+    data = response.json()
+    return data
+
 if __name__== "__main__":
     start()
