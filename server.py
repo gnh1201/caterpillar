@@ -180,7 +180,7 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
         filtered = not all(map(pwnedpasswords_test, matches))
 
     # check an attached images
-    if truecaptcha_userid != '':
+    if not filtered and len(matches) > 0 and truecaptcha_userid != '':
         def webp_to_png_base64(url):
             try:
                 response = requests.get(url)
@@ -193,9 +193,7 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
             except:
                 return None
 
-        urls = []
-        if not filtered:
-            urls = re.findall(r'https://[^\s"]+\.webp', text)
+        urls = re.findall(r'https://[^\s"]+\.webp', text)
         if len(urls) > 0:
             for url in urls:
                 if not filtered:
