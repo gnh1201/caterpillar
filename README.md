@@ -1,5 +1,5 @@
 # gnh1201/caterpillar
-Caterpillar - The simple and parasitic web proxy and spam filter
+Caterpillar - The simple and parasitic web proxy with spam filter
 
 ## How to works
 ```
