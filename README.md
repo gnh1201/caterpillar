@@ -5,12 +5,12 @@ Caterpillar - The simple and parasitic web proxy with spam filter
 
 ## How to works
 ```
-You <-> Proxy client (Python) <-> Server-side scripting file (Optional, e.g. PHP) <-> On the Web
+You <-> Proxy client (Python) <-> Parasitized proxy server (Optional, PHP) <-> On the Web
 ```
 
 Build a simple web debugging proxy on the shared servers!
 
-## Before to use
+## (Optional) Before to use
 If you have an ***will be parasitize*** server that you want to proxy, you can install the `index.php` file.
 
 ## How to use
