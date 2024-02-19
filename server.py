@@ -196,7 +196,7 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
         if len(urls) > 0:
             for url in urls:
                 if not filtered:
-                    print ("[*] downloading...")
+                    print ("[*] downloading... %s" % (url))
                     base64string, length = download_base64string(url)
                     print ("[*] downloaded %s bytes." % (length))
                     if base64string:
