@@ -24,8 +24,6 @@ from platform import python_version
 import requests
 from decouple import config
 
-notify_server = 'catswords.social'
-
 try:
     listening_port = config('PORT', cast=int)
     server_url = config('SERVER_URL')
@@ -37,7 +35,10 @@ try:
     client_encoding = config('CLIENT_ENCODING')
     local_domain = config('LOCAL_DOMAIN')
     proxy_pass = config('PROXY_PASS')
-    user_token = config('USER_TOKEN')
+    mastodon_server = config('MASTODON_SERVER')   # catswords.social
+    mastodon_user_token = config('MASTODON_USER_TOKEN')   # catswords.social
+    truecaptcha_userid = config('TRUECAPTCHA_USERID')   # truecaptcha.org
+    truecaptcha_apikey = config('TRUECAPTCHA_APIKEY')   # truecaptcha.org
 except KeyboardInterrupt:
     print("\n[*] User has requested an interrupt")
     print("[*] Application Exiting.....")
@@ -325,12 +326,12 @@ def add_filtered_host(domain, ip_address):
         lines.append(f"{ip_address}\t{domain}\n")
         with open(hosts_path, 'w') as file:
             file.writelines(lines)
-        if user_token != '':    # notify to catswords.social
-            post_status(f"[{notify_server} user]\r\n\r\n{domain} is a domain with suspicious spam activity.\r\n\r\n#catswords")
+        if mastodon_user_token != '':    # notify to catswords.social
+            post_status_to_mastodon(f"[{mastodon_server} user]\r\n\r\n{domain} is a domain with suspicious spam activity.\r\n\r\n#catswords")
 
-# notify to catswords.social
-def post_status(text, media_ids=None, poll_options=None, poll_expires_in=None, scheduled_at=None, idempotency_key=None):
-    url = f"https://{notify_server}/api/v1/statuses"
+# notify to mastodon server
+def post_status_to_mastodon(text, media_ids=None, poll_options=None, poll_expires_in=None, scheduled_at=None, idempotency_key=None):
+    url = f"https://{mastodon_server}/api/v1/statuses"
     headers = {
         "Authorization": f"Bearer {user_token}",
         "Content-Type": "application/x-www-form-urlencoded",
