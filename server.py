@@ -17,9 +17,11 @@ import re
 import hashlib
 import resource
 #import traceback
+import io
 from subprocess import Popen, PIPE
 from datetime import datetime
 from platform import python_version
+from PIL import Image
 
 import requests
 from decouple import config
@@ -179,16 +181,17 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
 
     # check an attached images
     if truecaptcha_userid != '':
-        def download_base64string(url):
+        def webp_to_png_base64(url):
             try:
                 response = requests.get(url)
-                if response.status_code == 200:
-                    content = response.content
-                    return (base64.b64encode(content).decode(client_encoding), len(content))
-                else:
-                    return (None, 0)
+                img = Image.open(io.BytesIO(response.content))
+                img_png = img.convert("RGBA")
+                buffered = io.BytesIO()
+                img_png.save(buffered, format="PNG")
+                encoded_image = base64.b64encode(buffered.getvalue()).decode(client_encoding)
+                return encoded_image
             except:
-                return (None, 0)
+                return None
 
         urls = []
         if not filtered:
@@ -197,9 +200,9 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
             for url in urls:
                 if not filtered:
                     print ("[*] downloading... %s" % (url))
-                    base64string, length = download_base64string(url)
-                    print ("[*] downloaded %s bytes." % (length))
-                    if base64string:
+                    encoded_image = webp_to_png_base64(url)
+                    print ("[*] downloaded."))
+                    if encoded_image:
                         print ("[*] solving...")
                         solved = truecaptcha_solve(base64string)
                         print ("[*] solved: %s" % (solved))
