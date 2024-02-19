@@ -205,8 +205,11 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
                     if encoded_image:
                         print ("[*] solving...")
                         solved = truecaptcha_solve(base64string)
-                        print ("[*] solved: %s" % (solved))
-                        filtered = solved in ['ctkpaarr', 'SPAM']
+                        if solved:
+                            print ("[*] solved: %s" % (solved))
+                            filtered = solved in ['ctkpaarr', 'SPAM']
+                        else:
+                            print ("[*] not solved")
 
     # take action
     if filtered:
@@ -422,8 +425,14 @@ def truecaptcha_solve(encoded_image):
     }
     response = requests.post(url = url, json = data)
     data = response.json()
-    print (data)
-    return data['result']
+
+    if 'error_message' in data:
+        print ("[*] Error: %s" % (data['error_message']))
+        return None
+    if 'result' in data:
+        return data['result']
+
+    return None
 
 if __name__== "__main__":
     start()
