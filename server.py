@@ -201,7 +201,7 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
                 if not filtered:
                     print ("[*] downloading... %s" % (url))
                     encoded_image = webp_to_png_base64(url)
-                    print ("[*] downloaded."))
+                    print ("[*] downloaded.")
                     if encoded_image:
                         print ("[*] solving...")
                         solved = truecaptcha_solve(base64string)
