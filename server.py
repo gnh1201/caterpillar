@@ -382,7 +382,8 @@ def truecaptcha_solve(userid, apikey, encoded_string):
     data = { 
         'userid': truecaptcha_userid, 
         'apikey': truecaptcha_apikey,  
-        'data': encoded_string
+        'data': encoded_string,
+        'mode': 'human'
     }
     response = requests.post(url = url, json = data)
     data = response.json()
