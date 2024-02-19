@@ -3,7 +3,7 @@ Caterpillar - The simple and parasitic web proxy with spam filter
 
 ![title image](title.jfif)
 
-## How to works
+## How it works
 
 ### Basic structure
 ```
