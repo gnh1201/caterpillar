@@ -3,7 +3,7 @@ Caterpillar - The simple and parasitic web debugging proxy
 
 ## How to works
 ```
-You <-> Web proxy client (Python) <-> Server-side scripting file (Optional, e.g. PHP) <-> On the Web
+You <-> Proxy client (Python) <-> Server-side scripting file (Optional, e.g. PHP) <-> On the Web
 ```
 
 Build a simple web debugging proxy on the shared servers!
