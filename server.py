@@ -177,26 +177,26 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
         print ("[*] Found ID: %s" % (', '.join(matches)))
         filtered = not all(map(pwnedpasswords_test, matches))
 
-    # f: download_base64string
-    def download_base64string(url):
-        try:
-            response = requests.get(url)
-            if response.status_code == 200:
-                return base64.b64encode(response.content).decode('utf-8')
-            else:
-                return None
-        except:
-            return None
-
     # check an attached images
-    urls = []
-    if not filtered:
-        urls = re.findall(r'https?://[^\s]+?\.webp\b', text)
-    if len(urls) > 0:
-        for url in urls:
-            if not filtered:
-                base64string = download_base64string(url)
-                filtered = truecaptcha_solve(base64string) in ['ctkpaarr', 'SPAM']
+    if truecaptcha_userid != '':
+        def download_base64string(url):
+            try:
+                response = requests.get(url)
+                if response.status_code == 200:
+                    return base64.b64encode(response.content).decode('utf-8')
+                else:
+                    return None
+            except:
+                return None
+
+        urls = []
+        if not filtered:
+            urls = re.findall(r'https?://[^\s]+?\.webp\b', text)
+        if len(urls) > 0:
+            for url in urls:
+                if not filtered:
+                    base64string = download_base64string(url)
+                    filtered = truecaptcha_solve(base64string) in ['ctkpaarr', 'SPAM']
 
     # take action
     if filtered:
