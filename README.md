@@ -9,7 +9,7 @@ You <-> Web proxy client (Python) <-> Server-side scripting file (Optional, e.g.
 Build a simple web debugging proxy on the shared servers!
 
 ## Before to use
-If you have a remote server that you want to proxy, you can install the `index.php` file.
+If you have an ***will be parasitize*** server that you want to proxy, you can install the `index.php` file.
 
 ## How to use
 1. Write a file `.env`(Linux) or `settings.ini`(Windows). Like this:
