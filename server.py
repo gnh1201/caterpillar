@@ -405,7 +405,7 @@ def pwnedpasswords_test(s):
         hashes = response.text.split('\r\n')
 
         # Using list comprehension to find matching hashes
-        matching_hashes = [line for line in hashes if l5_sha1 in line.lower()]
+        matching_hashes = [line.split(':')[0] for line in hashes if line.endswith(l5_sha1)]
 
         # If there are matching hashes, return True, else return False
         return bool(matching_hashes)
