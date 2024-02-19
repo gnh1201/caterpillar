@@ -1,6 +1,7 @@
 <?php
-// HTTP proxy implementation with PHP socket
+// Caterpillar - The simple and parasitic web debugging proxy
 // Namhyeon Go <abuse@catswords.net>
+// https://github.com/gnh1201/caterpillar
 // Created at: 2022-10-06
 // Updated at: 2022-11-25
 
