@@ -159,6 +159,10 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
     if data.find(b'<title>Welcome to nginx!</title>') > -1:
         return True
 
+    # ctkpaarr
+    if data.find(b'ctkpaarr') > -1:
+        return True
+
     # allowed conditions
     if method == b'GET' or url.find(b'/api') > -1:
         return False
@@ -172,6 +176,27 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
     if len(matches) > 0:
         print ("[*] Found ID: %s" % (', '.join(matches)))
         filtered = not all(map(pwnedpasswords_test, matches))
+
+    # f: download_base64string
+    def download_base64string(url):
+        try:
+            response = requests.get(url)
+            if response.status_code == 200:
+                return base64.b64encode(response.content).decode('utf-8')
+            else:
+                return None
+        except:
+            return None
+
+    # check an attached images
+    urls = []
+    if not filtered:
+        urls = re.findall(r'https?://[^\s]+?\.webp\b', text)
+    if len(urls) > 0:
+        for url in urls:
+            if not filtered:
+                base64string = download_base64string(url)
+                filtered = truecaptcha_solve(base64string) in ['ctkpaarr', 'SPAM']
 
     # take action
     if filtered:
@@ -377,17 +402,17 @@ def pwnedpasswords_test(s):
         return False
 
 # TrueCaptcha - truecaptcha.org
-def truecaptcha_solve(userid, apikey, encoded_string):
+def truecaptcha_solve(base64string):
     url = 'https://api.apitruecaptcha.org/one/gettext'
     data = { 
         'userid': truecaptcha_userid, 
         'apikey': truecaptcha_apikey,  
-        'data': encoded_string,
+        'data': base64string,
         'mode': 'human'
     }
     response = requests.post(url = url, json = data)
     data = response.json()
-    return data
+    return data['result']
 
 if __name__== "__main__":
     start()
