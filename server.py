@@ -462,7 +462,7 @@ def calculate_vowel_ratio(s):
         return 0.0
 
     # Count the number of vowels ('a', 'e', 'i', 'o', 'u') in the string.
-    vowel_count = sum(1 for char in string if char.lower() in 'aeiou')
+    vowel_count = sum(1 for char in s if char.lower() in 'aeiou')
 
     # Calculate the ratio of vowels to the total length of the string.
     vowel_ratio = vowel_count / length
