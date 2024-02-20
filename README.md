@@ -63,7 +63,7 @@ sudo update-ca-certificates
 
 ### In [Caterpillar installed directory]/settings.ini or .env
 1. set `SERVER_URL` variable to `localhost` in `.env`  (e.g. `SERVER_URL=localhost`)
-2. set `PROXY_PASS` variable to mastodon backend (e.g. `http://127.0.0.1:3000`)
+2. set `PROXY_PASS` variable to Mastodon backend URI (e.g. `http://127.0.0.1:3000`)
 3. if you want use notification, set `MASTODON_SERVER`(server domain) and `MASTODON_USER_TOKEN`(access token) variables
 
 ### In [Mastodon installed directory]/env.production
