@@ -1,0 +1,14 @@
+[Unit]
+Description=Caterpillar (php-httpproxy) Web Debugging Proxy Service
+Documentation=https://github.com/gnh1201/caterpillar
+After=network.target
+
+[Service]
+User=root
+Group=root
+WorkingDirectory=/opt/caterpillar
+ExecStart=/usr/bin/python3 /opt/caterpillar/server.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
