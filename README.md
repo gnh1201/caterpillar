@@ -13,7 +13,8 @@ For example, build a simple web debugging proxy on the shared servers.
 
 ### Spam filtering strategy
 * [K-Anonymity](https://en.wikipedia.org/wiki/K-anonymity) test - Estimating whether the characters has been arranged by humans. (use [Have I Been Pwned](https://haveibeenpwned.com/Passwords))
-* Image spam containing characters that look very similar to CAPTCHA. (use [TrueCaptcha](https://truecaptcha.org/))
+* Not CAPTCHA - Image spam containing characters that look very similar to CAPTCHA. (use [TrueCaptcha](https://truecaptcha.org/))
+* VowelRatio - In strings created by humans, there is a high frequency of vowels (aeiou) included.
 * SSL decryption (MITM) when relaying to federated servers.
 
 These strategies were implemented to respond to [the Fediverse Spam Attacks which started on the 15th of February](https://github.com/Mastodon-DE/blocklists/blob/main/spam%2F2024-02-15%2F2024-02-15-spam-mute-list.md).
