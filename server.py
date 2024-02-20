@@ -172,7 +172,7 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
     # convert to text
     text = data.decode(client_encoding, errors='ignore')
 
-    # check ID with K-Anonymity
+    # check ID with VowelRatio10 strategy
     pattern = r'\b(?:(?<=\/@)|(?<=acct:))([a-zA-Z0-9]{10})\b'
     matches = list(set(re.findall(pattern, text)))
     if len(matches) > 0:
@@ -183,14 +183,14 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
             print ("[*] K-Anonymity strategy not working! %s" % (str(e)))
             filtered = True
 
-    # check vowel ratio
+    # check ID with VowelRatio10 strategy
     if filtered and len(matches) > 0:
         def vowel_ratio_test(s):
             ratio = calculate_vowel_ratio(s)
             return ratio > 0.2 and ratio < 0.7
         filtered = not all(map(vowel_ratio_test, matches))
 
-    # check an attached images
+    # check an attached images (Not-CAPTCHA strategy)
     if not filtered and len(matches) > 0 and truecaptcha_userid != '':
         def webp_to_png_base64(url):
             try:
@@ -430,7 +430,7 @@ def pwnedpasswords_test(s):
 
     return False
 
-# Strategy: Not CAPTCHA - use truecaptcha.org
+# Strategy: Not-CAPTCHA - use truecaptcha.org
 def truecaptcha_solve(encoded_image):
     url = 'https://api.apitruecaptcha.org/one/gettext'
     data = {
@@ -454,7 +454,7 @@ def truecaptcha_solve(encoded_image):
 
     return None
 
-# Strategy: VowelRatio
+# Strategy: VowelRatio10
 def calculate_vowel_ratio(s):
     # Calculate the length of the string.
     length = len(s)
