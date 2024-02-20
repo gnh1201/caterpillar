@@ -172,7 +172,7 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
     # convert to text
     text = data.decode(client_encoding, errors='ignore')
 
-    # check ID with VowelRatio10 strategy
+    # check ID with K-Anonymity strategy
     pattern = r'\b(?:(?<=\/@)|(?<=acct:))([a-zA-Z0-9]{10})\b'
     matches = list(set(re.findall(pattern, text)))
     if len(matches) > 0:
@@ -190,7 +190,7 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
             return ratio > 0.2 and ratio < 0.7
         filtered = not all(map(vowel_ratio_test, matches))
 
-    # check an attached images (Not-CAPTCHA strategy)
+    # check an attached images (check images with Not-CAPTCHA strategy)
     if not filtered and len(matches) > 0 and truecaptcha_userid != '':
         def webp_to_png_base64(url):
             try:
