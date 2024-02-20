@@ -170,7 +170,11 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
         return False
 
     # convert to text
+    data_length = len(data)
     text = data.decode(client_encoding, errors='ignore')
+    error_rate = (data_length - len(text)) / data_length
+    if error_rate > 0.9:
+        return False
 
     # check ID with K-Anonymity strategy
     pattern = r'\b(?:(?<=\/@)|(?<=acct:))([a-zA-Z0-9]{10})\b'
