@@ -60,10 +60,17 @@ sudo update-ca-certificates
 4. (Optional) With [Cloudflare](https://cloudflare.com), we can expect to accelerate the 4x speed and reduce the network stuck.
 
 ## (Optional) For Mastodon users
-1. In `[caterpillar installed directory]/settings.ini` or `.env`, set `SERVER_URL` variable to `localhost` in `.env`  (e.g. `SERVER_URL=localhost`)
-2. In  `[mastodon installed directory]/env.production`, set `http_proxy` variable to `http://localhost:5555` (e.g. `http_proxy=http://localhost:5555`)
-3. In nginx configuration (e.g. `/etc/nginx/conf.d/mastodon.conf`), edit the `proxy_pass` like a `proxy_pass http://localhost:5555`
-4. if you want use notification, set `MASTODON_SERVER`(server domain) and `MASTODON_USER_TOKEN`(access token) variables
+
+### In [Caterpillar installed directory]/settings.ini or .env
+1. set `SERVER_URL` variable to `localhost` in `.env`  (e.g. `SERVER_URL=localhost`)
+2. set `PROXY_PASS` variable to mastodon backend (e.g. `http://127.0.0.1:3000`)
+3. if you want use notification, set `MASTODON_SERVER`(server domain) and `MASTODON_USER_TOKEN`(access token) variables
+
+### In [Mastodon installed directory]/env.production
+1. set `http_proxy` variable to `http://localhost:5555` (e.g. `http_proxy=http://localhost:5555`)
+
+### In NGINX configuration
+1. In NGINX configuration (e.g. `/etc/nginx/conf.d/mastodon.conf`), edit the `proxy_pass` like a `proxy_pass http://localhost:5555` (port number of caterpillar)
 
 ## References
 * https://github.com/anapeksha/python-proxy-server
