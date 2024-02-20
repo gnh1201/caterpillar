@@ -173,7 +173,7 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
     data_length = len(data)
     text = data.decode(client_encoding, errors='ignore')
     error_rate = (data_length - len(text)) / data_length
-    if error_rate > 0.9:
+    if error_rate > 0.9:    # it is a binary data
         return False
 
     # check ID with K-Anonymity strategy
