@@ -5,11 +5,10 @@
 // Created at: 2022-10-06
 // Updated at: 2024-02-20
 
-define("CATERPILLAR_PROXY_VERSION", "0.1.4");
-define("PHP_HTTPPROXY_VERSION", CATERPILLAR_PROXY_VERSION);
+define("PHP_HTTPPROXY_VERSION", "0.1.4");
 
-if (strpos($_SERVER['HTTP_USER_AGENT'], "caterpillar-proxy/") !== 0 && strpos($_SERVER['HTTP_USER_AGENT'], "php-httpproxy/") !== 0) {
-    exit('<!DOCTYPE html><html><head><title>It works!</title><meta charset="utf-8"></head><body><h1>It works!</h1><p><a href="https://github.com/gnh1201/caterpillar">Download the client</a></p><hr><p>caterpillar-proxy/' . CATERPILLAR_PROXY_VERSION . ' (Server; PHP ' . phpversion() . '; abuse@catswords.net)</p></body></html>');
+if (strpos($_SERVER['HTTP_USER_AGENT'], "php-httpproxy/") !== 0) {
+    exit('<!DOCTYPE html><html><head><title>It works!</title><meta charset="utf-8"></head><body><h1>It works!</h1><p><a href="https://github.com/gnh1201/caterpillar">Download the client</a></p><hr><p>php-httpproxy/' . PHP_HTTPPROXY_VERSION . ' (Server; PHP ' . phpversion() . '; abuse@catswords.net)</p></body></html>');
 }
 
 ini_set("default_socket_timeout", 1);  // must be. because of `feof()` works
