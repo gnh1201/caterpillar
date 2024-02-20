@@ -190,6 +190,10 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
             return ratio > 0.2 and ratio < 0.7
         filtered = not all(map(vowel_ratio_test, matches))
 
+    # check ID with Palindrome5 strategy
+    if filtered and len(matches) > 0:
+        filtered = not all(map(has_palindrome, matches))
+
     # check an attached images (check images with Not-CAPTCHA strategy)
     if not filtered and len(matches) > 0 and truecaptcha_userid != '':
         def webp_to_png_base64(url):
@@ -468,6 +472,19 @@ def calculate_vowel_ratio(s):
     vowel_ratio = vowel_count / length
 
     return vowel_ratio
+
+# Strategy: Palindrome5
+def has_palindrome(input_string):
+    def is_palindrome(s):
+        return s == s[::-1]
+
+    n = len(input_string)
+    for i in range(n):
+        for j in range(i + 5, n + 1):  # Find substrings of at least 5 characters
+            substring = input_string[i:j]
+            if is_palindrome(substring):
+                return True
+    return False
 
 if __name__== "__main__":
     start()
