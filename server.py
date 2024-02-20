@@ -172,7 +172,7 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
     # convert to text
     text = data.decode(client_encoding, errors='ignore')
 
-    # ID validation with K-Anonymity test
+    # check ID with K-Anonymity
     pattern = r'\b(?:(?<=\/@)|(?<=acct:))([a-zA-Z0-9]{10})\b'
     matches = list(set(re.findall(pattern, text)))
     if len(matches) > 0:
@@ -182,6 +182,13 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
         except Exception as e:
             print ("[*] K-Anonymity strategy not working! %s" % (str(e)))
             filtered = True
+
+    # check vowel ratio
+    if filtered and len(matches) > 0:
+        def vowel_ratio_test(s):
+            ratio = calculate_vowel_ratio(s)
+            return ratio > 0.2 and ratio < 0.7
+        filtered = not all(map(vowel_ratio_test, matches))
 
     # check an attached images
     if not filtered and len(matches) > 0 and truecaptcha_userid != '':
@@ -394,7 +401,7 @@ def post_status_to_mastodon(text, media_ids=None, poll_options=None, poll_expire
     response = requests.post(url, headers=headers, data=form_data)
     return response.json()
 
-# K-Anonymity test - pwnedpasswords.com
+# Strategy: K-Anonymity test - use api.pwnedpasswords.com
 def pwnedpasswords_test(s):
     # SHA1 of the password
     p_sha1 = hashlib.sha1(s.encode()).hexdigest()
@@ -423,7 +430,7 @@ def pwnedpasswords_test(s):
 
     return False
 
-# TrueCaptcha - truecaptcha.org
+# Strategy: Not CAPTCHA - use truecaptcha.org
 def truecaptcha_solve(encoded_image):
     url = 'https://api.apitruecaptcha.org/one/gettext'
     data = {
@@ -446,6 +453,21 @@ def truecaptcha_solve(encoded_image):
         raise Exception("api.apitruecaptcha.org response status: %s" % (str(response.status_code)))
 
     return None
+
+# Strategy: VowelRatio
+def calculate_vowel_ratio(s):
+    # Calculate the length of the string.
+    length = len(s)
+    if length == 0:
+        return 0.0
+
+    # Count the number of vowels ('a', 'e', 'i', 'o', 'u') in the string.
+    vowel_count = sum(1 for char in string if char.lower() in 'aeiou')
+
+    # Calculate the ratio of vowels to the total length of the string.
+    vowel_ratio = vowel_count / length
+
+    return vowel_ratio
 
 if __name__== "__main__":
     start()
