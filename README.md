@@ -70,7 +70,8 @@ sudo update-ca-certificates
 1. set `http_proxy` variable to `http://localhost:5555` (e.g. `http_proxy=http://localhost:5555`)
 
 ### In NGINX configuration
-1. In NGINX configuration (e.g. `/etc/nginx/conf.d/mastodon.conf`), edit the `proxy_pass` like a `proxy_pass http://localhost:5555` (port number of caterpillar)
+1. Check your port number of Caterpillar (default: 5555)
+1. In NGINX configuration (e.g. `/etc/nginx/conf.d/mastodon.conf`), edit the `proxy_pass` like a `proxy_pass http://localhost:5555`
 
 ## References
 * https://github.com/anapeksha/python-proxy-server
