@@ -187,12 +187,14 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
             print ("[*] K-Anonymity strategy not working! %s" % (str(e)))
             filtered = True
 
+    '''
     # check ID with VowelRatio10 strategy
     if filtered and len(matches) > 0:
         def vowel_ratio_test(s):
             ratio = calculate_vowel_ratio(s)
             return ratio > 0.2 and ratio < 0.7
         filtered = not all(map(vowel_ratio_test, matches))
+    '''
 
     # check ID with Palindrome5 strategy
     if filtered and len(matches) > 0:
@@ -463,6 +465,7 @@ def truecaptcha_solve(encoded_image):
     return None
 
 # Strategy: VowelRatio10
+'''
 def calculate_vowel_ratio(s):
     # Calculate the length of the string.
     length = len(s)
@@ -476,6 +479,7 @@ def calculate_vowel_ratio(s):
     vowel_ratio = vowel_count / length
 
     return vowel_ratio
+'''
 
 # Strategy: Palindrome5
 def has_palindrome(input_string):
