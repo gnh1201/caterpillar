@@ -14,7 +14,7 @@ For example, build a simple web debugging proxy on the shared servers.
 ### Spam filtering strategy
 * [K-Anonymity](https://en.wikipedia.org/wiki/K-anonymity) test - Estimating whether the characters has been arranged by humans. (use [Have I Been Pwned](https://haveibeenpwned.com/Passwords))
 * Not CAPTCHA - Image spam containing characters that look very similar to [CAPTCHA](https://en.wikipedia.org/wiki/CAPTCHA). (use [TrueCaptcha](https://truecaptcha.org/))
-* VowelRatio10 - In characters arranged by humans, there is a high frequency of [vowels](https://en.wikipedia.org/wiki/Vowel) (aeiou) included in strings that are 10 characters.
+* VowelRatio10 - In characters arranged by humans, there is a high frequency of [vowels](https://en.wikipedia.org/wiki/Vowel) (aeiouy) included in strings that are 10 characters.
 * Palindrome5 - Detect [palindromes](https://en.wikipedia.org/wiki/Palindrome) composed of 5 or more characters.
 * SSL decryption (MITM) when relaying to federated servers.
 
