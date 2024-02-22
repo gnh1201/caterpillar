@@ -16,7 +16,7 @@ import time
 import re
 import hashlib
 import resource
-#import traceback
+import traceback
 import io
 from subprocess import Popen, PIPE
 from datetime import datetime
@@ -128,7 +128,7 @@ def conn_string(conn, data, addr):
     if local_domain != '':
         localserver = local_domain.encode(client_encoding)
         if webserver == localserver or data.find(b'\nHost: ' + localserver) > -1:
-            print ("[*] ** Detected the reverse proxy request: %s" % (local_domain))
+            print ("[*] Detected the reverse proxy request: %s" % (local_domain))
             scheme, _webserver, _port = proxy_pass.encode(client_encoding).split(b':')
             webserver = _webserver[2:]
             port = int(_port.decode(client_encoding))
@@ -277,7 +277,8 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
         print("[*] Started the request. %s" % (str(addr[0])))
 
         # SSL negotiation
-        if scheme in [b'https', b'tls', b'ssl'] and method == b'CONNECT':
+        is_ssl = scheme in [b'https', b'tls', b'ssl']
+        if is_ssl and method == b'CONNECT':
             while True:
                 try:
                     conn, data = proxy_connect(webserver, conn)
@@ -286,6 +287,13 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                 #    print ("[*] Retrying SSL negotiation... (%s:%s) %s" % (webserver.decode(client_encoding), str(port), str(e)))
                 except Exception as e:
                     raise Exception("SSL negotiation failed. (%s:%s) %s" % (webserver.decode(client_encoding), str(port), str(e)))
+
+        # https://stackoverflow.com/questions/44343739/python-sockets-ssl-eof-occurred-in-violation-of-protocol
+        def sock_close(sock, is_ssl = False):
+            #if is_ssl:
+            #    sock = sock.unwrap()
+            #sock.shutdown(socket.SHUT_RDWR)
+            sock.close()
 
         # Wait to see if there is more data to transmit
         def sendall(sock, conn, data):
@@ -307,7 +315,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                         break
                     buffered += chunk
                     if proxy_check_filtered(buffered, webserver, port, scheme, method, url):
-                        sock.close()
+                        sock_close(sock, is_ssl)
                         raise Exception("Filtered request")
                     sock.send(chunk)
                     if len(buffered) > buffer_size*2:
@@ -319,7 +327,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
         if server_url == "localhost":
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-            if scheme in [b'https', b'tls', b'ssl']:
+            if is_ssl:
                 context = ssl.create_default_context()
                 context.check_hostname = False
                 context.verify_mode = ssl.CERT_NONE
@@ -334,6 +342,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                 sendall(sock, conn, data)
 
             i = 0
+            is_http_403 = False
             buffered = b''
             while True:
                 chunk = sock.recv(buffer_size)
@@ -341,13 +350,23 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                     break
                 buffered += chunk
                 if proxy_check_filtered(buffered, webserver, port, scheme, method, url):
-                    sock.close()
+                    sock_close(sock, is_ssl)
                     add_filtered_host(webserver.decode(client_encoding), '127.0.0.1')
                     raise Exception("Filtered response")
+                if i == 0 and chunk.find(b'HTTP/1.1 403') == 0:
+                    is_http_403 = True
+                    break
                 conn.send(chunk)
                 if len(buffered) > buffer_size*2:
                     buffered = buffered[-buffer_size*2:]
                 i += 1
+
+            # when blocked
+            if is_http_403:
+                conn.sendall(b"HTTP/1.1 403 Forbidden\n\n{\"status\":403}")
+                print ("[*] Blocked the request by remote server: %s" % (webserver.decode(client_encoding)))
+
+            sock_close(sock, is_ssl)
 
             print("[*] Received %s chunks. (%s bytes per chunk)" % (str(i), str(buffer_size)))
 
@@ -391,7 +410,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
         print("[*] Request and received. Done. %s" % (str(addr[0])))
         conn.close()
     except Exception as e:
-        #print(traceback.format_exc())
+        print(traceback.format_exc())
         print("[*] Exception on requesting the data. Cause: %s" % (str(e)))
         conn.sendall(b"HTTP/1.1 403 Forbidden\n\n{\"status\":403}")
         conn.close()
@@ -433,7 +452,7 @@ def post_status_to_mastodon(text, media_ids=None, poll_options=None, poll_expire
 # Strategy: K-Anonymity test - use api.pwnedpasswords.com
 def pwnedpasswords_test(s):
     # convert to lowercase
-    s.lower()
+    s = s.lower()
 
     # SHA1 of the password
     p_sha1 = hashlib.sha1(s.encode()).hexdigest()
