@@ -60,6 +60,15 @@ resource.setrlimit(
     resource.RLIMIT_CORE,
     (resource.RLIM_INFINITY, resource.RLIM_INFINITY))
 
+# load data to use KnownWords5 strategy
+# Download data: https://github.com/dwyl/english-words
+known_words = []
+if os.path.exists("words_alpha.txt"):
+    with open("words_alpha.txt", "r") as file:
+        words = file.readlines()
+        known_words = [word.strip() for word in words if len(word.strip()) > 5]
+        print ("[*] data loaded to use KnownWords5 strategy")
+
 def start():    #Main Program
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -187,18 +196,28 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
             print ("[*] K-Anonymity strategy not working! %s" % (str(e)))
             filtered = True
 
-    '''
-    # check ID with VowelRatio10 strategy
+    # feedback
     if filtered and len(matches) > 0:
+        score = 0
+
+        # check ID with VowelRatio10 strategy
         def vowel_ratio_test(s):
             ratio = calculate_vowel_ratio(s)
             return ratio > 0.2 and ratio < 0.7
-        filtered = not all(map(vowel_ratio_test, matches))
-    '''
+        if all(map(vowel_ratio_test, matches)):
+            score += 1
 
-    # check ID with Palindrome5 strategy
-    if filtered and len(matches) > 0:
-        filtered = not all(map(has_palindrome, matches))
+        # check ID with Palindrome5 strategy
+        if all(map(has_palindrome, matches)):
+            score += 1
+
+        # check ID with EnglishWords5 strategy
+        if all(map(has_known_word, matches)):
+            score += 1
+
+        # make decision
+        if score > 1:
+            filtered = False
 
     # check an attached images (check images with Not-CAPTCHA strategy)
     if not filtered and len(matches) > 0 and truecaptcha_userid != '':
@@ -465,7 +484,6 @@ def truecaptcha_solve(encoded_image):
     return None
 
 # Strategy: VowelRatio10
-'''
 def calculate_vowel_ratio(s):
     # Calculate the length of the string.
     length = len(s)
@@ -479,7 +497,6 @@ def calculate_vowel_ratio(s):
     vowel_ratio = vowel_count / length
 
     return vowel_ratio
-'''
 
 # Strategy: Palindrome5
 def has_palindrome(input_string):
@@ -491,6 +508,19 @@ def has_palindrome(input_string):
         for j in range(i + 5, n + 1):  # Find substrings of at least 5 characters
             substring = input_string[i:j]
             if is_palindrome(substring):
+                return True
+    return False
+
+# Strategy: KnownWords5
+def has_known_word(input_string):
+    def is_known_word(s):
+        return s in known_words
+
+    n = len(input_string)
+    for i in range(n):
+        for j in range(i + 5, n + 1):  # Find substrings of at least 5 characters
+            substring = input_string[i:j]
+            if is_known_word(substring):
                 return True
     return False
 
