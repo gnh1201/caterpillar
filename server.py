@@ -191,9 +191,6 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
     if len(matches) > 0:
         print ("[*] Found ID: %s" % (', '.join(matches)))
         try:
-            for word in matches:
-                if not word.lower() in matches:
-                    matches.append(word)
             filtered = not all(map(pwnedpasswords_test, matches))
         except Exception as e:
             print ("[*] K-Anonymity strategy not working! %s" % (str(e)))
@@ -435,6 +432,9 @@ def post_status_to_mastodon(text, media_ids=None, poll_options=None, poll_expire
 
 # Strategy: K-Anonymity test - use api.pwnedpasswords.com
 def pwnedpasswords_test(s):
+    # convert to lowercase
+    s.lower()
+
     # SHA1 of the password
     p_sha1 = hashlib.sha1(s.encode()).hexdigest()
 
