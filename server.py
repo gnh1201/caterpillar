@@ -213,7 +213,7 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
 
         # check ID with EnglishWords5 strategy
         if all(map(has_known_word, matches)):
-            score += 1
+            score += 2
 
         # make decision
         if score > 1:
