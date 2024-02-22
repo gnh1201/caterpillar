@@ -156,7 +156,6 @@ def proxy_connect(webserver, conn):
 
 def proxy_check_filtered(data, webserver, port, scheme, method, url):
     filtered = False
-    decisions = []
 
     # prevent cache confusing
     if data.find(b'<title>Welcome to nginx!</title>') > -1:
@@ -174,14 +173,12 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
     data_length = len(data)
     text = data.decode(client_encoding, errors='ignore')
     error_rate = (data_length - len(text)) / data_length
-    if error_rate > 0.1:    # it is a binary data
+    if error_rate > 0.2:    # it is a binary data
         return False
 
-    # extract suspicious ID
+    # check ID with K-Anonymity strategy
     pattern = r'\b(?:(?<=\/@)|(?<=acct:))([a-zA-Z0-9]{10})\b'
     matches = list(set(re.findall(pattern, text)))
-
-    # check ID with K-Anonymity strategy
     if len(matches) > 0:
         print ("[*] Found ID: %s" % (', '.join(matches)))
         try:
@@ -190,16 +187,18 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
             print ("[*] K-Anonymity strategy not working! %s" % (str(e)))
             filtered = True
 
+    '''
     # check ID with VowelRatio10 strategy
     if filtered and len(matches) > 0:
         def vowel_ratio_test(s):
             ratio = calculate_vowel_ratio(s)
             return ratio > 0.2 and ratio < 0.7
-        decisions.append(not all(map(vowel_ratio_test, matches)))
+        filtered = not all(map(vowel_ratio_test, matches))
+    '''
 
     # check ID with Palindrome5 strategy
     if filtered and len(matches) > 0:
-        decisions.append(not all(map(has_palindrome, matches)))
+        filtered = not all(map(has_palindrome, matches))
 
     # check an attached images (check images with Not-CAPTCHA strategy)
     if not filtered and len(matches) > 0 and truecaptcha_userid != '':
@@ -218,6 +217,9 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
         urls = re.findall(r'https://[^\s"]+\.webp', text)
         if len(urls) > 0:
             for url in urls:
+                if filtered:
+                    break
+
                 print ("[*] downloading... %s" % (url))
                 encoded_image = webp_to_png_base64(url)
                 print ("[*] downloaded.")
@@ -227,16 +229,11 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
                         solved = truecaptcha_solve(encoded_image)
                         if solved:
                             print ("[*] solved: %s" % (solved))
-                            decisions.append(solved.lower() in ['ctkpaarr', 'spam'])
+                            filtered = solved.lower() in ['ctkpaarr', 'spam']
                         else:
                             print ("[*] not solved")
                     except Exception as e:
                         print ("[*] Not CAPTCHA strategy not working! %s" % (str(e)))
-
-    # make decision
-    decided = any(decisions)
-    if decided:
-        filtered = filtered or decided
 
     # take action
     if filtered:
