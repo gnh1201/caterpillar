@@ -191,6 +191,9 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
     if len(matches) > 0:
         print ("[*] Found ID: %s" % (', '.join(matches)))
         try:
+            for word in matches:
+                if not word.lower() in matches:
+                    matches.append(word)
             filtered = not all(map(pwnedpasswords_test, matches))
         except Exception as e:
             print ("[*] K-Anonymity strategy not working! %s" % (str(e)))
@@ -503,6 +506,7 @@ def has_palindrome(input_string):
     def is_palindrome(s):
         return s == s[::-1]
 
+    input_string = input_string.lower()
     n = len(input_string)
     for i in range(n):
         for j in range(i + 5, n + 1):  # Find substrings of at least 5 characters
@@ -516,6 +520,7 @@ def has_known_word(input_string):
     def is_known_word(s):
         return s in known_words
 
+    input_string = input_string.lower()
     n = len(input_string)
     for i in range(n):
         for j in range(i + 5, n + 1):  # Find substrings of at least 5 characters
