@@ -18,7 +18,7 @@ import hashlib
 import resource
 import traceback
 import io
-#import textwrap
+import textwrap
 from subprocess import Popen, PIPE
 from datetime import datetime
 from platform import python_version
@@ -300,9 +300,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
 
         # override data
         if is_ssl:
-            _, _, _, method, _url = parse_first_data(data)
-        else:
-            _url = b''
+            _, _, _, method, url = parse_first_data(data)
 
         # https://stackoverflow.com/questions/44343739/python-sockets-ssl-eof-occurred-in-violation-of-protocol
         def sock_close(sock, is_ssl = False):
@@ -387,22 +385,20 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                         return
 
                     # https://stackoverflow.com/questions/20658572/python-requests-print-entire-http-request-raw
-                    '''
                     format_headers = lambda d: '\r\n'.join(f'{k}: {v}' for k, v in d.items())
 
-                    first_data = textwrap.dedent('{res.status_code} {res.reason} {res.url}\r\n{reshdrs}\r\n\r\n').format(
+                    first_data = textwrap.dedent('HTTP/1.1 {res.status_code} {res.reason}\r\n{reshdrs}\r\n\r\n').format(
                         res=response,
                         reshdrs=format_headers(response.headers),
                     ).encode(client_encoding)
                     conn.send(first_data)
-                    '''
 
                     for chunk in response.iter_content(chunk_size=buffer_size):
                         conn.send(chunk)
 
                 if is_ssl and method == b'GET':
                     print ("[*] Trying to bypass blocked request...")
-                    remote_url = "%s://%s%s" % (scheme.decode(client_encoding), webserver.decode(client_encoding), _url.decode(client_encoding))
+                    remote_url = "%s://%s%s" % (scheme.decode(client_encoding), webserver.decode(client_encoding), url.decode(client_encoding))
                     requests.get(remote_url, stream=True, hooks={'response': bypass_callback})
                 else:
                     conn.sendall(b"HTTP/1.1 403 Forbidden\r\n\r\n{\"status\":403}")
