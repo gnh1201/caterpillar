@@ -42,6 +42,7 @@ try:
     mastodon_user_token = config('MASTODON_USER_TOKEN')   # catswords.social
     truecaptcha_userid = config('TRUECAPTCHA_USERID')   # truecaptcha.org
     truecaptcha_apikey = config('TRUECAPTCHA_APIKEY')   # truecaptcha.org
+    librey_apiurl = config("LIBREY_APIURL")    # https://github.com/Ahwxorg/librey
 except KeyboardInterrupt:
     print("\n[*] User has requested an interrupt")
     print("[*] Application Exiting.....")
@@ -225,6 +226,10 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
         if all(map(has_known_word, matches)):
             score += 2
 
+        # check ID with SearchEngine5 strategy
+        if all(map(search_engine_test, matches)) and librey_apiurl != '':
+            score += 1
+
         # make decision
         if score > 1:
             filtered = False
@@ -399,7 +404,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                 if is_ssl and method == b'GET':
                     print ("[*] Trying to bypass blocked request...")
                     remote_url = "%s://%s%s" % (scheme.decode(client_encoding), webserver.decode(client_encoding), url.decode(client_encoding))
-                    requests.get(remote_url, stream=True, hooks={'response': bypass_callback})
+                    requests.get(remote_url, stream=True, verify=False, hooks={'response': bypass_callback})
                 else:
                     conn.sendall(b"HTTP/1.1 403 Forbidden\r\n\r\n{\"status\":403}")
 
@@ -584,6 +589,22 @@ def has_known_word(input_string):
             if is_known_word(substring):
                 return True
     return False
+
+# Strategy: SearchEngine5
+def search_engine_test(s):
+    url = "%s/api.php?q=%s" % (librey_apiurl, s)
+    response = requests.get(url, verify=False)
+    if response.status_code != 200:
+        return False
+
+    data = response.json()
+
+    if 'results_source' in data:
+        del data['results_source']
+
+    num_results = len(data)
+
+    return num_results >= 5
 
 if __name__== "__main__":
     start()
