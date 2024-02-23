@@ -298,6 +298,10 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                 except Exception as e:
                     raise Exception("SSL negotiation failed. (%s:%s) %s" % (webserver.decode(client_encoding), str(port), str(e)))
 
+        # reload data
+        if is_ssl:
+            webserver, port, scheme, method, url = parse_first_data(data)
+
         # https://stackoverflow.com/questions/44343739/python-sockets-ssl-eof-occurred-in-violation-of-protocol
         def sock_close(sock, is_ssl = False):
             #if is_ssl:
