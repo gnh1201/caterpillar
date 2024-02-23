@@ -18,6 +18,7 @@ import hashlib
 import resource
 import traceback
 import io
+#import textwrap
 from subprocess import Popen, PIPE
 from datetime import datetime
 from platform import python_version
@@ -377,8 +378,33 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
 
             # when blocked
             if is_http_403:
-                conn.sendall(b"HTTP/1.1 403 Forbidden\r\n\r\n{\"status\":403}")
                 print ("[*] Blocked the request by remote server: %s" % (webserver.decode(client_encoding)))
+
+                def bypass_callback(response, *args, **kwargs):
+                    if response.status_code != 200:
+                        conn.sendall(b"HTTP/1.1 403 Forbidden\r\n\r\n{\"status\":403}")
+                        return
+
+                    # https://stackoverflow.com/questions/20658572/python-requests-print-entire-http-request-raw
+                    '''
+                    format_headers = lambda d: '\r\n'.join(f'{k}: {v}' for k, v in d.items())
+
+                    first_data = textwrap.dedent('{res.status_code} {res.reason} {res.url}\r\n{reshdrs}\r\n\r\n').format(
+                        res=response,
+                        reshdrs=format_headers(response.headers),
+                    ).encode(client_encoding)
+                    conn.send(first_data)
+                    '''
+
+                    for chunk in response.iter_content(chunk_size=buffer_size):
+                        conn.send(chunk)
+
+                if is_ssl and method == b'GET':
+                    print ("[*] Trying to bypass blocked request...")
+                    remote_url = "%s://%s%s" % (scheme.decode(client_encoding), webserver.decode(client_encoding), url.decode(client_encoding))
+                    requests.get(remote_url, stream=True, hooks={'response': bypass_callback})
+                else:
+                    conn.sendall(b"HTTP/1.1 403 Forbidden\r\n\r\n{\"status\":403}")
 
             sock_close(sock, is_ssl)
 
