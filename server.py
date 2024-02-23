@@ -300,7 +300,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
 
         # reload data
         if is_ssl:
-            webserver, port, scheme, method, url = parse_first_data(data)
+            _, _, _, method, url = parse_first_data(data)
 
         # https://stackoverflow.com/questions/44343739/python-sockets-ssl-eof-occurred-in-violation-of-protocol
         def sock_close(sock, is_ssl = False):
