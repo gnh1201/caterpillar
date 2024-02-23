@@ -227,7 +227,7 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
             score += 2
 
         # check ID with SearchEngine5 strategy
-        if all(map(search_engine_test, matches)) and librey_apiurl != '':
+        if librey_apiurl != '' and all(map(search_engine_test, matches)):
             score += 1
 
         # make decision
@@ -235,7 +235,7 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
             filtered = False
 
     # check an attached images (check images with Not-CAPTCHA strategy)
-    if not filtered and len(matches) > 0 and truecaptcha_userid != '':
+    if truecaptcha_userid != '' and not filtered and len(matches) > 0:
         def webp_to_png_base64(url):
             try:
                 response = requests.get(url)
