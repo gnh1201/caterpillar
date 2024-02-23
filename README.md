@@ -44,6 +44,7 @@ MASTODON_SERVER=
 MASTODON_USER_TOKEN=
 TRUECAPTCHA_USERID=
 TRUECAPTCHA_APIKEY=
+LIBREY_APIURL=
 ```
 
 - (Optional) Install RootCA for SSL decryption ([Download CA Certificate](ca.crt))
