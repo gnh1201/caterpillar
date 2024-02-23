@@ -298,7 +298,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                 except Exception as e:
                     raise Exception("SSL negotiation failed. (%s:%s) %s" % (webserver.decode(client_encoding), str(port), str(e)))
 
-        # reload data
+        # override data
         if is_ssl:
             _, _, _, method, url = parse_first_data(data)
 
