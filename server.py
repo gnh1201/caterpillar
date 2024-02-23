@@ -226,9 +226,13 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
         if all(map(has_known_word, matches)):
             score += 2
 
-        # check ID with SearchEngine5 strategy
+        # check ID with SearchEngine3 strategy
         if librey_apiurl != '' and all(map(search_engine_test, matches)):
             score += 1
+
+        # logging score
+        with open('score.log', 'a') as file:
+            file.write("%s\t%s\r\n" % ('+'.join(matches), str(score)))
 
         # make decision
         if score > 1:
@@ -263,7 +267,7 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
                         solved = truecaptcha_solve(encoded_image)
                         if solved:
                             print ("[*] solved: %s" % (solved))
-                            filtered = solved.lower() in ['ctkpaarr', 'spam']
+                            filtered = filtered or (solved.lower() in ['ctkpaarr', 'spam'])
                         else:
                             print ("[*] not solved")
                     except Exception as e:
@@ -590,7 +594,7 @@ def has_known_word(input_string):
                 return True
     return False
 
-# Strategy: SearchEngine5
+# Strategy: SearchEngine3
 def search_engine_test(s):
     url = "%s/api.php?q=%s" % (librey_apiurl, s)
     response = requests.get(url, verify=False)
@@ -604,7 +608,7 @@ def search_engine_test(s):
 
     num_results = len(data)
 
-    return num_results >= 5
+    return num_results > 2
 
 if __name__== "__main__":
     start()
