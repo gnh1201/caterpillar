@@ -17,6 +17,7 @@ For example, build a simple web debugging proxy on the shared servers.
 * VowelRatio10 - In characters arranged by humans, there is a high frequency of [vowels](https://en.wikipedia.org/wiki/Vowel) (aeiou) and [semivowels](https://en.wikipedia.org/wiki/Semivowel) (wy) included in strings that are 10 characters.
 * Palindrome5 - Detect [palindromes](https://en.wikipedia.org/wiki/Palindrome) composed of 5 or more characters
 * KnownWords5 - Detect [well-known words](https://github.com/dwyl/english-words) composed of 5 or more characters
+* SearchEngine5 - In public search engine, the given string yields more than 5 results. (use [LibreY](https://github.com/Ahwxorg/librey))
 * SSL decryption (MITM) when relaying to federated servers.
 
 The strategies were implemented to respond to [the Fediverse Spam Attacks which started on the 15th of February](https://github.com/Mastodon-DE/blocklists/blob/main/spam%2F2024-02-15%2F2024-02-15-spam-mute-list.md).
