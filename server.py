@@ -90,7 +90,9 @@ def start():    #Main Program
             print("\n[*] Graceful Shutdown")
             sys.exit(1)
 
-def conn_string(conn, data, addr):
+def parse_first_data(data):
+    parsed_data = (None, None, None, None, None)
+
     try:
         first_line = data.split(b'\n')[0]
 
@@ -119,9 +121,17 @@ def conn_string(conn, data, addr):
             webserver = temp[:port_pos]
             if port == 443:
                 scheme = b'https'
+
+        parsed_data = (webserver, port, scheme, method, url)
     except Exception as e:
         conn.close()
         print("[*] Exception on parsing the header of %s. Cause: %s" % (str(addr[0]), str(e)))
+
+    return parsed_data
+
+def conn_string(conn, data, addr):
+    webserver, port, scheme, method, url = parse_first_data(data)
+    if not webserver:
         return
 
     # if it is reverse proxy
@@ -348,14 +358,14 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                 chunk = sock.recv(buffer_size)
                 if not chunk:
                     break
+                if i == 0 and chunk.find(b'HTTP/1.1 403') == 0:
+                    is_http_403 = True
+                    break
                 buffered += chunk
                 if proxy_check_filtered(buffered, webserver, port, scheme, method, url):
                     sock_close(sock, is_ssl)
                     add_filtered_host(webserver.decode(client_encoding), '127.0.0.1')
                     raise Exception("Filtered response")
-                if i == 0 and chunk.find(b'HTTP/1.1 403') == 0:
-                    is_http_403 = True
-                    break
                 conn.send(chunk)
                 if len(buffered) > buffer_size*2:
                     buffered = buffered[-buffer_size*2:]
