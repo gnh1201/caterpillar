@@ -92,7 +92,7 @@ def start():    #Main Program
             sys.exit(1)
 
 def parse_first_data(data):
-    parsed_data = (None, None, None, None, None)
+    parsed_data = (b'', b'', b'', b'', b'')
 
     try:
         first_line = data.split(b'\n')[0]
@@ -131,9 +131,8 @@ def parse_first_data(data):
     return parsed_data
 
 def conn_string(conn, data, addr):
+    # parse first data (header)
     webserver, port, scheme, method, url = parse_first_data(data)
-    if not webserver:
-        return
 
     # if it is reverse proxy
     if local_domain != '':
@@ -301,7 +300,9 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
 
         # override data
         if is_ssl:
-            _, _, _, method, url = parse_first_data(data)
+            _, _, _, method, _url = parse_first_data(data)
+        else:
+            _url = b''
 
         # https://stackoverflow.com/questions/44343739/python-sockets-ssl-eof-occurred-in-violation-of-protocol
         def sock_close(sock, is_ssl = False):
@@ -401,7 +402,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
 
                 if is_ssl and method == b'GET':
                     print ("[*] Trying to bypass blocked request...")
-                    remote_url = "%s://%s%s" % (scheme.decode(client_encoding), webserver.decode(client_encoding), url.decode(client_encoding))
+                    remote_url = "%s://%s%s" % (scheme.decode(client_encoding), webserver.decode(client_encoding), _url.decode(client_encoding))
                     requests.get(remote_url, stream=True, hooks={'response': bypass_callback})
                 else:
                     conn.sendall(b"HTTP/1.1 403 Forbidden\r\n\r\n{\"status\":403}")
