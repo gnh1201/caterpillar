@@ -363,7 +363,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
 
             # when blocked
             if is_http_403:
-                conn.sendall(b"HTTP/1.1 403 Forbidden\n\n{\"status\":403}")
+                conn.sendall(b"HTTP/1.1 403 Forbidden\r\n\r\n{\"status\":403}")
                 print ("[*] Blocked the request by remote server: %s" % (webserver.decode(client_encoding)))
 
             sock_close(sock, is_ssl)
@@ -412,7 +412,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
     except Exception as e:
         print(traceback.format_exc())
         print("[*] Exception on requesting the data. Cause: %s" % (str(e)))
-        conn.sendall(b"HTTP/1.1 403 Forbidden\n\n{\"status\":403}")
+        conn.sendall(b"HTTP/1.1 403 Forbidden\r\n\r\n{\"status\":403}")
         conn.close()
 
 # journaling a filtered hosts
