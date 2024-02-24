@@ -216,15 +216,15 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
             score += 1
             strategies.append('VowelRatio10')
 
-        # check ID with Palindrome5 strategy
+        # check ID with Palindrome4 strategy
         if all(map(has_palindrome, matches)):
             score += 1
-            strategies.append('Palindrome5')
+            strategies.append('Palindrome4')
 
-        # check ID with EnglishWords5 strategy
+        # check ID with KnownWords4 strategy
         if all(map(has_known_word, matches)):
             score += 2
-            strategies.append('EnglishWords5')
+            strategies.append('KnownWords4')
 
         # check ID with SearchEngine3 strategy
         if librey_apiurl != '' and all(map(search_engine_test, matches)):
@@ -573,7 +573,7 @@ def calculate_vowel_ratio(s):
 
     return vowel_ratio
 
-# Strategy: Palindrome5
+# Strategy: Palindrome4
 def has_palindrome(input_string):
     def is_palindrome(s):
         return s == s[::-1]
@@ -581,13 +581,13 @@ def has_palindrome(input_string):
     input_string = input_string.lower()
     n = len(input_string)
     for i in range(n):
-        for j in range(i + 5, n + 1):  # Find substrings of at least 5 characters
+        for j in range(i + 4, n + 1):  # Find substrings of at least 5 characters
             substring = input_string[i:j]
             if is_palindrome(substring):
                 return True
     return False
 
-# Strategy: KnownWords5
+# Strategy: KnownWords4
 def has_known_word(input_string):
     def is_known_word(s):
         return s in known_words
@@ -595,7 +595,7 @@ def has_known_word(input_string):
     input_string = input_string.lower()
     n = len(input_string)
     for i in range(n):
-        for j in range(i + 5, n + 1):  # Find substrings of at least 5 characters
+        for j in range(i + 4, n + 1):  # Find substrings of at least 5 characters
             substring = input_string[i:j]
             if is_known_word(substring):
                 return True
