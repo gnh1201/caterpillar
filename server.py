@@ -62,14 +62,14 @@ resource.setrlimit(
     resource.RLIMIT_CORE,
     (resource.RLIM_INFINITY, resource.RLIM_INFINITY))
 
-# load data to use KnownWords5 strategy
+# load data to use KnownWords4 strategy
 # Download data: https://github.com/dwyl/english-words
 known_words = []
 if os.path.exists("words_alpha.txt"):
     with open("words_alpha.txt", "r") as file:
         words = file.readlines()
-        known_words = [word.strip() for word in words if len(word.strip()) > 5]
-        print ("[*] data loaded to use KnownWords5 strategy")
+        known_words = [word.strip() for word in words if len(word.strip()) > 3]
+        print ("[*] data loaded to use KnownWords4 strategy")
 
 def start():    #Main Program
     try:
