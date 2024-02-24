@@ -2,7 +2,7 @@
 # Namyheon Go (Catswords Research) <gnh1201@gmail.com>
 # https://github.com/gnh1201/caterpillar
 # Created at: 2022-10-06
-# Updated at: 2024-12-23
+# Updated at: 2024-12-24
 
 import argparse
 import socket
@@ -181,10 +181,6 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
     if data.find(b'<title>Welcome to nginx!</title>') > -1:
         return True
 
-    # ctkpaarr
-    if data.find(b'ctkpaarr') > -1:
-        return True
-
     # allowed conditions
     if method == b'GET' or url.find(b'/api') > -1:
         return False
@@ -210,6 +206,7 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
     # feedback
     if filtered and len(matches) > 0:
         score = 0
+        strategies = []
 
         # check ID with VowelRatio10 strategy
         def vowel_ratio_test(s):
@@ -217,22 +214,26 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
             return ratio > 0.2 and ratio < 0.7
         if all(map(vowel_ratio_test, matches)):
             score += 1
+            strategies.append('VowelRatio10')
 
         # check ID with Palindrome5 strategy
         if all(map(has_palindrome, matches)):
             score += 1
+            strategies.append('Palindrome5')
 
         # check ID with EnglishWords5 strategy
         if all(map(has_known_word, matches)):
             score += 2
+            strategies.append('EnglishWords5')
 
         # check ID with SearchEngine3 strategy
         if librey_apiurl != '' and all(map(search_engine_test, matches)):
             score += 1
+            strategies.append('SearchEngine3')
 
         # logging score
         with open('score.log', 'a') as file:
-            file.write("%s\t%s\r\n" % ('+'.join(matches), str(score)))
+            file.write("%s\t%s\t%s\r\n" % ('+'.join(matches), str(score), '+'.join(strategies)))
 
         # make decision
         if score > 1:
