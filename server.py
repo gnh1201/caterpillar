@@ -211,7 +211,7 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
         # check ID with VowelRatio10 strategy
         def vowel_ratio_test(s):
             ratio = calculate_vowel_ratio(s)
-            return ratio > 0.2 and ratio < 0.7
+            return ratio > 0.2 and ratio < 0.8
         if all(map(vowel_ratio_test, matches)):
             score += 1
             strategies.append('VowelRatio10')
