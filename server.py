@@ -624,7 +624,7 @@ def search_engine_test(s):
 
 # Strategy: RepeatedNumbers3
 def repeated_numbers_test(s):
-    return bool(re.search(pattern, r'\d{3,}'))
+    return bool(re.search(r'\d{3,}', s))
 
 if __name__== "__main__":
     start()
