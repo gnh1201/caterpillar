@@ -231,6 +231,11 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
             score += 1
             strategies.append('SearchEngine3')
 
+        # check ID with RepeatedNumbers3 strategy
+        if all(map(repeated_numbers_test, matches)):
+            score += 1
+            strategies.append('RepeatedNumbers3')
+
         # logging score
         with open('score.log', 'a') as file:
             file.write("%s\t%s\t%s\r\n" % ('+'.join(matches), str(score), '+'.join(strategies)))
@@ -616,6 +621,10 @@ def search_engine_test(s):
     num_results = len(data)
 
     return num_results > 2
+
+# Strategy: RepeatedNumbers3
+def repeated_numbers_test(s):
+    return bool(re.search(pattern, r'\d{3,}'))
 
 if __name__== "__main__":
     start()
