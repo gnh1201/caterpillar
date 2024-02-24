@@ -563,7 +563,7 @@ def calculate_vowel_ratio(s):
     vowel_count = sum(1 for char in s if char.lower() in 'aeiouwy')
 
     # Define vowel-ending patterns
-    vowel_ending_patterns = ['ang', 'eng', 'ing', 'ong', 'ung']
+    vowel_ending_patterns = ['ang', 'eng', 'ing', 'ong', 'ung', 'ank', 'ink', 'dge']
 
     # Count the occurrences of vowel-ending patterns in the string.
     vowel_count += sum(s.count(pattern) for pattern in vowel_ending_patterns)
