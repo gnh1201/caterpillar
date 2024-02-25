@@ -3,9 +3,9 @@
 // Namhyeon Go <abuse@catswords.net>
 // https://github.com/gnh1201/caterpillar
 // Created at: 2022-10-06
-// Updated at: 2024-02-20
+// Updated at: 2024-02-26
 
-define("PHP_HTTPPROXY_VERSION", "0.1.4");
+define("PHP_HTTPPROXY_VERSION", "0.2.0-dev");
 
 if (strpos($_SERVER['HTTP_USER_AGENT'], "php-httpproxy/") !== 0) {
     exit('<!DOCTYPE html><html><head><title>It works!</title><meta charset="utf-8"></head><body><h1>It works!</h1><p><a href="https://github.com/gnh1201/caterpillar">Download the client</a></p><hr><p>php-httpproxy/' . PHP_HTTPPROXY_VERSION . ' (Server; PHP ' . phpversion() . '; abuse@catswords.net)</p></body></html>');
@@ -32,39 +32,60 @@ function parse_headers($str) { // Parses HTTP headers into an array
     return $headers;
 }
 
-$data = json_decode(file_get_contents('php://input'), true);
-
-$buffer_size = $data['chunksize'];
-
-$relay_data = base64_decode($data['data']);
-$relay_headers = parse_headers($relay_data);
-$relay_port = intval($data['port']);
-$relay_scheme = $data['scheme'];
-$relay_hostname = $data['server'];
-
-if ($relay_scheme == "https") {
-    $relay_hostname = "tls://" . $relay_hostname;
+// stateless mode
+function relay_request($params) {
+    $buffer_size = $params['chunksize'];
+    $relay_data = base64_decode($params['data']);
+    $relay_headers = parse_headers($relay_data);
+    $relay_port = intval($params['port']);
+    $relay_scheme = $params['scheme'];
+    $relay_hostname = $params['server'];
+    
+    if (in_array($relay_scheme, array("https", "ssl", "tls"))) {
+        $relay_hostname = "tls://" . $relay_hostname;
+    }
+    
+    switch ($relay_headers['@method'][0]) {
+        case "CONNECT":
+            echo sprintf("%s 200 Connection Established\r\n\r\n", $relay_headers['@method'][2]);
+            break;
+    
+        default:
+            $fp = fsockopen($relay_hostname, $relay_port, $errno, $errstr, 1);
+    
+            if (!$fp) {
+                echo "$errstr ($errno)<br />\n";
+            } else {
+                fwrite($fp, $relay_data);
+    
+                $buf = null;
+                while (!feof($fp) && $buf !== false) {
+                    $buf = fgets($fp, $buffer_size);
+                    echo $buf;
+                }
+    
+                fclose($fp);
+            }
+    }
 }
 
-switch ($relay_headers['@method'][0]) {
-    case "CONNECT":
-        echo sprintf("%s 200 Connection Established\r\n\r\n", $relay_headers['@method'][2]);
-        break;
+// stateful mode
+function relay_connect($params) {
+    // todo
+}
 
-    default:
-        $fp = fsockopen($relay_hostname, $relay_port, $errno, $errstr, 1);
+// parse context
+$context = json_decode(file_get_contents('php://input'), true);
 
-        if (!$fp) {
-            echo "$errstr ($errno)<br />\n";
-        } else {
-            fwrite($fp, $relay_data);
-
-            $buf = null;
-            while (!feof($fp) && $buf !== false) {
-                $buf = fgets($fp, $buffer_size);
-                echo $buf;
-            }
-
-            fclose($fp);
-        }
+// check is it jsonrpc
+if ($context['jsonrpc'] == "2.0") {
+    $method = $context['method'];
+    switch ($method) {
+        case "relay_request":
+            relay_request($context['params']);    // stateless mode
+            break;
+        case "relay_connect":
+            relay_connect($context['params']);    // stateful mode
+            break;
+    }
 }
