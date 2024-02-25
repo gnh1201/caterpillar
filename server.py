@@ -92,6 +92,16 @@ def start():    #Main Program
             print("\n[*] Graceful Shutdown")
             sys.exit(1)
 
+def build_jsonrpc2_message(method, params):
+    data = {
+        "jsonrpc": "2.0",
+        "method": method,
+        "params": params
+    }
+    id = "0x%s" % (hashlib.sha1(json.dumps(data).encoding(client_encoding)).hexdigest())
+    data['id'] = id
+    return json.dumps(data)
+
 def parse_first_data(data):
     parsed_data = (b'', b'', b'', b'', b'')
 
@@ -426,7 +436,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
 
             proxy_data = {
                 'headers': {
-                    "User-Agent": "php-httpproxy/0.1.4 (Client; Python " + python_version() + "; abuse@catswords.net)",
+                    "User-Agent": "php-httpproxy/0.2.0-dev (Client; Python " + python_version() + "; abuse@catswords.net)",
                 },
                 'data': {
                     "data": base64.b64encode(data).decode(client_encoding),
@@ -440,7 +450,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                     "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
                 }
             }
-            raw_data = json.dumps(proxy_data['data'])
+            raw_data = build_jsonrpc2_message(proxy_data['data'])
 
             print("[*] Sending %s bytes..." % (str(len(raw_data))))
 
