@@ -102,8 +102,9 @@ def jsonrpc2_encode(method, params):
         "method": method,
         "params": params
     }
-    data['id'] = jsonrpc2_create_id(data)
-    return json.dumps(data)
+    id = jsonrpc2_create_id(data)
+    data['id'] = id
+    return (id, json.dumps(data))
 
 def parse_first_data(data):
     parsed_data = (b'', b'', b'', b'', b'')
@@ -467,7 +468,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                     "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
                 }
             }
-            raw_data = jsonrpc2_encode(proxy_data['request_data'])
+            _, raw_data = jsonrpc2_encode(proxy_data['request_data'])
 
             print("[*] Sending %s bytes..." % (str(len(raw_data))))
 
