@@ -92,7 +92,7 @@ def start():    #Main Program
             print("\n[*] Graceful Shutdown")
             sys.exit(1)
 
-def build_jsonrpc2_message(method, params):
+def jsonrpc2_encode(method, params):
     data = {
         "jsonrpc": "2.0",
         "method": method,
@@ -452,7 +452,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                     "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
                 }
             }
-            raw_data = build_jsonrpc2_message(proxy_data['request_data'])
+            raw_data = jsonrpc2_encode(proxy_data['request_data'])
 
             print("[*] Sending %s bytes..." % (str(len(raw_data))))
 
