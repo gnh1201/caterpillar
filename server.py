@@ -156,6 +156,7 @@ def conn_string(conn, data, addr):
         else:
             jsondata = json.loads(data.decode(client_encoding))
         if jsondata['jsonrpc'] == "2.0" and jsondata['method'] == "relay_accept":
+            id = jsondata['id']
             accepted_relay[id] = conn
 
     # parse first data (header)
@@ -449,7 +450,34 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
             print("[*] Received %s chunks. (%s bytes per chunk)" % (str(i), str(buffer_size)))
 
         else:
+            # stateful mode
+            proxy_data = {
+                'headers': {
+                    "User-Agent": "php-httpproxy/0.2.0-dev (Client; Python " + python_version() + "; abuse@catswords.net)",
+                },
+                'data': {
+                    "buffer_size": str(buffer_size),
+                    "client_address": str(addr[0]),
+                    "client_port": str(listening_port),
+                    "client_encoding": client_encoding,
+                    "remote_address": webserver.decode(client_encoding),
+                    "remote_port": str(port),
+                    "scheme": scheme.decode(client_encoding),
+                    "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
+                }
+            }
+            id, raw_data = jsonrpc2_encode(proxy_data['data'])
 
+            # wait for the relay
+            while not id in accepted_relay:
+                time.sleep(1)
+            sock = accepted_relay[id]
+
+            # send data
+            sendall(sock, conn, data)
+            socks_close(sock)
+
+            # stateless mode
             proxy_data = {
                 'headers': {
                     "User-Agent": "php-httpproxy/0.2.0-dev (Client; Python " + python_version() + "; abuse@catswords.net)",
@@ -464,11 +492,10 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                     "remote_address": webserver.decode(client_encoding),
                     "remote_port": str(port),
                     "scheme": scheme.decode(client_encoding),
-                    "url": url.decode(client_encoding),
                     "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
                 }
             }
-            _, raw_data = jsonrpc2_encode(proxy_data['request_data'])
+            _, raw_data = jsonrpc2_encode(proxy_data['data'])
 
             print("[*] Sending %s bytes..." % (str(len(raw_data))))
 
