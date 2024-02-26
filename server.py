@@ -142,6 +142,12 @@ def parse_first_data(data):
     return parsed_data
 
 def conn_string(conn, data, addr):
+    # check is it JSON-RPC 2.0 request
+    if data.find(b'{') == 0:
+        context = json.loads(data.decode(client_encoding))
+        if "jsonrpc" in context:
+            pass   # todo
+
     # parse first data (header)
     webserver, port, scheme, method, url = parse_first_data(data)
 
