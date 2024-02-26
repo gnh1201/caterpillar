@@ -56,6 +56,7 @@ parser.add_argument('--buffer_size', help="Number of samples to be used", defaul
 args = parser.parse_args()
 max_connection = args.max_conn
 buffer_size = args.buffer_size
+accepted_relay = []
 
 # https://stackoverflow.com/questions/25475906/set-ulimit-c-from-outside-shell
 resource.setrlimit(
@@ -144,9 +145,15 @@ def parse_first_data(data):
 def conn_string(conn, data, addr):
     # check is it JSON-RPC 2.0 request
     if data.find(b'{') == 0:
-        context = json.loads(data.decode(client_encoding))
-        if "jsonrpc" in context:
-            pass   # todo
+        pos = data.find(b'\r\n\r\n')
+        jsondata = {}
+        if pos > -1:
+            jsondata = json.loads(data[0:pos].decode(client_encoding))
+            data = data[pos+4:]
+        else:
+            jsondata = json.loads(data.decode(client_encoding))
+        if jsondata['jsonrpc'] == "2.0" and jsondata['method'] == "relay_accept":
+            accepted_relay.append(conn)
 
     # parse first data (header)
     webserver, port, scheme, method, url = parse_first_data(data)
