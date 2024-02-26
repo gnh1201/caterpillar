@@ -1,6 +1,6 @@
 <?php
 // Caterpillar - The simple and parasitic web proxy with spam filter
-// Namhyeon Go <abuse@catswords.net>
+// Namhyeon Go (Catswords Research) <abuse@catswords.net>
 // https://github.com/gnh1201/caterpillar
 // Created at: 2022-10-06
 // Updated at: 2024-02-26
@@ -13,6 +13,14 @@ if (strpos($_SERVER['HTTP_USER_AGENT'], "php-httpproxy/") !== 0) {
 
 ini_set("default_socket_timeout", 1);  // must be. because of `feof()` works
 ini_set("max_execution_time", 0);
+
+function jsonrpc2_error_encode($error) {
+    $data = array(
+        "jsonrpc" => "2.0",
+        "error" => $error
+    );
+    return json_encode($data);
+}
 
 function parse_headers($str) { // Parses HTTP headers into an array
     // https://stackoverflow.com/questions/16934409/curl-as-proxy-deal-with-https-connect-method
@@ -34,36 +42,46 @@ function parse_headers($str) { // Parses HTTP headers into an array
 
 // stateless mode
 function relay_request($params) {
-    $buffer_size = $params['chunksize'];
-    $relay_data = base64_decode($params['data']);
-    $relay_headers = parse_headers($relay_data);
-    $relay_port = intval($params['port']);
-    $relay_scheme = $params['scheme'];
-    $relay_hostname = $params['server'];
-    
-    if (in_array($relay_scheme, array("https", "ssl", "tls"))) {
-        $relay_hostname = "tls://" . $relay_hostname;
+    $buffer_size = $params['buffer_size'];
+    $data = base64_decode($params['data']);
+    $rawdata_length = intval($params['data_length']);
+    $headers = parse_headers($data);
+    $client_address = $params['client_address'];
+    $client_port = intval($params['client_port']);
+    $client_encoding = $params['client_encoding'];
+    $remote_address = $params['remote_address'];
+    $remote_port = intval($params['remote_port']);
+    $scheme = $params['scheme'];
+    $url = $params['url'];
+    $datetime = $params['datetime'];   // format: %Y-%m-%d %H:%M:%S.%f
+
+    if (in_array($scheme, array("https", "ssl", "tls"))) {
+        $remote_address = "tls://" . $remote_address;
     }
-    
+
     switch ($relay_headers['@method'][0]) {
         case "CONNECT":
             echo sprintf("%s 200 Connection Established\r\n\r\n", $relay_headers['@method'][2]);
             break;
-    
+
         default:
-            $fp = fsockopen($relay_hostname, $relay_port, $errno, $errstr, 1);
-    
+            $fp = fsockopen($remote_address, $remote_port, $error_code, $error_message, 1);
             if (!$fp) {
-                echo "$errstr ($errno)<br />\n";
+                $error = array(
+                    "status" => 400,
+                    "code" => $error_code,
+                    "message" => $error_message
+                );
+                echo "HTTP/1.1 400 Bad Request\r\n\r\n" . jsonrpc2_error_encode($error);
             } else {
-                fwrite($fp, $relay_data);
-    
+                fwrite($fp, $data);
+
                 $buf = null;
                 while (!feof($fp) && $buf !== false) {
                     $buf = fgets($fp, $buffer_size);
                     echo $buf;
                 }
-    
+
                 fclose($fp);
             }
     }
@@ -71,7 +89,27 @@ function relay_request($params) {
 
 // stateful mode
 function relay_connect($params) {
-    // todo
+    $buffer_size = $params['buffer_size'];
+    $client_address = $params['client_address'];
+    $client_port = intval($params['client_port']);
+    $client_encoding = $params['client_encoding'];
+    $remote_address = $params['remote_address'];
+    $remote_port = intval($params['remote_port']);
+    $scheme = $params['scheme'];
+    $url = $params['url'];
+    $datetime = $params['datetime'];   // format: %Y-%m-%d %H:%M:%S.%f
+
+    $fp = fsockopen($client_address, $client_port, $error_code, $error_message, 1);
+    if (!$fp) {
+        $error = array(
+            "status" => 400,
+            "code" => $error_code,
+            "message" => $error_message
+        );
+        echo "HTTP/1.1 400 Bad Request\r\n\r\n" . jsonrpc2_error_encode($error);
+    } else {
+        // todo
+    }
 }
 
 // parse context
