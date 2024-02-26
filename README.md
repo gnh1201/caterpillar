@@ -11,7 +11,7 @@ You <-> Proxy client (Python) <-> Parasitized proxy server (Optional, PHP) <-> O
 ```
 For example, build a simple web debugging proxy on the shared servers.
 
-The default is stateless. You can use the stateful mode to avoid being constrained by transmission capacity limits (e.g., `max_upload_size`).
+This project supports two modes of connection. The default is stateless. You can use the stateful mode to avoid being constrained by transfer capacity limits (e.g., `max_upload_size`).
 
 ### Spam filtering strategy
 * [K-Anonymity](https://en.wikipedia.org/wiki/K-anonymity) test - Estimating whether the characters has been arranged by humans. (use [Have I Been Pwned](https://haveibeenpwned.com/Passwords))
