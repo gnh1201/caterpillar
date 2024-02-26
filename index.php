@@ -77,7 +77,8 @@ function read_from_remote_server($remote_address, $remote_port, $scheme, $conn =
         if ($conn == null) {
             echo jsonrpc2_error_encode($error, $id);
         } else {
-            $buf = "HTTP/1.1 502 Bad Gateway\r\n\r\n" . jsonrpc2_error_encode($error, $id);
+            $buf = sprintf("HTTP/1.1 %s %s\r\n\r\n", $error['status'], $error['message']);
+            $buf .= jsonrpc2_error_encode($error, $id);
             fwrite($conn, $buf);
         }
     } else {
