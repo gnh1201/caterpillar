@@ -162,6 +162,8 @@ def conn_string(conn, data, addr):
             accepted_relay[id] = conn
             while conn.fileno() > -1:
                 time.sleep(1)
+            del accepted_relay[id]
+            print ("[*] relay destroyed: %s" % (id))
             return
 
     # parse first data (header)
