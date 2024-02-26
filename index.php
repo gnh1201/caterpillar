@@ -60,9 +60,9 @@ function parse_headers($str) { // Parses HTTP headers into an array
 // stateless mode
 function relay_request($params) {
     $buffer_size = $params['buffer_size'];
-    $data = base64_decode($params['data']);
-    $rawdata_length = intval($params['data_length']);
-    $headers = parse_headers($data);
+    $request_data = base64_decode($params['request_data']);
+    $request_header = parse_headers($request_data);
+    $request_length = intval($params['request_length']);
     $client_address = $params['client_address'];
     $client_port = intval($params['client_port']);
     $client_encoding = $params['client_encoding'];
@@ -76,9 +76,9 @@ function relay_request($params) {
         $remote_address = "tls://" . $remote_address;
     }
 
-    switch ($relay_headers['@method'][0]) {
+    switch ($request_header['@method'][0]) {
         case "CONNECT":
-            echo sprintf("%s 200 Connection Established\r\n\r\n", $relay_headers['@method'][2]);
+            echo sprintf("%s 200 Connection Established\r\n\r\n", $request_header['@method'][2]);
             break;
 
         default:
@@ -91,7 +91,7 @@ function relay_request($params) {
                 );
                 echo "HTTP/1.1 400 Bad Request\r\n\r\n" . jsonrpc2_error_encode($error);
             } else {
-                fwrite($fp, $data);
+                fwrite($fp, $request_data);
 
                 $buf = null;
                 while (!feof($fp) && $buf !== false) {
