@@ -61,7 +61,7 @@ function parse_headers($str) { // Parses HTTP headers into an array
     return $headers;
 }
 
-function read_from_remote_server($remote_address, $remote_port, $scheme, $conn = null, $buffer_size = 8192, $id = '') {
+function read_from_remote_server($remote_address, $remote_port, $scheme, $data = null, $conn = null, $buffer_size = 8192, $id = '') {
     if (in_array($scheme, array("https", "ssl", "tls"))) {
         $remote_address = "tls://" . $remote_address;
     }
@@ -82,17 +82,28 @@ function read_from_remote_server($remote_address, $remote_port, $scheme, $conn =
             fwrite($conn, $buf);
         }
     } else {
-        $buf = null;
-        if ($conn != null) {
-            $buf = fgets($conn, $buffer_size);
-            fwrite($sock, $buf);
-        }
+        if ($conn == null) {
+            // send data
+            fwrite($sock, $data);
 
-        while (!feof($sock) && $buf !== false) {
-            $buf = fgets($sock, $buffer_size);
-            if ($conn == null) {
+            // receive data
+            $buf = null;
+            while (!feof($sock) && $buf !== false) {
+                $buf = fgets($sock, $buffer_size);
                 echo $buf;
-            } else {
+            }
+        } else {
+            // send data
+            $buf = null;
+            while (!feof($conn) && $buf !== false) {
+                $buf = fgets($conn, $buffer_size);
+                fwrite($sock, $buf);
+            }
+
+            // receive data
+            $buf = null;
+            while (!feof($sock) && $buf !== false) {
+                $buf = fgets($sock, $buffer_size);
                 fwrite($conn, $buf);
             }
         }
@@ -131,7 +142,7 @@ function relay_request($params, $id = '') {
             break;
 
         default:
-            read_from_remote_server($remote_address, $remote_port, $scheme, null, $buffer_size, $id);
+            read_from_remote_server($remote_address, $remote_port, $scheme, $request_data, null, $buffer_size, $id);
     }
 }
 
@@ -156,7 +167,7 @@ function relay_connect($params, $id = '') {
         );
         echo jsonrpc2_error_encode($error, $id);
     } else {
-        read_from_remote_server($remote_address, $remote_port, $scheme, $conn, $buffer_size, $id);
+        read_from_remote_server($remote_address, $remote_port, $scheme, null, $conn, $buffer_size, $id);
         fclose($conn);
     }
 }
