@@ -2,7 +2,7 @@
 # Namyheon Go (Catswords Research) <gnh1201@gmail.com>
 # https://github.com/gnh1201/caterpillar
 # Created at: 2022-10-06
-# Updated at: 2024-12-26
+# Updated at: 2024-12-28
 
 import argparse
 import socket
@@ -95,9 +95,9 @@ def start():    #Main Program
             sys.exit(1)
 
 def jsonrpc2_create_id(data):
-    return hashlib.sha1(json.dumps(data).encoding(client_encoding)).hexdigest()
+    return hashlib.sha1(json.dumps(data).encode(client_encoding)).hexdigest()
 
-def jsonrpc2_encode(method, params):
+def jsonrpc2_encode(method, params = None):
     data = {
         "jsonrpc": "2.0",
         "method": method,
@@ -106,6 +106,14 @@ def jsonrpc2_encode(method, params):
     id = jsonrpc2_create_id(data)
     data['id'] = id
     return (id, json.dumps(data))
+
+def jsonrpc2_result_encode(result, id = ''):
+    data = {
+        "jsonrpc": "2.0",
+        "result": result,
+        "id": id
+    }
+    return json.dumps(data)
 
 def parse_first_data(data):
     parsed_data = (b'', b'', b'', b'', b'')
@@ -141,24 +149,21 @@ def parse_first_data(data):
 
         parsed_data = (webserver, port, scheme, method, url)
     except Exception as e:
-        conn.close()
-        print("[*] Exception on parsing the header of %s. Cause: %s" % (str(addr[0]), str(e)))
+        print("[*] Exception on parsing the header. Cause: %s" % (str(e)))
 
     return parsed_data
 
 def conn_string(conn, data, addr):
     # check is it JSON-RPC 2.0 request
     if data.find(b'{') == 0:
-        pos = data.find(b'\r\n\r\n')
-        jsondata = {}
-        if pos > -1:
-            jsondata = json.loads(data[0:pos].decode(client_encoding))
-            data = data[pos+4:]
-        else:
-            jsondata = json.loads(data.decode(client_encoding))
+        print (data)
+        jsondata = json.loads(data.decode(client_encoding))
         if jsondata['jsonrpc'] == "2.0" and jsondata['method'] == "relay_accept":
             id = jsondata['id']
             accepted_relay[id] = conn
+            while conn.fileno() > -1:
+                time.sleep(1)
+            return
 
     # parse first data (header)
     webserver, port, scheme, method, url = parse_first_data(data)
@@ -450,8 +455,9 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
 
             print("[*] Received %s chunks. (%s bytes per chunk)" % (str(i), str(buffer_size)))
 
+        # stateful mode
         elif server_connection_type == "stateful":
-            # stateful mode
+
             proxy_data = {
                 'headers': {
                     "User-Agent": "php-httpproxy/0.2.0-dev (Client; Python " + python_version() + "; abuse@catswords.net)",
@@ -467,12 +473,33 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                     "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
                 }
             }
-            id, raw_data = jsonrpc2_encode(proxy_data['data'])
+
+            # get client address
+            try:
+                _, query_data = jsonrpc2_encode('get_client_address')
+                query = requests.post(server_url, headers=proxy_data['headers'], data=query_data, timeout=1)
+                if query.status_code == 200:
+                    result = query.json()['result']
+                    proxy_data['data']['client_address'] = result['client_address']
+                print ("[*] Resolved IP: %s" % (result['client_address']))
+            except requests.exceptions.ReadTimeout as e:
+                pass
+
+            # build a tunnel
+            try:
+                id, raw_data = jsonrpc2_encode('relay_connect', proxy_data['data'])
+                relay = requests.post(server_url, headers=proxy_data['headers'], data=raw_data, stream=True, timeout=1)
+                for chunk in relay.iter_content(chunk_size=buffer_size):
+                    print (chunk)
+            except requests.exceptions.ReadTimeout as e:
+                pass
 
             # wait for the relay
+            print ("[*] waiting for the relay... %s" % (id))
             while not id in accepted_relay:
                 time.sleep(1)
             sock = accepted_relay[id]
+            print ("[*] connected the relay. %s" % (id))
             sendall(sock, conn, data)
 
             # get response
@@ -491,6 +518,8 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                 if len(buffered) > buffer_size*2:
                     buffered = buffered[-buffer_size*2:]
                 i += 1
+
+            sock_close(sock, is_ssl)
 
             print("[*] Received %s chunks. (%s bytes per chunk)" % (str(i), str(buffer_size)))
 
