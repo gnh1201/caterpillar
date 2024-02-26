@@ -57,6 +57,41 @@ function parse_headers($str) { // Parses HTTP headers into an array
     return $headers;
 }
 
+function read_from_remote_server($remote_address, $remote_port, $conn = null, $buffer_size = 8192) {
+    $sock = fsockopen($remote_address, $remote_port, $error_code, $error_message, 1);
+    if (!$sock) {
+        $error = array(
+            "status" => 400,
+            "code" => $error_code,
+            "message" => $error_message
+        );
+
+        $buf = "HTTP/1.1 400 Bad Request\r\n\r\n" . jsonrpc2_error_encode($error);
+        if ($conn == null) {
+            echo $buf;
+        } else {
+            fwrite($conn, $buf);
+        }
+    } else {
+        $buf = null;
+        if ($conn != null) {
+            $buf = fgets($conn, $buffer_size);
+            fwrite($sock, $buf);
+        }
+
+        while (!feof($sock) && $buf !== false) {
+            $buf = fgets($sock, $buffer_size);
+            if ($conn == null) {
+                echo $buf;
+            } else {
+                fwrite($conn, $buf);
+            }
+        }
+
+        fclose($sock);
+    }
+}
+
 // stateless mode
 function relay_request($params) {
     $buffer_size = $params['buffer_size'];
@@ -82,25 +117,7 @@ function relay_request($params) {
             break;
 
         default:
-            $fp = fsockopen($remote_address, $remote_port, $error_code, $error_message, 1);
-            if (!$fp) {
-                $error = array(
-                    "status" => 400,
-                    "code" => $error_code,
-                    "message" => $error_message
-                );
-                echo "HTTP/1.1 400 Bad Request\r\n\r\n" . jsonrpc2_error_encode($error);
-            } else {
-                fwrite($fp, $request_data);
-
-                $buf = null;
-                while (!feof($fp) && $buf !== false) {
-                    $buf = fgets($fp, $buffer_size);
-                    echo $buf;
-                }
-
-                fclose($fp);
-            }
+            read_from_remote_server($remote_address, $remote_port, null, $buffer_size);
     }
 }
 
@@ -116,8 +133,8 @@ function relay_connect($params) {
     $url = $params['url'];
     $datetime = $params['datetime'];   // format: %Y-%m-%d %H:%M:%S.%f
 
-    $fp = fsockopen($client_address, $client_port, $error_code, $error_message, 1);
-    if (!$fp) {
+    $conn = fsockopen($client_address, $client_port, $error_code, $error_message, 1);
+    if (!$conn) {
         $error = array(
             "status" => 400,
             "code" => $error_code,
@@ -125,15 +142,9 @@ function relay_connect($params) {
         );
         echo "HTTP/1.1 400 Bad Request\r\n\r\n" . jsonrpc2_error_encode($error);
     } else {
-        fwrite($fp, jsonrpc2_result_encode(array("success" => true)));
-
-        $buf = null;
-        while (!feof($fp) && $buf !== false) {
-            $buf = fgets($fp, $buffer_size);
-            // todo
-        }
-        
-        fclose($fp);
+        fwrite($conn, jsonrpc2_result_encode(array("success" => true)));
+        read_from_remote_server($remote_address, $remote_port, $conn, $buffer_size);
+        fclose($conn);
     }
 }
 
