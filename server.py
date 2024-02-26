@@ -156,7 +156,6 @@ def parse_first_data(data):
 def conn_string(conn, data, addr):
     # check is it JSON-RPC 2.0 request
     if data.find(b'{') == 0:
-        print (data)
         jsondata = json.loads(data.decode(client_encoding))
         if jsondata['jsonrpc'] == "2.0" and jsondata['method'] == "relay_accept":
             id = jsondata['id']
