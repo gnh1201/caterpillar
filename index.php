@@ -5,7 +5,7 @@
 // Created at: 2022-10-06
 // Updated at: 2024-02-26
 
-define("PHP_HTTPPROXY_VERSION", "0.2.0-dev");
+define("PHP_HTTPPROXY_VERSION", "0.1.5");
 
 if (strpos($_SERVER['HTTP_USER_AGENT'], "php-httpproxy/") !== 0) {
     exit('<!DOCTYPE html><html><head><title>It works!</title><meta charset="utf-8"></head><body><h1>It works!</h1><p><a href="https://github.com/gnh1201/caterpillar">Download the client</a></p><hr><p>php-httpproxy/' . PHP_HTTPPROXY_VERSION . ' (Server; PHP ' . phpversion() . '; abuse@catswords.net)</p></body></html>');
