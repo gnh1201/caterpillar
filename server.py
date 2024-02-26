@@ -93,14 +93,16 @@ def start():    #Main Program
             print("\n[*] Graceful Shutdown")
             sys.exit(1)
 
+def jsonrpc2_create_id(data):
+    return hashlib.sha1(json.dumps(data).encoding(client_encoding)).hexdigest()
+
 def jsonrpc2_encode(method, params):
     data = {
         "jsonrpc": "2.0",
         "method": method,
         "params": params
     }
-    id = "0x%s" % (hashlib.sha1(json.dumps(data).encoding(client_encoding)).hexdigest())
-    data['id'] = id
+    data['id'] = jsonrpc2_create_id(data)
     return json.dumps(data)
 
 def parse_first_data(data):
