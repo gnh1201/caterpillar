@@ -440,8 +440,8 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                 },
                 'data': {
                     "buffer_size": str(buffer_size),
-                    "data": base64.b64encode(data).decode(client_encoding),
-                    "data_length": str(len(data)),
+                    "request_data": base64.b64encode(data).decode(client_encoding),
+                    "request_length": str(len(data)),
                     "client_address": str(addr[0]),
                     "client_port": str(listening_port),
                     "client_encoding": client_encoding,
@@ -452,7 +452,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                     "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
                 }
             }
-            raw_data = build_jsonrpc2_message(proxy_data['data'])
+            raw_data = build_jsonrpc2_message(proxy_data['request_data'])
 
             print("[*] Sending %s bytes..." % (str(len(raw_data))))
 
