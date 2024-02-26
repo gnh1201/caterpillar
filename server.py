@@ -439,14 +439,15 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                     "User-Agent": "php-httpproxy/0.2.0-dev (Client; Python " + python_version() + "; abuse@catswords.net)",
                 },
                 'data': {
+                    "buffer_size": str(buffer_size),
                     "data": base64.b64encode(data).decode(client_encoding),
+                    "data_length": str(len(data)),
                     "client": str(addr[0]),
-                    "server": webserver.decode(client_encoding),
-                    "port": str(port),
+                    "client_encoding": client_encoding,
+                    "remote_server": webserver.decode(client_encoding),
+                    "remote_port": str(port),
                     "scheme": scheme.decode(client_encoding),
                     "url": url.decode(client_encoding),
-                    "length": str(len(data)),
-                    "chunksize": str(buffer_size),
                     "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
                 }
             }
