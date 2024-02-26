@@ -85,6 +85,11 @@ sudo update-ca-certificates
 * https://github.com/anapeksha/python-proxy-server
 * https://github.com/inaz2/proxy2
 
+## Thanks to
+
+### PAN ART by [@yeohangdang@i.peacht.art](https://i.peacht.art/@yeohangdang)
+![PAN ART by @yeohangdang@i.peacht.art](panart1.png)
+
 ## Contact
 * ActivityPub [@gnh1201@catswords.social](https://catswords.social/@gnh1201)
 * abuse@catswords.net
