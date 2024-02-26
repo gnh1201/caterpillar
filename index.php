@@ -144,13 +144,16 @@ function relay_connect($params, $id = '') {
     $conn = fsockopen($client_address, $client_port, $error_code, $error_message, 1);
     if (!$conn) {
         $error = array(
-            "status" => 400,
+            "success" => false,
             "code" => $error_code,
             "message" => $error_message
         );
-        echo "HTTP/1.1 400 Bad Request\r\n\r\n" . jsonrpc2_error_encode($error);
+        fwrite($conn, jsonrpc2_result_encode($error) . "\r\n\r\n");
     } else {
-        fwrite($conn, jsonrpc2_result_encode(array("success" => true)));
+        $result = array(
+            "success" => true
+        );
+        fwrite($conn, jsonrpc2_result_encode($result) . "\r\n\r\n");
         read_from_remote_server($remote_address, $remote_port, $scheme, $conn, $buffer_size, $id);
         fclose($conn);
     }
