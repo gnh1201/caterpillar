@@ -14,6 +14,22 @@ if (strpos($_SERVER['HTTP_USER_AGENT'], "php-httpproxy/") !== 0) {
 ini_set("default_socket_timeout", 1);  // must be. because of `feof()` works
 ini_set("max_execution_time", 0);
 
+function jsonrpc2_encode($params) {
+    $data = array(
+        "jsonrpc" => "2.0",
+        "params" => $params
+    );
+    return json_encode($data);
+}
+
+function jsonrpc2_result_encode($result) {
+    $data = array(
+        "jsonrpc" => "2.0",
+        "result" => $result
+    );
+    return json_encode($data);
+}
+
 function jsonrpc2_error_encode($error) {
     $data = array(
         "jsonrpc" => "2.0",
@@ -21,6 +37,7 @@ function jsonrpc2_error_encode($error) {
     );
     return json_encode($data);
 }
+
 
 function parse_headers($str) { // Parses HTTP headers into an array
     // https://stackoverflow.com/questions/16934409/curl-as-proxy-deal-with-https-connect-method
@@ -108,7 +125,15 @@ function relay_connect($params) {
         );
         echo "HTTP/1.1 400 Bad Request\r\n\r\n" . jsonrpc2_error_encode($error);
     } else {
-        // todo
+        fwrite($fp, jsonrpc2_result_encode(array("success" => true)));
+
+        $buf = null;
+        while (!feof($fp) && $buf !== false) {
+            $buf = fgets($fp, $buffer_size);
+            // todo
+        }
+        
+        fclose($fp);
     }
 }
 
