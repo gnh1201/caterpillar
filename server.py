@@ -2,7 +2,7 @@
 # Namyheon Go (Catswords Research) <gnh1201@gmail.com>
 # https://github.com/gnh1201/caterpillar
 # Created at: 2022-10-06
-# Updated at: 2024-12-24
+# Updated at: 2024-12-28
 
 import argparse
 import socket
@@ -30,6 +30,7 @@ from decouple import config
 try:
     listening_port = config('PORT', cast=int)
     server_url = config('SERVER_URL')
+    server_connection_type = config('SERVER_CONNECTION_TYPE')
     cakey = config('CA_KEY')
     cacert = config('CA_CERT')
     certkey = config('CERT_KEY')
@@ -56,6 +57,7 @@ parser.add_argument('--buffer_size', help="Number of samples to be used", defaul
 args = parser.parse_args()
 max_connection = args.max_conn
 buffer_size = args.buffer_size
+accepted_relay = {}
 
 # https://stackoverflow.com/questions/25475906/set-ulimit-c-from-outside-shell
 resource.setrlimit(
@@ -92,6 +94,27 @@ def start():    #Main Program
             print("\n[*] Graceful Shutdown")
             sys.exit(1)
 
+def jsonrpc2_create_id(data):
+    return hashlib.sha1(json.dumps(data).encode(client_encoding)).hexdigest()
+
+def jsonrpc2_encode(method, params = None):
+    data = {
+        "jsonrpc": "2.0",
+        "method": method,
+        "params": params
+    }
+    id = jsonrpc2_create_id(data)
+    data['id'] = id
+    return (id, json.dumps(data))
+
+def jsonrpc2_result_encode(result, id = ''):
+    data = {
+        "jsonrpc": "2.0",
+        "result": result,
+        "id": id
+    }
+    return json.dumps(data)
+
 def parse_first_data(data):
     parsed_data = (b'', b'', b'', b'', b'')
 
@@ -126,12 +149,23 @@ def parse_first_data(data):
 
         parsed_data = (webserver, port, scheme, method, url)
     except Exception as e:
-        conn.close()
-        print("[*] Exception on parsing the header of %s. Cause: %s" % (str(addr[0]), str(e)))
+        print("[*] Exception on parsing the header. Cause: %s" % (str(e)))
 
     return parsed_data
 
 def conn_string(conn, data, addr):
+    # check is it JSON-RPC 2.0 request
+    if data.find(b'{') == 0:
+        jsondata = json.loads(data.decode(client_encoding))
+        if jsondata['jsonrpc'] == "2.0" and jsondata['method'] == "relay_accept":
+            id = jsondata['id']
+            accepted_relay[id] = conn
+            while conn.fileno() > -1:
+                time.sleep(1)
+            del accepted_relay[id]
+            print ("[*] relay destroyed: %s" % (id))
+            return
+
     # parse first data (header)
     webserver, port, scheme, method, url = parse_first_data(data)
 
@@ -422,25 +456,94 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
 
             print("[*] Received %s chunks. (%s bytes per chunk)" % (str(i), str(buffer_size)))
 
-        else:
+        # stateful mode
+        elif server_connection_type == "stateful":
 
             proxy_data = {
                 'headers': {
-                    "User-Agent": "php-httpproxy/0.1.4 (Client; Python " + python_version() + "; abuse@catswords.net)",
+                    "User-Agent": "php-httpproxy/0.1.5 (Client; Python " + python_version() + "; abuse@catswords.net)",
                 },
                 'data': {
-                    "data": base64.b64encode(data).decode(client_encoding),
-                    "client": str(addr[0]),
-                    "server": webserver.decode(client_encoding),
-                    "port": str(port),
+                    "buffer_size": str(buffer_size),
+                    "client_address": str(addr[0]),
+                    "client_port": str(listening_port),
+                    "client_encoding": client_encoding,
+                    "remote_address": webserver.decode(client_encoding),
+                    "remote_port": str(port),
                     "scheme": scheme.decode(client_encoding),
-                    "url": url.decode(client_encoding),
-                    "length": str(len(data)),
-                    "chunksize": str(buffer_size),
                     "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
                 }
             }
-            raw_data = json.dumps(proxy_data['data'])
+
+            # get client address
+            try:
+                _, query_data = jsonrpc2_encode('get_client_address')
+                query = requests.post(server_url, headers=proxy_data['headers'], data=query_data, timeout=1)
+                if query.status_code == 200:
+                    result = query.json()['result']
+                    proxy_data['data']['client_address'] = result['client_address']
+                print ("[*] Resolved IP: %s" % (result['client_address']))
+            except requests.exceptions.ReadTimeout as e:
+                pass
+
+            # build a tunnel
+            try:
+                id, raw_data = jsonrpc2_encode('relay_connect', proxy_data['data'])
+                relay = requests.post(server_url, headers=proxy_data['headers'], data=raw_data, stream=True, timeout=1)
+                for chunk in relay.iter_content(chunk_size=buffer_size):
+                    print (chunk)
+            except requests.exceptions.ReadTimeout as e:
+                pass
+
+            # wait for the relay
+            print ("[*] waiting for the relay... %s" % (id))
+            while not id in accepted_relay:
+                time.sleep(1)
+            sock = accepted_relay[id]
+            print ("[*] connected the relay. %s" % (id))
+            sendall(sock, conn, data)
+
+            # get response
+            i = 0
+            buffered = b''
+            while True:
+                chunk = sock.recv(buffer_size)
+                if not chunk:
+                    break
+                buffered += chunk
+                if proxy_check_filtered(buffered, webserver, port, scheme, method, url):
+                    sock_close(sock, is_ssl)
+                    add_filtered_host(webserver.decode(client_encoding), '127.0.0.1')
+                    raise Exception("Filtered response")
+                conn.send(chunk)
+                if len(buffered) > buffer_size*2:
+                    buffered = buffered[-buffer_size*2:]
+                i += 1
+
+            sock_close(sock, is_ssl)
+
+            print("[*] Received %s chunks. (%s bytes per chunk)" % (str(i), str(buffer_size)))
+
+        else:
+            # stateless mode
+            proxy_data = {
+                'headers': {
+                    "User-Agent": "php-httpproxy/0.1.5 (Client; Python " + python_version() + "; abuse@catswords.net)",
+                },
+                'data': {
+                    "buffer_size": str(buffer_size),
+                    "request_data": base64.b64encode(data).decode(client_encoding),
+                    "request_length": str(len(data)),
+                    "client_address": str(addr[0]),
+                    "client_port": str(listening_port),
+                    "client_encoding": client_encoding,
+                    "remote_address": webserver.decode(client_encoding),
+                    "remote_port": str(port),
+                    "scheme": scheme.decode(client_encoding),
+                    "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
+                }
+            }
+            _, raw_data = jsonrpc2_encode(proxy_data['data'])
 
             print("[*] Sending %s bytes..." % (str(len(raw_data))))
 
