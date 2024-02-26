@@ -42,7 +42,6 @@ function jsonrpc2_error_encode($error, $id = '') {
     return json_encode($data);
 }
 
-
 function parse_headers($str) { // Parses HTTP headers into an array
     // https://stackoverflow.com/questions/16934409/curl-as-proxy-deal-with-https-connect-method
     // https://stackoverflow.com/questions/12433958/how-to-parse-response-headers-in-php
@@ -71,13 +70,13 @@ function read_from_remote_server($remote_address, $remote_port, $scheme, $data =
         $error = array(
             "status" => 502,
             "code" => $error_code,
-            "message" => "Bad Gateway"
+            "message" => $error_message
         );
 
         if ($conn == null) {
             echo jsonrpc2_error_encode($error, $id);
         } else {
-            $buf = sprintf("HTTP/1.1 %s %s\r\n\r\n", $error['status'], $error['message']);
+            $buf = sprintf("HTTP/1.1 502 Bad Gateway\r\n\r\n");
             $buf .= jsonrpc2_error_encode($error, $id);
             fwrite($conn, $buf);
         }
@@ -161,7 +160,8 @@ function relay_connect($params, $id = '') {
         $error = array(
             "status" => 502,
             "code" => $error_code,
-            "message" => "Bad Gateway"
+            "message" => $error_message,
+            "_params" => $params
         );
         echo jsonrpc2_error_encode($error, $id);
     } else {
@@ -175,6 +175,18 @@ function relay_connect($params, $id = '') {
     }
 }
 
+function get_client_address() {
+    $client_address = '';
+    if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+        $client_address = $_SERVER['HTTP_CLIENT_IP'];
+    } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+        $client_address = $_SERVER['HTTP_X_FORWARDED_FOR'];
+    } else {
+        $client_address = $_SERVER['REMOTE_ADDR'];
+    }
+    return array("client_address" => $client_address);
+}
+
 // parse context
 $context = json_decode(file_get_contents('php://input'), true);
 
@@ -185,8 +197,13 @@ if ($context['jsonrpc'] == "2.0") {
         case "relay_request":
             relay_request($context['params'], $context['id']);    // stateless mode
             break;
+
         case "relay_connect":
             relay_connect($context['params'], $context['id']);    // stateful mode
+            break;
+
+        case "get_client_address":
+            echo jsonrpc2_result_encode(get_client_address(), $context['id']);
             break;
     }
 }
