@@ -33,7 +33,7 @@ If you have an ***will be parasitize*** server that you want to proxy, you can i
 [settings]
 PORT=5555
 SERVER_URL=http://example.org
-SERVER_CONNECTION_TYPE=stateful
+SERVER_CONNECTION_TYPE=stateless
 CA_KEY=ca.key
 CA_CERT=ca.crt
 CERT_KEY=cert.key
