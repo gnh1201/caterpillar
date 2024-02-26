@@ -444,7 +444,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                     "data_length": str(len(data)),
                     "client": str(addr[0]),
                     "client_encoding": client_encoding,
-                    "remote_server": webserver.decode(client_encoding),
+                    "remote_address": webserver.decode(client_encoding),
                     "remote_port": str(port),
                     "scheme": scheme.decode(client_encoding),
                     "url": url.decode(client_encoding),
