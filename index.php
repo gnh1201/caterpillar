@@ -124,7 +124,6 @@ function relay_request($params, $id = '') {
     $remote_address = $params['remote_address'];
     $remote_port = intval($params['remote_port']);
     $scheme = $params['scheme'];
-    $url = $params['url'];
     $datetime = $params['datetime'];   // format: %Y-%m-%d %H:%M:%S.%f
 
     if (in_array($scheme, array("https", "ssl", "tls"))) {
@@ -155,7 +154,6 @@ function relay_connect($params, $id = '') {
     $remote_address = $params['remote_address'];
     $remote_port = intval($params['remote_port']);
     $scheme = $params['scheme'];
-    $url = $params['url'];
     $datetime = $params['datetime'];   // format: %Y-%m-%d %H:%M:%S.%f
 
     $conn = fsockopen($client_address, $client_port, $error_code, $error_message, 1);
