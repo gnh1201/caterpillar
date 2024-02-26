@@ -69,15 +69,15 @@ function read_from_remote_server($remote_address, $remote_port, $scheme, $conn =
     $sock = fsockopen($remote_address, $remote_port, $error_code, $error_message, 1);
     if (!$sock) {
         $error = array(
-            "status" => 400,
+            "status" => 502,
             "code" => $error_code,
-            "message" => $error_message
+            "message" => "Bad Gateway"
         );
 
-        $buf = "HTTP/1.1 400 Bad Request\r\n\r\n" . jsonrpc2_error_encode($error, $id);
         if ($conn == null) {
-            echo $buf;
+            echo jsonrpc2_error_encode($error, $id);
         } else {
+            $buf = "HTTP/1.1 502 Bad Gateway\r\n\r\n" . jsonrpc2_error_encode($error, $id);
             fwrite($conn, $buf);
         }
     } else {
@@ -121,7 +121,12 @@ function relay_request($params, $id = '') {
 
     switch ($request_header['@method'][0]) {
         case "CONNECT":
-            echo sprintf("%s 200 Connection Established\r\n\r\n", $request_header['@method'][2]);
+            $error = array(
+                "status" => 405,
+                "code" => -1,
+                "message" => "Method Not Allowed"
+            );
+            echo jsonrpc2_error_encode($error, $id);
             break;
 
         default:
@@ -144,16 +149,12 @@ function relay_connect($params, $id = '') {
     $conn = fsockopen($client_address, $client_port, $error_code, $error_message, 1);
     if (!$conn) {
         $error = array(
-            "success" => false,
+            "status" => 502,
             "code" => $error_code,
-            "message" => $error_message
+            "message" => "Bad Gateway"
         );
-        fwrite($conn, jsonrpc2_result_encode($error) . "\r\n\r\n");
+        echo jsonrpc2_error_encode($error, $id);
     } else {
-        $result = array(
-            "success" => true
-        );
-        fwrite($conn, jsonrpc2_result_encode($result) . "\r\n\r\n");
         read_from_remote_server($remote_address, $remote_port, $scheme, $conn, $buffer_size, $id);
         fclose($conn);
     }
