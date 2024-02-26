@@ -167,6 +167,11 @@ function relay_connect($params, $id = '') {
         );
         echo jsonrpc2_error_encode($error, $id);
     } else {
+        $data = jsonrpc2_encode("relay_accept", array(
+            "success" => true
+        ), $id);
+        fwrite($conn, $data . "\r\n\r\n");
+
         read_from_remote_server($remote_address, $remote_port, $scheme, null, $conn, $buffer_size, $id);
         fclose($conn);
     }
