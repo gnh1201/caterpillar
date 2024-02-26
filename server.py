@@ -461,7 +461,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
 
             proxy_data = {
                 'headers': {
-                    "User-Agent": "php-httpproxy/0.2.0-dev (Client; Python " + python_version() + "; abuse@catswords.net)",
+                    "User-Agent": "php-httpproxy/0.1.5 (Client; Python " + python_version() + "; abuse@catswords.net)",
                 },
                 'data': {
                     "buffer_size": str(buffer_size),
@@ -528,7 +528,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
             # stateless mode
             proxy_data = {
                 'headers': {
-                    "User-Agent": "php-httpproxy/0.2.0-dev (Client; Python " + python_version() + "; abuse@catswords.net)",
+                    "User-Agent": "php-httpproxy/0.1.5 (Client; Python " + python_version() + "; abuse@catswords.net)",
                 },
                 'data': {
                     "buffer_size": str(buffer_size),
