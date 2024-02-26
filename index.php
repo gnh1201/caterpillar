@@ -14,26 +14,30 @@ if (strpos($_SERVER['HTTP_USER_AGENT'], "php-httpproxy/") !== 0) {
 ini_set("default_socket_timeout", 1);  // must be. because of `feof()` works
 ini_set("max_execution_time", 0);
 
-function jsonrpc2_encode($params) {
+function jsonrpc2_encode($method, $params, $id = '') {
     $data = array(
         "jsonrpc" => "2.0",
-        "params" => $params
+        "method" => $method,
+        "params" => $params,
+        "id" => $id
     );
     return json_encode($data);
 }
 
-function jsonrpc2_result_encode($result) {
+function jsonrpc2_result_encode($result, $id = '') {
     $data = array(
         "jsonrpc" => "2.0",
-        "result" => $result
+        "result" => $result,
+        "id" => $id
     );
     return json_encode($data);
 }
 
-function jsonrpc2_error_encode($error) {
+function jsonrpc2_error_encode($error, $id = '') {
     $data = array(
         "jsonrpc" => "2.0",
-        "error" => $error
+        "error" => $error,
+        "id" => $id
     );
     return json_encode($data);
 }
@@ -57,7 +61,7 @@ function parse_headers($str) { // Parses HTTP headers into an array
     return $headers;
 }
 
-function read_from_remote_server($remote_address, $remote_port, $scheme, $conn = null, $buffer_size = 8192) {
+function read_from_remote_server($remote_address, $remote_port, $scheme, $conn = null, $buffer_size = 8192, $id = '') {
     if (in_array($scheme, array("https", "ssl", "tls"))) {
         $remote_address = "tls://" . $remote_address;
     }
@@ -70,7 +74,7 @@ function read_from_remote_server($remote_address, $remote_port, $scheme, $conn =
             "message" => $error_message
         );
 
-        $buf = "HTTP/1.1 400 Bad Request\r\n\r\n" . jsonrpc2_error_encode($error);
+        $buf = "HTTP/1.1 400 Bad Request\r\n\r\n" . jsonrpc2_error_encode($error, $id);
         if ($conn == null) {
             echo $buf;
         } else {
@@ -97,7 +101,7 @@ function read_from_remote_server($remote_address, $remote_port, $scheme, $conn =
 }
 
 // stateless mode
-function relay_request($params) {
+function relay_request($params, $id = '') {
     $buffer_size = $params['buffer_size'];
     $request_data = base64_decode($params['request_data']);
     $request_header = parse_headers($request_data);
@@ -121,12 +125,12 @@ function relay_request($params) {
             break;
 
         default:
-            read_from_remote_server($remote_address, $remote_port, $scheme, null, $buffer_size);
+            read_from_remote_server($remote_address, $remote_port, $scheme, null, $buffer_size, $id);
     }
 }
 
 // stateful mode
-function relay_connect($params) {
+function relay_connect($params, $id = '') {
     $buffer_size = $params['buffer_size'];
     $client_address = $params['client_address'];
     $client_port = intval($params['client_port']);
@@ -147,7 +151,7 @@ function relay_connect($params) {
         echo "HTTP/1.1 400 Bad Request\r\n\r\n" . jsonrpc2_error_encode($error);
     } else {
         fwrite($conn, jsonrpc2_result_encode(array("success" => true)));
-        read_from_remote_server($remote_address, $remote_port, $scheme, $conn, $buffer_size);
+        read_from_remote_server($remote_address, $remote_port, $scheme, $conn, $buffer_size, $id);
         fclose($conn);
     }
 }
@@ -160,10 +164,10 @@ if ($context['jsonrpc'] == "2.0") {
     $method = $context['method'];
     switch ($method) {
         case "relay_request":
-            relay_request($context['params']);    // stateless mode
+            relay_request($context['params'], $context['id']);    // stateless mode
             break;
         case "relay_connect":
-            relay_connect($context['params']);    // stateful mode
+            relay_connect($context['params'], $context['id']);    // stateful mode
             break;
     }
 }
