@@ -30,6 +30,7 @@ from decouple import config
 try:
     listening_port = config('PORT', cast=int)
     server_url = config('SERVER_URL')
+    server_connection_type = config('SERVER_CONNECTION_TYPE')
     cakey = config('CA_KEY')
     cacert = config('CA_CERT')
     certkey = config('CERT_KEY')
@@ -449,7 +450,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
 
             print("[*] Received %s chunks. (%s bytes per chunk)" % (str(i), str(buffer_size)))
 
-        else:
+        elif server_connection_type == "stateful":
             # stateful mode
             proxy_data = {
                 'headers': {
@@ -472,11 +473,28 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
             while not id in accepted_relay:
                 time.sleep(1)
             sock = accepted_relay[id]
-
-            # send data
             sendall(sock, conn, data)
-            socks_close(sock)
 
+            # get response
+            i = 0
+            buffered = b''
+            while True:
+                chunk = sock.recv(buffer_size)
+                if not chunk:
+                    break
+                buffered += chunk
+                if proxy_check_filtered(buffered, webserver, port, scheme, method, url):
+                    sock_close(sock, is_ssl)
+                    add_filtered_host(webserver.decode(client_encoding), '127.0.0.1')
+                    raise Exception("Filtered response")
+                conn.send(chunk)
+                if len(buffered) > buffer_size*2:
+                    buffered = buffered[-buffer_size*2:]
+                i += 1
+
+            print("[*] Received %s chunks. (%s bytes per chunk)" % (str(i), str(buffer_size)))
+
+        else:
             # stateless mode
             proxy_data = {
                 'headers': {
