@@ -57,7 +57,11 @@ function parse_headers($str) { // Parses HTTP headers into an array
     return $headers;
 }
 
-function read_from_remote_server($remote_address, $remote_port, $conn = null, $buffer_size = 8192) {
+function read_from_remote_server($remote_address, $remote_port, $scheme, $conn = null, $buffer_size = 8192) {
+    if (in_array($scheme, array("https", "ssl", "tls"))) {
+        $remote_address = "tls://" . $remote_address;
+    }
+
     $sock = fsockopen($remote_address, $remote_port, $error_code, $error_message, 1);
     if (!$sock) {
         $error = array(
@@ -117,7 +121,7 @@ function relay_request($params) {
             break;
 
         default:
-            read_from_remote_server($remote_address, $remote_port, null, $buffer_size);
+            read_from_remote_server($remote_address, $remote_port, $scheme, null, $buffer_size);
     }
 }
 
@@ -143,7 +147,7 @@ function relay_connect($params) {
         echo "HTTP/1.1 400 Bad Request\r\n\r\n" . jsonrpc2_error_encode($error);
     } else {
         fwrite($conn, jsonrpc2_result_encode(array("success" => true)));
-        read_from_remote_server($remote_address, $remote_port, $conn, $buffer_size);
+        read_from_remote_server($remote_address, $remote_port, $scheme, $conn, $buffer_size);
         fclose($conn);
     }
 }
