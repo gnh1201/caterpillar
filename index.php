@@ -246,6 +246,34 @@ function relay_mysql_query($params, $mysqli) {
     );
 }
 
+function relay_sendmail($params) {
+    $to      = $params['to'];
+    $from    = $params['from'];
+    $subject = $params['subject'];
+    $message = $params['message'];
+    $headers = 'From: ' . $from . "\r\n" .
+        'X-Mailer: php-httpproxy/' . PHP_HTTPPROXY_VERSION . ' (Server; PHP ' . phpversion() . ')';
+    $sent = mail($to, $subject, $message, $headers);
+    if (!$sent) {
+        $e = error_get_last();
+        return array(
+            "success" => false,
+            "error" => array(
+                "status" => 500,
+                "code" => $e['type'],
+                "message" => $e['message']
+            )
+        );
+    }
+
+    return array(
+        "success" => true,
+        "result" => array(
+            "status" => 200
+        )
+    );
+}
+
 function relay_get_version() {
     return array("version" => PHP_HTTPPROXY_VERSION);
 }
@@ -300,6 +328,15 @@ if ($context['jsonrpc'] == "2.0") {
             }
             break;
 
+        case "relay_sendmail":
+            $result = relay_sendmail($context['params']);
+            if ($result['success']) {
+                echo jsonrpc2_result_encode($result['result'], $context['id']); 
+            } else {
+                echo jsonrpc2_error_encode($result['error'], $context['id']); 
+            }
+            break;
+
         case "relay_get_version":
             echo jsonrpc2_result_encode(relay_get_version(), $context['id']);
             break;
@@ -311,6 +348,7 @@ if ($context['jsonrpc'] == "2.0") {
         case "relay_get_loaded_extensions":
             echo jsonrpc2_result_encode(relay_get_loaded_extensions(), $context['id']);
             break;
+        
 
         case "get_client_address":
             echo jsonrpc2_result_encode(get_client_address(), $context['id']);
