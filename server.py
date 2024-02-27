@@ -478,7 +478,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
             # get client address
             try:
                 _, query_data = jsonrpc2_encode('get_client_address')
-                query = requests.post(server_url, headers=proxy_data['headers'], data=query_data, timeout=30)
+                query = requests.post(server_url, headers=proxy_data['headers'], data=query_data, timeout=1)
                 if query.status_code == 200:
                     result = query.json()['result']
                     proxy_data['data']['client_address'] = result['client_address']
@@ -489,7 +489,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
             # build a tunnel
             try:
                 id, raw_data = jsonrpc2_encode('relay_connect', proxy_data['data'])
-                relay = requests.post(server_url, headers=proxy_data['headers'], data=raw_data, stream=True, timeout=2)
+                relay = requests.post(server_url, headers=proxy_data['headers'], data=raw_data, stream=True, timeout=1)
                 for chunk in relay.iter_content(chunk_size=buffer_size):
                     print (chunk)
             except requests.exceptions.ReadTimeout as e:
