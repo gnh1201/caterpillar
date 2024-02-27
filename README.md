@@ -87,8 +87,8 @@ sudo update-ca-certificates
 
 ## Thanks to
 
-### PAN ART by [@yeohangdang@i.peacht.art](https://i.peacht.art/@yeohangdang)
-![PAN ART by @yeohangdang@i.peacht.art](panart1.png)
+### Pan Art by [@yeohangdang@i.peacht.art](https://i.peacht.art/@yeohangdang)
+![PAN ART by @yeohangdang@i.peacht.art](logo.png)
 
 ## Contact
 * ActivityPub [@gnh1201@catswords.social](https://catswords.social/@gnh1201)
