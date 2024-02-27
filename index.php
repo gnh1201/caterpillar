@@ -286,6 +286,11 @@ function relay_get_loaded_extensions() {
     return array("loaded_extensions" => get_loaded_extensions());
 }
 
+function relay_dns_get_record($params) {
+    $hostname = $params['hostname'];
+    return dns_get_record($hostname);
+}
+
 function relay_get_geolocation() {
     $url = "https://ipapi.co/json/";
 
@@ -383,6 +388,10 @@ if ($context['jsonrpc'] == "2.0") {
 
         case "relay_get_loaded_extensions":
             echo jsonrpc2_result_encode(relay_get_loaded_extensions(), $context['id']);
+            break;
+
+        case "relay_dns_get_record":
+            echo jsonrpc2_result_encode(relay_dns_get_record($context['params']), $context['id']);
             break;
 
         case "relay_get_geolocation":
