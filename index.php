@@ -292,10 +292,6 @@ if ($context['jsonrpc'] == "2.0") {
             }
             break;
 
-        case "relay_mysql_query":
-            echo jsonrpc2_result_encode(relay_mysql_query($context['params'], $mysqli), $context['id']);
-            break;
-
         case "get_version":
             echo jsonrpc2_result_encode(get_version(), $context['id']);
             break;
