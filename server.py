@@ -58,6 +58,7 @@ args = parser.parse_args()
 max_connection = args.max_conn
 buffer_size = args.buffer_size
 accepted_relay = {}
+resolved_address_list = []
 
 # https://stackoverflow.com/questions/25475906/set-ulimit-c-from-outside-shell
 resource.setrlimit(
@@ -478,15 +479,18 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
             }
 
             # get client address
-            try:
-                _, query_data = jsonrpc2_encode('get_client_address')
-                query = requests.post(server_url, headers=proxy_data['headers'], data=query_data, timeout=1)
-                if query.status_code == 200:
-                    result = query.json()['result']
-                    proxy_data['data']['client_address'] = result['client_address']
-                print ("[*] Resolved IP: %s" % (result['client_address']))
-            except requests.exceptions.ReadTimeout as e:
-                pass
+            print ("[*] resolving the client address...")
+            while len(resolved_address_list) == 0:
+                try:
+                    _, query_data = jsonrpc2_encode('get_client_address')
+                    query = requests.post(server_url, headers=proxy_data['headers'], data=query_data, timeout=1)
+                    if query.status_code == 200:
+                        result = query.json()['result']
+                        resolved_address_list.append(result['client_address'])
+                    print ("[*] resolved IP: %s" % (result['client_address']))
+                except requests.exceptions.ReadTimeout as e:
+                    pass
+            proxy_data['data']['client_address'] = resolved_address_list[0]
 
             # build a tunnel
             try:
@@ -499,11 +503,20 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
 
             # wait for the relay
             print ("[*] waiting for the relay... %s" % (id))
-            while not id in accepted_relay:
+            max_reties = 30
+            t = 0
+            while t < max_reties and not id in accepted_relay:
                 time.sleep(1)
-            sock = accepted_relay[id]
-            print ("[*] connected the relay. %s" % (id))
-            sendall(sock, conn, data)
+                t += 1
+            if t < max_reties:
+                sock = accepted_relay[id]
+                print ("[*] connected the relay. %s" % (id))
+                sendall(sock, conn, data)
+            else:
+                resolved_address_list.remove(resolved_address_list[0])
+                print ("[*] the relay is gone. %s" % (id))
+                sock_close(sock, is_ssl)
+                return
 
             # get response
             i = 0
