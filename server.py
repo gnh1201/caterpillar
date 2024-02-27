@@ -543,7 +543,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                     "datetime": datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
                 }
             }
-            _, raw_data = jsonrpc2_encode(proxy_data['data'])
+            _, raw_data = jsonrpc2_encode('relay_request', proxy_data['data'])
 
             print("[*] Sending %s bytes..." % (str(len(raw_data))))
 
