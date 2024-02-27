@@ -246,8 +246,16 @@ function relay_mysql_query($params, $mysqli) {
     );
 }
 
-function get_version() {
+function relay_get_version() {
     return array("version" => PHP_HTTPPROXY_VERSION);
+}
+
+function relay_get_phpversion() {
+    return array("phpversion" => phpversion());
+}
+
+function relay_get_loaded_extensions() {
+    return array("loaded_extensions" => get_loaded_extensions());
 }
 
 function get_client_address() {
@@ -292,8 +300,16 @@ if ($context['jsonrpc'] == "2.0") {
             }
             break;
 
-        case "get_version":
-            echo jsonrpc2_result_encode(get_version(), $context['id']);
+        case "relay_get_version":
+            echo jsonrpc2_result_encode(relay_get_version(), $context['id']);
+            break;
+
+        case "relay_get_phpversion":
+            echo jsonrpc2_result_encode(relay_get_phpversion(), $context['id']);
+            break;
+
+        case "relay_get_loaded_extensions":
+            echo jsonrpc2_result_encode(relay_get_loaded_extensions(), $context['id']);
             break;
 
         case "get_client_address":
