@@ -288,7 +288,26 @@ function relay_get_loaded_extensions() {
 
 function relay_dns_get_record($params) {
     $hostname = $params['hostname'];
-    return dns_get_record($hostname);
+
+    $data = dns_get_record($hostname);
+    if (!$data) {
+        return array(
+            "success" => false,
+            "error" => array(
+                "status" => 502,
+                "code" => -1,
+                "message" => $hostname . " is not found in DNS records"
+            )
+        )
+    }
+
+    return array(
+        "success" => true,
+        "result" => array(
+            "status" => 200,
+            "data" => $data
+        )
+    )
 }
 
 function relay_get_geolocation() {
@@ -391,11 +410,16 @@ if ($context['jsonrpc'] == "2.0") {
             break;
 
         case "relay_dns_get_record":
-            echo jsonrpc2_result_encode(relay_dns_get_record($context['params']), $context['id']);
+            $result = relay_dns_get_record($context['params']);
+            if ($result['success']) {
+                echo jsonrpc2_result_encode($result['result'], $context['id']); 
+            } else {
+                echo jsonrpc2_error_encode($result['error'], $context['id']); 
+            }
             break;
 
         case "relay_get_geolocation":
-            $result = jsonrpc2_result_encode(relay_get_geolocation(), $context['id']);
+            $result = relay_get_geolocation();
             if ($result['success']) {
                 echo jsonrpc2_result_encode($result['result'], $context['id']); 
             } else {
