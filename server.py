@@ -493,13 +493,16 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
             proxy_data['data']['client_address'] = resolved_address_list[0]
 
             # build a tunnel
-            try:
-                id, raw_data = jsonrpc2_encode('relay_connect', proxy_data['data'])
-                relay = requests.post(server_url, headers=proxy_data['headers'], data=raw_data, stream=True, timeout=1)
-                for chunk in relay.iter_content(chunk_size=buffer_size):
-                    print (chunk)
-            except requests.exceptions.ReadTimeout as e:
-                pass
+            def relay_connect(id, raw_data, proxy_data):
+                try:
+                    # The tunnel connect forever until the client destroy it
+                    relay = requests.post(server_url, headers=proxy_data['headers'], data=raw_data, stream=True, timeout=None)
+                    for chunk in relay.iter_content(chunk_size=buffer_size):
+                        print (chunk)
+                except requests.exceptions.ReadTimeout as e:
+                    pass
+            id, raw_data = jsonrpc2_encode('relay_connect', proxy_data['data'])
+            start_new_thread(relay_connect, (id, raw_data, proxy_data))
 
             # wait for the relay
             print ("[*] waiting for the relay... %s" % (id))
