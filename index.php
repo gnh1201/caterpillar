@@ -65,7 +65,7 @@ function read_from_remote_server($remote_address, $remote_port, $scheme, $data =
         $remote_address = "tls://" . $remote_address;
     }
 
-    $sock = fsockopen($remote_address, $remote_port, $error_code, $error_message, 1);
+    $sock = fsockopen($remote_address, $remote_port, $error_code, $error_message, 30);
     if (!$sock) {
         $error = array(
             "status" => 502,
@@ -156,7 +156,7 @@ function relay_connect($params, $id = '') {
     $datetime = $params['datetime'];   // format: %Y-%m-%d %H:%M:%S.%f
 
     $starttime = microtime(true);
-    $conn = fsockopen($client_address, $client_port, $error_code, $error_message, 1);
+    $conn = fsockopen($client_address, $client_port, $error_code, $error_message, 30);
     if (!$conn) {
         $error = array(
             "status" => 502,
