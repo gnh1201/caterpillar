@@ -3,7 +3,7 @@
 // Namhyeon Go (Catswords Research) <abuse@catswords.net>
 // https://github.com/gnh1201/caterpillar
 // Created at: 2022-10-06
-// Updated at: 2024-02-26
+// Updated at: 2024-02-27
 
 define("PHP_HTTPPROXY_VERSION", "0.1.5");
 
@@ -155,6 +155,7 @@ function relay_connect($params, $id = '') {
     $scheme = $params['scheme'];
     $datetime = $params['datetime'];   // format: %Y-%m-%d %H:%M:%S.%f
 
+    $starttime = microtime(true);
     $conn = fsockopen($client_address, $client_port, $error_code, $error_message, 1);
     if (!$conn) {
         $error = array(
@@ -165,14 +166,88 @@ function relay_connect($params, $id = '') {
         );
         echo jsonrpc2_error_encode($error, $id);
     } else {
+        $stoptime = microtime(true);
+        $connection_speed = floor(($stoptime - $starttime) * 1000);
         $data = jsonrpc2_encode("relay_accept", array(
-            "success" => true
+            "success" => true,
+            "connection_speed" => $connection_speed
         ), $id);
         fwrite($conn, $data . "\r\n\r\n");
 
         read_from_remote_server($remote_address, $remote_port, $scheme, null, $conn, $buffer_size, $id);
         fclose($conn);
     }
+}
+
+function relay_mysql_connect($params) {
+    $hostname = $params['hostname'];
+    $username = $params['username'];
+    $password = $params['password'];
+    $database = $params['database'];
+    $port = array_key_exists('port', $params) ? intval($params['port']) : null;
+    $chatset = array_key_exists('chatset', $params) ? $params['chatset'] : "utf8";
+
+    $mysqli = new mysqli($hostname, $username, $password, $database, $port);
+    if ($mysqli->connect_errno) {
+        return array(
+            "success" => false,
+            "error" => array(
+                "status" => 503,
+                "code" => $mysqli->connect_errno,
+                "message" => $mysqli->connect_error
+            )
+        );
+    } else {
+        $mysqli->set_charset($chatset);
+    }
+
+    return array(
+        "success" => true,
+        "mysqli" => $mysqli,
+        "result" => array(
+            "status" => 200
+        )
+    );
+}
+
+function relay_mysql_query($params, $mysqli) {
+    $query = trim($params['query']);
+    $query_type = "";  // e.g., select, insert, update, delete
+    $pos = strpos($query, ' ');
+    if ($pos !== false) {
+        $query_type = strtolower(substr($query, 0, $pos));
+    }
+    $result = $mysqli->query($query);
+
+    if (!$mysqli->error) {
+        return array(
+            "success" => false,
+            "error" => array(
+                "status" => 503,
+                "code" => $msqli->errno,
+                "message" => $mysqli->error
+            )
+        );
+    }
+
+    $data = []; 
+    if ($query_type == "select") {
+        $data = mysqli_fetch_all($result, MYSQLI_ASSOC);
+    } else {
+        $data[] = $result;
+    }
+
+    return array(
+        "success" => true,
+        "result" => array(
+            "status" => 200,
+            "data" => $data
+        )
+    );
+}
+
+function get_version() {
+    return array("version" => PHP_HTTPPROXY_VERSION);
 }
 
 function get_client_address() {
@@ -187,10 +262,10 @@ function get_client_address() {
     return array("client_address" => $client_address);
 }
 
-// parse context
+// parse a context
 $context = json_decode(file_get_contents('php://input'), true);
 
-// check is it jsonrpc
+// check is it jsonrpc (stateless)
 if ($context['jsonrpc'] == "2.0") {
     $method = $context['method'];
     switch ($method) {
@@ -200,6 +275,29 @@ if ($context['jsonrpc'] == "2.0") {
 
         case "relay_connect":
             relay_connect($context['params'], $context['id']);    // stateful mode
+            break;
+
+        case "relay_mysql_query":
+            $result = relay_mysql_connect($context['params']);
+            if ($result['success']) {
+                $mysqli = $result['mysqli'];
+                $query_result = relay_mysql_query($context['params'], $mysqli);
+                if ($query_result['success']) {
+                    echo jsonrpc2_result_encode($query_result['result'], $context['id']);
+                } else {
+                    echo jsonrpc2_error_encode($query_result['error'], $context['id']);
+                }
+            } else {
+                echo jsonrpc2_error_encode($result['error'], $context['id']);
+            }
+            break;
+
+        case "relay_mysql_query":
+            echo jsonrpc2_result_encode(relay_mysql_query($context['params'], $mysqli), $context['id']);
+            break;
+
+        case "get_version":
+            echo jsonrpc2_result_encode(get_version(), $context['id']);
             break;
 
         case "get_client_address":
