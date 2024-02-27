@@ -185,7 +185,7 @@ function relay_mysql_connect($params) {
     $password = $params['password'];
     $database = $params['database'];
     $port = array_key_exists('port', $params) ? intval($params['port']) : null;
-    $chatset = array_key_exists('chatset', $params) ? $params['chatset'] : "utf8";
+    $charset = array_key_exists('charset', $params) ? $params['charset'] : "utf8";
 
     $mysqli = new mysqli($hostname, $username, $password, $database, $port);
     if ($mysqli->connect_errno) {
@@ -198,7 +198,7 @@ function relay_mysql_connect($params) {
             )
         );
     } else {
-        $mysqli->set_charset($chatset);
+        $mysqli->set_charset($charset);
     }
 
     return array(
@@ -275,15 +275,15 @@ function relay_sendmail($params) {
 }
 
 function relay_get_version() {
-    return array("version" => PHP_HTTPPROXY_VERSION);
+    return PHP_HTTPPROXY_VERSION;
 }
 
 function relay_get_phpversion() {
-    return array("phpversion" => phpversion());
+    return phpversion();
 }
 
 function relay_get_loaded_extensions() {
-    return array("loaded_extensions" => get_loaded_extensions());
+    return get_loaded_extensions();
 }
 
 function relay_dns_get_record($params) {
