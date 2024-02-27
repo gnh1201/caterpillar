@@ -298,7 +298,7 @@ function relay_dns_get_record($params) {
                 "code" => -1,
                 "message" => $hostname . " is not found in DNS records"
             )
-        )
+        );
     }
 
     return array(
@@ -307,7 +307,7 @@ function relay_dns_get_record($params) {
             "status" => 200,
             "data" => $data
         )
-    )
+    );
 }
 
 function relay_get_geolocation() {
