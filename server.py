@@ -160,6 +160,8 @@ def conn_string(conn, data, addr):
         if jsondata['jsonrpc'] == "2.0" and jsondata['method'] == "relay_accept":
             id = jsondata['id']
             accepted_relay[id] = conn
+            connection_speed = jsondata['params']['connection_speed']
+            print ("[*] connection speed: %s miliseconds" % (str(connection_speed)))
             while conn.fileno() > -1:
                 time.sleep(1)
             del accepted_relay[id]
