@@ -286,6 +286,42 @@ function relay_get_loaded_extensions() {
     return array("loaded_extensions" => get_loaded_extensions());
 }
 
+function relay_get_geolocation() {
+    $url = "https://ipapi.co/json/";
+
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+
+    $response = curl_exec($ch);
+    $error_code = curl_errno($ch);
+    if ($error_code) {
+        $error_message = curl_error($ch);
+        curl_close($ch);
+
+        return array(
+            "success" => false,
+            "error" => array(
+                "status" => 502,
+                "code" => $error_code,
+                "message" => $error_message
+            )
+        );
+    }
+    curl_close($ch);
+    $data = json_decode($response, true);
+
+    return array(
+        "success" => true,
+        "result" => array(
+            "status" => 200,
+            "data" => $data
+        )
+    );
+}
+
 function get_client_address() {
     $client_address = '';
     if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
@@ -348,7 +384,15 @@ if ($context['jsonrpc'] == "2.0") {
         case "relay_get_loaded_extensions":
             echo jsonrpc2_result_encode(relay_get_loaded_extensions(), $context['id']);
             break;
-        
+
+        case "relay_get_geolocation":
+            $result = jsonrpc2_result_encode(relay_get_geolocation(), $context['id']);
+            if ($result['success']) {
+                echo jsonrpc2_result_encode($result['result'], $context['id']); 
+            } else {
+                echo jsonrpc2_error_encode($result['error'], $context['id']); 
+            }
+            break;
 
         case "get_client_address":
             echo jsonrpc2_result_encode(get_client_address(), $context['id']);
