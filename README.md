@@ -1,7 +1,7 @@
 # gnh1201/caterpillar
 Caterpillar - The simple and parasitic web proxy with spam filter (formerly, php-httpproxy)
 
-![title image](title.jfif)
+![title image](images/title.jfif)
 
 ## How it works
 
@@ -88,7 +88,7 @@ sudo update-ca-certificates
 ## Thanks to
 
 ### Pan Art by [@yeohangdang@i.peacht.art](https://i.peacht.art/@yeohangdang)
-![Caterpillar Project Pan Art by @yeohangdang@i.peacht.art](logo.png)
+![Caterpillar Project Pan Art by @yeohangdang@i.peacht.art](images/logo.png)
 
 ## Contact
 * ActivityPub [@gnh1201@catswords.social](https://catswords.social/@gnh1201)
