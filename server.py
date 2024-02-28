@@ -29,18 +29,21 @@ import requests
 from requests.auth import HTTPBasicAuth
 from decouple import config
 
-def parse_url_with_credential(s):
-    username, password, url = (None, None, s)
-    parts = s.split('://', 1)
-    if len(parts) > 1:
-        credentials, rest = parts[1].split('@', 1)
-        username, password = credentials.split(':', 1)
-        url = parts[0] + "://" + rest)
-    return (username, password, url)
+def extract_credentials(url):
+    pattern = re.compile(r'(?P<scheme>\w+://)?(?P<username>[^:/]+):(?P<password>[^@]+)@(?P<url>.+)')
+    match = pattern.match(url)
+    if match:
+        scheme = match.group('scheme') if match.group('scheme') else 'https://'
+        username = match.group('username')
+        password = match.group('password')
+        url = match.group('url')
+        return username, password, scheme + url
+    else:
+        return None, None, url
 
 try:
     listening_port = config('PORT', cast=int)
-    _username, _password, server_url = parse_url_with_credential(config('SERVER_URL'))
+    _username, _password, server_url = extract_credentials(config('SERVER_URL'))
     server_connection_type = config('SERVER_CONNECTION_TYPE')
     cakey = config('CA_KEY')
     cacert = config('CA_CERT')
