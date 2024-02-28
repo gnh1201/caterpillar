@@ -39,9 +39,7 @@ class Fediverse(Filter):
                 self.known_words = [word.strip() for word in words if len(word.strip()) > 3]
                 print ("[*] Data loaded to use KnownWords4 strategy")
 
-    def test(self, data):
-        filtered = False
-
+    def test(self, filtered, data, webserver, port, scheme, method, url):
         # prevent cache confusing
         if data.find(b'<title>Welcome to nginx!</title>') > -1:
             return True
