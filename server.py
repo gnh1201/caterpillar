@@ -14,6 +14,7 @@ import socket
 import sys
 import os
 from _thread import *
+from subprocess import PIPE, Popen
 import base64
 import json
 import ssl
