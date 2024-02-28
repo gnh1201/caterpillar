@@ -1,18 +1,19 @@
 #!/usr/bin/python3
-# 
+#
 # fediverse.py
 # Fediverse (Mastodon, Misskey, Pleroma, ...) SPAM filter plugin for Caterpillar
-# 
+#
 # Caterpillar - The simple and parasitic web proxy with spam filter
 # Namyheon Go (Catswords Research) <gnh1201@gmail.com>
 # https://github.com/gnh1201/caterpillar
 # Created at: 2022-10-06
 # Updated at: 2024-12-28
-# 
+#
 
 import io
 import re
 import requests
+import os.path
 
 from decouple import config
 from PIL import Image
@@ -22,19 +23,21 @@ from server import Filter
 try:
     truecaptcha_userid = config('TRUECAPTCHA_USERID')   # truecaptcha.org
     truecaptcha_apikey = config('TRUECAPTCHA_APIKEY')   # truecaptcha.org
-    librey_apiurl = config("LIBREY_APIURL")    # https://github.com/Ahwxorg/librey
-except
-    pass
+    dictionary_file = config('DICTIONARY_FILE', default='words_alpha.txt')    # https://github.com/dwyl/english-words
+    librey_apiurl = config('LIBREY_APIURL')    # https://github.com/Ahwxorg/librey
+except Exception as e:
+    print ("[*] Invaild configration: %s" % (str(e)))
 
 class Fediverse(Filter):
     def __init__(self):
         # Load data to use KnownWords4 strategy
         # Download data: https://github.com/dwyl/english-words
         self.known_words = []
-        with open("words_alpha.txt", "r") as file:
-            words = file.readlines()
-            self.known_words = [word.strip() for word in words if len(word.strip()) > 3]
-            print ("[*] Data loaded to use KnownWords4 strategy")
+        if dictionary_file != '' and os.path.isfile(dictionary_file):
+            with open(dictionary_file, "r") as file:
+                words = file.readlines()
+                self.known_words = [word.strip() for word in words if len(word.strip()) > 3]
+                print ("[*] Data loaded to use KnownWords4 strategy")
 
     def test(self, data):
         filtered = False
