@@ -13,7 +13,7 @@ For example, build a simple web debugging proxy on the shared servers.
 
 This project supports two modes of connection. The default is stateless. You can use the stateful mode to avoid being constrained by transfer capacity limits (e.g., `max_upload_size`).
 
-### Spam filtering strategy
+### Spam filtering strategy (Fediverse plugin)
 * [K-Anonymity](https://en.wikipedia.org/wiki/K-anonymity) test - Estimating whether the characters has been arranged by humans. (use [Have I Been Pwned](https://haveibeenpwned.com/Passwords))
 * Not CAPTCHA - Image spam containing characters that look very similar to [CAPTCHA](https://en.wikipedia.org/wiki/CAPTCHA). (use [TrueCaptcha](https://truecaptcha.org/))
 * VowelRatio10 - In characters arranged by humans, there is a high frequency of [vowels](https://en.wikipedia.org/wiki/Vowel) (aeiou) and [semivowels](https://en.wikipedia.org/wiki/Semivowel) (wy) and vowel-ending patterns included in strings that are 10 characters.
