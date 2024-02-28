@@ -26,7 +26,7 @@ This project supports two modes of connection. The default is stateless. You can
 The strategies were implemented to respond to [the Fediverse Spam Attacks which started on the 15th of February](https://github.com/Mastodon-DE/blocklists/blob/main/spam%2F2024-02-15%2F2024-02-15-spam-mute-list.md).
 
 ## (Optional) Before to use
-If you have an ***will be parasitize*** server that you want to proxy, you can install the `index.php` file.
+If you have an ***will be parasitize*** server that you want to proxy, you can install the `index.php` (assets/php/index.php) file. 
 
 ## How to use
 1. Write a file `.env`(Linux) or `settings.ini`(Windows). Like this:
