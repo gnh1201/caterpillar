@@ -175,7 +175,10 @@ def proxy_connect(webserver, conn):
 def proxy_check_filtered(data, webserver, port, scheme, method, url):
     filtered = False
 
-    for f in Filter.get_filters():
+
+    filters = Filter.get_filters()
+    print ("[*] Checking data with %s filters..." % (str(len(filters))))
+    for f in filters:
         filtered = f.test(filtered, data, webserver, port, scheme, method, url)
 
     return filtered
