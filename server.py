@@ -1,13 +1,13 @@
 #!/usr/bin/python3
-# 
+#
 # server.py
-# 
+#
 # Caterpillar - The simple and parasitic web proxy with spam filter
 # Namyheon Go (Catswords Research) <gnh1201@gmail.com>
 # https://github.com/gnh1201/caterpillar
 # Created at: 2022-10-06
 # Updated at: 2024-12-28
-# 
+#
 
 import argparse
 import socket
@@ -176,8 +176,7 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
     filtered = False
 
     for f in Filter.get_filters():
-        if not filtered:
-            filtered = f.test(data)
+        filtered = f.test(filtered, data, webserver, port, scheme, method, url)
 
     return filtered
 
@@ -479,12 +478,12 @@ class Filter():
     def get_filters(cls):
         return cls.filters
 
-    def test(self, data):
+    def test(self, filtered, data, webserver, port, scheme, method, url):
         print ("[*] Not implemented")
 
 if __name__== "__main__":
     # load filters
     Filter.register(importlib.import_module("plugins.fediverse").Fediverse())
 
-    # start
+    # start Caterpillar
     start()
