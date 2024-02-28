@@ -21,6 +21,7 @@ from PIL import Image
 from server import Filter
 
 try:
+    client_encoding = config('CLIENT_ENCODING')
     truecaptcha_userid = config('TRUECAPTCHA_USERID')   # truecaptcha.org
     truecaptcha_apikey = config('TRUECAPTCHA_APIKEY')   # truecaptcha.org
     dictionary_file = config('DICTIONARY_FILE', default='words_alpha.txt')    # https://github.com/dwyl/english-words
