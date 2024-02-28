@@ -26,11 +26,21 @@ from datetime import datetime
 from platform import python_version
 
 import requests
+from requests.auth import HTTPBasicAuth
 from decouple import config
+
+def parse_url_with_credential(s):
+    username, password, url = (None, None, s)
+    parts = s.split('://', 1)
+    if len(parts) > 1:
+        credentials, rest = parts[1].split('@', 1)
+        username, password = credentials.split(':', 1)
+        url = parts[0] + "://" + rest)
+    return (username, password, url)
 
 try:
     listening_port = config('PORT', cast=int)
-    server_url = config('SERVER_URL')
+    _username, _password, server_url = parse_url_with_credential(config('SERVER_URL'))
     server_connection_type = config('SERVER_CONNECTION_TYPE')
     cakey = config('CA_KEY')
     cacert = config('CA_CERT')
@@ -46,7 +56,6 @@ except KeyboardInterrupt:
     sys.exit()
 
 parser = argparse.ArgumentParser()
-
 parser.add_argument('--max_conn', help="Maximum allowed connections", default=255, type=int)
 parser.add_argument('--buffer_size', help="Number of samples to be used", default=8192, type=int)
 
@@ -55,6 +64,10 @@ max_connection = args.max_conn
 buffer_size = args.buffer_size
 accepted_relay = {}
 resolved_address_list = []
+
+auth = None
+if _username:
+    auth = HTTPBasicAuth(_username, _password)
 
 def jsonrpc2_create_id(data):
     return hashlib.sha1(json.dumps(data).encode(client_encoding)).hexdigest()
@@ -332,7 +345,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
             while len(resolved_address_list) == 0:
                 try:
                     _, query_data = jsonrpc2_encode('get_client_address')
-                    query = requests.post(server_url, headers=proxy_data['headers'], data=query_data, timeout=1)
+                    query = requests.post(server_url, headers=proxy_data['headers'], data=query_data, timeout=1, auth=auth)
                     if query.status_code == 200:
                         result = query.json()['result']
                         resolved_address_list.append(result['client_address'])
@@ -345,7 +358,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
             def relay_connect(id, raw_data, proxy_data):
                 try:
                     # The tunnel connect forever until the client destroy it
-                    relay = requests.post(server_url, headers=proxy_data['headers'], data=raw_data, stream=True, timeout=None)
+                    relay = requests.post(server_url, headers=proxy_data['headers'], data=raw_data, stream=True, timeout=None, auth=auth)
                     for chunk in relay.iter_content(chunk_size=buffer_size):
                         print (chunk)
                 except requests.exceptions.ReadTimeout as e:
@@ -415,7 +428,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
             print("[*] Sending %s bytes..." % (str(len(raw_data))))
 
             i = 0
-            relay = requests.post(server_url, headers=proxy_data['headers'], data=raw_data, stream=True)
+            relay = requests.post(server_url, headers=proxy_data['headers'], data=raw_data, stream=True, auth=auth)
             buffered = b''
             for chunk in relay.iter_content(chunk_size=buffer_size):
                 buffered += chunk
