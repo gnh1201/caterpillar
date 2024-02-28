@@ -26,6 +26,7 @@ import importlib
 from datetime import datetime
 from platform import python_version
 
+import re
 import requests
 from requests.auth import HTTPBasicAuth
 from decouple import config
