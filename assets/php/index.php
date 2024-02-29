@@ -261,7 +261,7 @@ function relay_sendmail($params) {
     $subject = $params['subject'];
     $message = $params['message'];
     $headers = 'From: ' . $from . "\r\n" .
-        'X-Mailer: php-httpproxy/' . PHP_HTTPPROXY_VERSION . ' (Server; PHP ' . phpversion() . ')';
+        'X-Mailer: php-httpproxy/' . PHP_HTTPPROXY_VERSION . ' (Server; PHP ' . phpversion() . '; Caterpillar)';
     $sent = @mail($to, $subject, $message, $headers);
     if (!$sent) {
         $e = error_get_last();
