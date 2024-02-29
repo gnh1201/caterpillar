@@ -338,7 +338,10 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                 if is_ssl and method == b'GET':
                     print ("[*] Trying to bypass blocked request...")
                     remote_url = "%s://%s%s" % (scheme.decode(client_encoding), webserver.decode(client_encoding), url.decode(client_encoding))
-                    requests.get(remote_url, stream=True, verify=False, hooks={'response': bypass_callback})
+                    remote_headers = {
+                        "User-Agent": "php-httpproxy/0.1.5 (Client; Python " + python_version() + "; Caterpillar; abuse@catswords.net)",
+                    }
+                    requests.get(remote_url, headers=remote_headers, stream=True, verify=False, hooks={'response': bypass_callback})
                 else:
                     conn.sendall(b"HTTP/1.1 403 Forbidden\r\n\r\n{\"status\":403}")
 
@@ -351,7 +354,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
 
             proxy_data = {
                 'headers': {
-                    "User-Agent": "php-httpproxy/0.1.5 (Client; Python " + python_version() + "; abuse@catswords.net)",
+                    "User-Agent": "php-httpproxy/0.1.5 (Client; Python " + python_version() + "; Caterpillar; abuse@catswords.net)",
                 },
                 'data': {
                     "buffer_size": str(buffer_size),
@@ -435,7 +438,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
             # stateless mode
             proxy_data = {
                 'headers': {
-                    "User-Agent": "php-httpproxy/0.1.5 (Client; Python " + python_version() + "; abuse@catswords.net)",
+                    "User-Agent": "php-httpproxy/0.1.5 (Client; Python " + python_version() + "; Caterpillar; abuse@catswords.net)",
                 },
                 'data': {
                     "buffer_size": str(buffer_size),
