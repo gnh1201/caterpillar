@@ -3,12 +3,12 @@
 // Namhyeon Go (Catswords Research) <abuse@catswords.net>
 // https://github.com/gnh1201/caterpillar
 // Created at: 2022-10-06
-// Updated at: 2024-02-27
+// Updated at: 2024-02-29
 
 define("PHP_HTTPPROXY_VERSION", "0.1.5");
 
 if (strpos($_SERVER['HTTP_USER_AGENT'], "php-httpproxy/") !== 0) {
-    exit('<!DOCTYPE html><html><head><title>It works!</title><meta charset="utf-8"></head><body><h1>It works!</h1><p><a href="https://github.com/gnh1201/caterpillar">Download the client</a></p><hr><p>php-httpproxy/' . PHP_HTTPPROXY_VERSION . ' (Server; PHP ' . phpversion() . '; abuse@catswords.net)</p></body></html>');
+    exit('<!DOCTYPE html><html><head><title>It works!</title><meta charset="utf-8"></head><body><h1>It works!</h1><p><a href="https://github.com/gnh1201/caterpillar">Download the client</a></p><hr><p>php-httpproxy/' . PHP_HTTPPROXY_VERSION . ' (Server; PHP ' . phpversion() . '; Caterpillar; abuse@catswords.net)</p></body></html>');
 }
 
 ini_set("default_socket_timeout", 1);  // must be. because of `feof()` works
@@ -368,15 +368,7 @@ function get_client_address() {
 }
 
 // parse a context
-$context = array();
-$rawdata = file_get_contents('php://input');
-$pos = strpos("<?xml", $rawdata);
-$xmlrpc_method = false;
-if ($pos !== false) {
-    $context = xmlrpc_decode_request($rawdata, $xmlrpc_method);    // XML-RPC
-} else {
-    $context = json_decode($rawdata, true);    // JSON-RPC 2
-}
+$context = json_decode(file_get_contents('php://input'), true);
 
 // check is it JSON-RPC 2 (stateless)
 if ($context['jsonrpc'] == "2.0") {
@@ -450,45 +442,3 @@ if ($context['jsonrpc'] == "2.0") {
     }
 }
 
-// check is it XML-RPC (stateless)
-// Use the target server as a simple CMS API
-function parse_connection_string($s) {
-    preg_match_all('/(\w+)=(\w+);?/', $s, $matches, PREG_SET_ORDER);
-    return array_column($matches, 2, 1);
-}
-if ($xmlrpc_method) {
-    $method = $xmlrpc_method;
-    switch ($method) {
-        case "metaWeblog.newPost":
-            list($blogid, $_username, $_password, $content, $publish) = $context['params'];
-            if (!empty($_username)) {   // allow all usernames
-                $params = parse_connection_string(base64_decode($_password));
-                $result = relay_mysql_connect($params);
-                if ($result['success']) {
-                    $query_result = relay_mysql_query(array(
-                        "query" => sprintf(
-                            "insert into weblogs set title = '%s', description = '%s', dateCreated = '%s'",
-                            addslashes($content['title']),
-                            addslashes($content['description']),
-                            addslashes($content['dateCreated'])
-                        )
-                    ), $mysqli);
-                    if ($query_result['success']) {
-                        $postid = $query_result['result']['last_id'];
-                        echo xmlrpc_encode(array(
-                            "postid" => $postid
-                        ));
-                    }
-                }
-            }
-            break;
-
-        case "metaWeblog.getRecentPosts":
-            // todo
-            break;
-
-        case "metaWeblog.newMediaObject":
-            // todo
-            break;
-    }
-}
