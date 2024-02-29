@@ -64,7 +64,7 @@ class CaterpillarSMTPServer(SMTPServer):
                     to = v
 
         # build a data
-        _, raw_data = jsonrpc2_encode({
+        _, raw_data = jsonrpc2_encode("relay_sendmail", {
             "to": to,
             "from": mailfrom,
             "subject": subject,
