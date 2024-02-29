@@ -103,12 +103,12 @@ class CaterpillarSMTPServer(SMTPServer):
         # send HTTP POST request
         try:
             response = requests.post(server_url, data=raw_data, auth=auth)
-            response_json = response.json()
-            success = response_json.get('result', {}).get('success', False)
-            if success:
-                print("[*] Email sent successfully.")
-            else:
-                print("[*] Failed to send email.")
+            if response.status_code == 200:
+                type, id, method, rpcdata = jsonrpc2_decode(response.text)
+                if rpcdata['success']:
+                    print("[*] Email sent successfully.")
+                else:
+                    print("[*] Failed to send email.")
         except Exception as e:
             print("[*] Failed to send email:", str(e))
 
