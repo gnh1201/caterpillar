@@ -367,7 +367,16 @@ function get_client_address() {
 }
 
 // parse a context
-$context = json_decode(file_get_contents('php://input'), true);
+$context = array();
+$rawdata = file_get_contents('php://input');
+$pos = strpos("<?xml", $rawdata);
+if ($pos !== false) {
+    // JSON-RPC 2
+    $context = json_decode($rawdata, true);
+} else {
+    // XML-RPC
+    $context = xmlrpc_decode_request($rawdata, $method);
+}
 
 // check is it jsonrpc (stateless)
 if ($context['jsonrpc'] == "2.0") {
