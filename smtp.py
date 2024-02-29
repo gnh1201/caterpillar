@@ -1,4 +1,7 @@
-## todo
+import asyncore
+from smtpd import SMTPServer
+import json
+import requests
 
 def jsonrpc2_create_id(data):
     return hashlib.sha1(json.dumps(data).encode(client_encoding)).hexdigest()
@@ -47,6 +50,30 @@ class CaterpillarSMTPServer(SMTPServer):
                 if k = 'Subject':
                     subject = v
                 elif k = 'To':
-                    subject = v
+                    to = v
 
-## todo
+        # build a data
+        _, raw_data = jsonrpc2_encode({
+            "to": to,
+            "from": mailfrom,
+            "subject": subject,
+            "message": data.decode('utf-8')
+        })
+
+        # send HTTP POST request
+        try:
+            response = requests.post('https://example.org', data=raw_data)
+            response_json = response.json()
+            success = response_json.get('result', {}).get('success', False)
+            if success:
+                print("Email sent successfully.")
+            else:
+                print("Failed to send email.")
+        except Exception as e:
+            print("Failed to send email:", str(e))
+
+# Start SMTP server
+smtp_server = CaterpillarSMTPServer(('127.0.0.1', 25), None)
+
+# Start asynchronous event loop
+asyncore.loop()
