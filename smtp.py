@@ -1,3 +1,14 @@
+#!/usr/bin/python3
+#
+# smtp.py
+#
+# Caterpillar - The simple and parasitic web proxy with spam filter
+# Namyheon Go (Catswords Research) <gnh1201@gmail.com>
+# https://github.com/gnh1201/caterpillar
+# Created at: 2024-03-01
+# Updated at: 2024-03-01
+#
+
 import asyncore
 from smtpd import SMTPServer
 import json
