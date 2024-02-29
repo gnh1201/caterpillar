@@ -78,6 +78,11 @@ def jsonrpc2_decode(data):
     return type, id, method, rpcdata
 
 class CaterpillarSMTPServer(SMTPServer):
+    def __init__(self, localaddr, remoteaddr):
+        self.__class__.smtpd_hostname = "CaterpillarSMTPServer"
+        self.__class__.smtp_version = "0.1.5"
+        super().__init__(localaddr, remoteaddr)
+
     def process_message(self, peer, mailfrom, rcpttos, data, **kwargs):
         message_lines = data.decode('utf-8').split('\n')
         subject = ''
