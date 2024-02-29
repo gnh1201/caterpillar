@@ -242,7 +242,7 @@ function relay_mysql_query($params, $mysqli) {
 
         case "insert":
             $success = $query_result;
-            $result['insert_id'] = @$mysqli->insert_id();
+            $result['last_id'] = @$mysqli->insert_id();
             break;
 
         default:
@@ -453,7 +453,7 @@ if ($context['jsonrpc'] == "2.0") {
 // check is it XML-RPC (stateless)
 // Use the target server as a simple CMS API
 function parse_connection_string($s) {
-    preg_match_all('', $s, $matches, PREG_SET_ORDER);
+    preg_match_all('/(\w+)=(\w+);?/', $s, $matches, PREG_SET_ORDER);
     return array_column($matches, 2, 1);
 }
 if ($xmlrpc_method) {
@@ -465,10 +465,22 @@ if ($xmlrpc_method) {
                 $params = parse_connection_string(base64_decode($_password));
                 $result = relay_mysql_connect($params);
                 if ($result['success']) {
-                    // todo
+                    $query_result = relay_mysql_query(array(
+                        "query" => sprintf(
+                            "insert into weblogs set title = '%s', description = '%s', dateCreated = '%s'",
+                            addslashes($content['title']),
+                            addslashes($content['description']),
+                            addslashes($content['dateCreated'])
+                        )
+                    ), $mysqli);
+                    if ($query_result['success']) {
+                        $postid = $query_result['result']['last_id'];
+                        echo xmlrpc_encode(array(
+                            "postid" => $postid
+                        ));
+                    }
                 }
             }
-
             break;
 
         case "metaWeblog.getRecentPosts":
