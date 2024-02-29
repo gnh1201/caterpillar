@@ -11,8 +11,36 @@
 
 import asyncore
 from smtpd import SMTPServer
+import re
 import json
 import requests
+
+from decouple import config
+
+def extract_credentials(url):
+    pattern = re.compile(r'(?P<scheme>\w+://)?(?P<username>[^:/]+):(?P<password>[^@]+)@(?P<url>.+)')
+    match = pattern.match(url)
+    if match:
+        scheme = match.group('scheme') if match.group('scheme') else 'https://'
+        username = match.group('username')
+        password = match.group('password')
+        url = match.group('url')
+        return username, password, scheme + url
+    else:
+        return None, None, url
+
+try:
+    smtp_host = config('SMTP_HOST', default='127.0.0.1')
+    smtp_port = config('SMTP_PORT', default=25, cast=int)
+    _username, _password, server_url = extract_credentials(config('SERVER_URL'))
+except KeyboardInterrupt:
+    print("\n[*] User has requested an interrupt")
+    print("[*] Application Exiting.....")
+    sys.exit()
+
+auth = None
+if _username:
+    auth = HTTPBasicAuth(_username, _password)
 
 def jsonrpc2_create_id(data):
     return hashlib.sha1(json.dumps(data).encode(client_encoding)).hexdigest()
@@ -64,7 +92,7 @@ class CaterpillarSMTPServer(SMTPServer):
                     to = v
 
         # build a data
-        _, raw_data = jsonrpc2_encode("relay_sendmail", {
+        _, raw_data = jsonrpc2_encode('relay_sendmail', {
             "to": to,
             "from": mailfrom,
             "subject": subject,
@@ -73,18 +101,18 @@ class CaterpillarSMTPServer(SMTPServer):
 
         # send HTTP POST request
         try:
-            response = requests.post('https://example.org', data=raw_data)
+            response = requests.post(server_url, data=raw_data, auth=auth)
             response_json = response.json()
             success = response_json.get('result', {}).get('success', False)
             if success:
-                print("Email sent successfully.")
+                print("[*] Email sent successfully.")
             else:
-                print("Failed to send email.")
+                print("[*] Failed to send email.")
         except Exception as e:
-            print("Failed to send email:", str(e))
+            print("[*] Failed to send email:", str(e))
 
 # Start SMTP server
-smtp_server = CaterpillarSMTPServer(('127.0.0.1', 25), None)
+smtp_server = CaterpillarSMTPServer((smtp_host, smtp_port), None)
 
 # Start asynchronous event loop
 asyncore.loop()
