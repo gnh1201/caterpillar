@@ -87,6 +87,27 @@ def jsonrpc2_encode(method, params = None):
     data['id'] = id
     return (id, json.dumps(data))
 
+def jsonrpc2_decode(data):
+    type, id, method, rpcdata = (None, None, None, None)
+    typemap = {
+        "params": "call",
+        "error": "error",
+        "result": "result"
+    }
+
+    jsondata = json.loads(data)
+    if jsondata['jsonrpc'] == "2.0":
+        for k, v in typemap.items():
+            if k in jsondata:
+                type = v
+                rpcdata = jsondata[k]
+        id = jsondata['id']
+
+    if type == "call":
+        method = jsondata['method']
+
+    return type, id, method, rpcdata
+
 def jsonrpc2_result_encode(result, id = ''):
     data = {
         "jsonrpc": "2.0",
@@ -136,11 +157,10 @@ def parse_first_data(data):
 def conn_string(conn, data, addr):
     # check is it JSON-RPC 2.0 request
     if data.find(b'{') == 0:
-        jsondata = json.loads(data.decode(client_encoding))
-        if jsondata['jsonrpc'] == "2.0" and jsondata['method'] == "relay_accept":
-            id = jsondata['id']
+        type, id, method, rpcdata = jsonrpc2_decode(data.decode(client_encoding))
+        if type == "call" and method == "relay_accept":
             accepted_relay[id] = conn
-            connection_speed = jsondata['params']['connection_speed']
+            connection_speed = rpcdata['connection_speed']
             print ("[*] connection speed: %s miliseconds" % (str(connection_speed)))
             while conn.fileno() > -1:
                 time.sleep(1)
@@ -365,7 +385,9 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                     # The tunnel connect forever until the client destroy it
                     relay = requests.post(server_url, headers=proxy_data['headers'], data=raw_data, stream=True, timeout=None, auth=auth)
                     for chunk in relay.iter_content(chunk_size=buffer_size):
-                        print (chunk)
+                        type, _id, _, rpcdata = jsonrpc2_decode(chunk.decode(client_encoding))
+                        if type == "error" and id == _id:
+                            print ("[*] Error received from the relay server: (%s) %s" % (str(rpcdata['code']), str(rpcdata['message'])))
                 except requests.exceptions.ReadTimeout as e:
                     pass
             id, raw_data = jsonrpc2_encode('relay_connect', proxy_data['data'])
