@@ -16,6 +16,7 @@ import json
 import requests
 
 from decouple import config
+from requests.auth import HTTPBasicAuth
 
 def extract_credentials(url):
     pattern = re.compile(r'(?P<scheme>\w+://)?(?P<username>[^:/]+):(?P<password>[^@]+)@(?P<url>.+)')
