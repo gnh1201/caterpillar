@@ -371,9 +371,9 @@ $context = array();
 $rawdata = file_get_contents('php://input');
 $pos = strpos("<?xml", $rawdata);
 if ($pos !== false) {
-    $context = json_decode($rawdata, true);    // JSON-RPC 2
-} else {
     $context = xmlrpc_decode_request($rawdata, $method);    // XML-RPC
+} else {
+    $context = json_decode($rawdata, true);    // JSON-RPC 2
 }
 
 // check is it JSON-RPC 2 (stateless)
