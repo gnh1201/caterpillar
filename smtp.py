@@ -119,7 +119,7 @@ class CaterpillarSMTPServer(SMTPServer):
                 if rpcdata['success']:
                     print("[*] Email sent successfully.")
                 else:
-                    print("[*] Failed to send email.")
+                    raise Exception("(%s) %s" % (str(rpcdata['code']), rpcdata['message']))
         except Exception as e:
             print("[*] Failed to send email:", str(e))
 
