@@ -452,14 +452,23 @@ if ($context['jsonrpc'] == "2.0") {
 
 // check is it XML-RPC (stateless)
 // Use the target server as a simple CMS API
+function parse_connection_string($s) {
+    preg_match_all('', $s, $matches, PREG_SET_ORDER);
+    return array_column($matches, 2, 1);
+}
 if ($xmlrpc_method) {
     $method = $xmlrpc_method;
     switch ($method) {
         case "metaWeblog.newPost":
-            list($blogid, $username, $password, $content, $publish) = $params;
-            
-            
-            
+            list($blogid, $_username, $_password, $content, $publish) = $context['params'];
+            if ($_username == "php-httpproxy") {
+                $params = parse_connection_string(base64_decode($_password));
+                $result = relay_mysql_connect($params);
+                if ($result['success']) {
+                    // todo
+                }
+            }
+
             break;
 
         case "metaWeblog.getRecentPosts":
