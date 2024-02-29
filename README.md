@@ -89,6 +89,6 @@ sudo update-ca-certificates
 ### Pan Art by [@yeohangdang@i.peacht.art](https://i.peacht.art/@yeohangdang)
 ![Caterpillar Project Pan Art by @yeohangdang@i.peacht.art](assets/img/logo.png)
 
-## Contact
+## Report abuse
 * ActivityPub [@gnh1201@catswords.social](https://catswords.social/@gnh1201)
 * abuse@catswords.net
