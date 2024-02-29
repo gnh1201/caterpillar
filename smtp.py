@@ -98,16 +98,22 @@ class CaterpillarSMTPServer(SMTPServer):
                     to = v
 
         # build a data
-        _, raw_data = jsonrpc2_encode('relay_sendmail', {
-            "to": to,
-            "from": mailfrom,
-            "subject": subject,
-            "message": data.decode('utf-8')
-        })
+        proxy_data = {
+            'headers': {
+                "User-Agent": "php-httpproxy/0.1.5 (Client; Python " + python_version() + "; Caterpillar; abuse@catswords.net)",
+            },
+            'data': {
+                "to": to,
+                "from": mailfrom,
+                "subject": subject,
+                "message": data.decode('utf-8')
+            }
+        }
+        _, raw_data = jsonrpc2_encode('relay_sendmail', proxy_data['data'])
 
         # send HTTP POST request
         try:
-            response = requests.post(server_url, data=raw_data, auth=auth)
+            response = requests.post(server_url, headers=proxy_data['headers'], data=raw_data, auth=auth)
             if response.status_code == 200:
                 type, id, method, rpcdata = jsonrpc2_decode(response.text)
                 if rpcdata['success']:
