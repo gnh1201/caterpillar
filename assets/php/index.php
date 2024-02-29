@@ -370,8 +370,9 @@ function get_client_address() {
 $context = array();
 $rawdata = file_get_contents('php://input');
 $pos = strpos("<?xml", $rawdata);
+$xmlrpc_method = false;
 if ($pos !== false) {
-    $context = xmlrpc_decode_request($rawdata, $method);    // XML-RPC
+    $context = xmlrpc_decode_request($rawdata, $xmlrpc_method);    // XML-RPC
 } else {
     $context = json_decode($rawdata, true);    // JSON-RPC 2
 }
@@ -450,8 +451,8 @@ if ($context['jsonrpc'] == "2.0") {
 
 // check is it XML-RPC (stateless)
 // Use the target server as a simple CMS
-if (array_key_exists("methodCall", $context)) {
-    $method = $context['methodName'];
+if ($xmlrpc_method) {
+    $method = $xmlrpc_method;
     switch ($method) {
         case "metaWeblog.newPost":
             // todo
