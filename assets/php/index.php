@@ -231,10 +231,18 @@ function relay_mysql_query($params, $mysqli) {
     }
 
     $data = []; 
-    if ($query_type == "select") {
-        $data = mysqli_fetch_all($result, MYSQLI_ASSOC);
-    } else {
-        $data[] = $result;
+    switch($query_type) {
+        case "select":
+            $data = mysqli_fetch_all($result, MYSQLI_ASSOC);
+            break;
+
+        case "insert":
+            $data[] = $result;
+            $data[] = @mysql_insert_id();
+            break;
+
+        default:
+            $data[] = $result;
     }
 
     return array(
@@ -253,7 +261,7 @@ function relay_sendmail($params) {
     $message = $params['message'];
     $headers = 'From: ' . $from . "\r\n" .
         'X-Mailer: php-httpproxy/' . PHP_HTTPPROXY_VERSION . ' (Server; PHP ' . phpversion() . ')';
-    $sent = mail($to, $subject, $message, $headers);
+    $sent = @mail($to, $subject, $message, $headers);
     if (!$sent) {
         $e = error_get_last();
         return array(
