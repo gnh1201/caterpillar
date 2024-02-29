@@ -238,7 +238,7 @@ function relay_mysql_query($params, $mysqli) {
 
         case "insert":
             $data[] = $result;
-            $data[] = @mysql_insert_id();
+            $data[] = @$mysqli->insert_id();
             break;
 
         default:
