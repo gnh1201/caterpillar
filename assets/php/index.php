@@ -376,7 +376,7 @@ if ($pos !== false) {
     $context = xmlrpc_decode_request($rawdata, $method);    // XML-RPC
 }
 
-// check is it jsonrpc (stateless)
+// check is it JSON-RPC 2 (stateless)
 if ($context['jsonrpc'] == "2.0") {
     $method = $context['method'];
     switch ($method) {
@@ -444,6 +444,25 @@ if ($context['jsonrpc'] == "2.0") {
 
         case "get_client_address":
             echo jsonrpc2_result_encode(get_client_address(), $context['id']);
+            break;
+    }
+}
+
+// check is it XML-RPC (stateless)
+// Use the target server as a simple CMS
+if (array_key_exists("methodCall", $context)) {
+    $method = $context['methodName'];
+    switch ($method) {
+        case "metaWeblog.newPost":
+            // todo
+            break;
+
+        case "metaWeblog.getRecentPosts":
+            // todo
+            break;
+
+        case "metaWeblog.newMediaObject":
+            // todo
             break;
     }
 }
