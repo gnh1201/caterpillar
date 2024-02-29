@@ -230,7 +230,7 @@ function relay_mysql_query($params, $mysqli) {
         );
     }
 
-    $data = []; 
+    $data = array(); 
     switch($query_type) {
         case "select":
             $data = mysqli_fetch_all($result, MYSQLI_ASSOC);
