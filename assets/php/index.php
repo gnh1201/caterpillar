@@ -461,7 +461,7 @@ if ($xmlrpc_method) {
     switch ($method) {
         case "metaWeblog.newPost":
             list($blogid, $_username, $_password, $content, $publish) = $context['params'];
-            if ($_username == "php-httpproxy") {
+            if (!empty($_username)) {   // allow all usernames
                 $params = parse_connection_string(base64_decode($_password));
                 $result = relay_mysql_connect($params);
                 if ($result['success']) {
