@@ -217,7 +217,7 @@ function relay_mysql_query($params, $mysqli) {
     if ($pos !== false) {
         $query_type = strtolower(substr($query, 0, $pos));
     }
-    $result = $mysqli->query($query);
+    $query_result = $mysqli->query($query);
 
     if (!$mysqli->error) {
         return array(
@@ -230,27 +230,28 @@ function relay_mysql_query($params, $mysqli) {
         );
     }
 
-    $data = array(); 
+    $success = false;
+    $result = array(
+        "status" => 200
+    ); 
     switch($query_type) {
         case "select":
-            $data = mysqli_fetch_all($result, MYSQLI_ASSOC);
+            $success = true;
+            $result['data'] = mysqli_fetch_all($query_result, MYSQLI_ASSOC);
             break;
 
         case "insert":
-            $data[] = $result;
-            $data[] = @$mysqli->insert_id();
+            $success = $query_result;
+            $result['insert_id'] = @$mysqli->insert_id();
             break;
 
         default:
-            $data[] = $result;
+            $success = $query_result;
     }
 
     return array(
-        "success" => true,
-        "result" => array(
-            "status" => 200,
-            "data" => $data
-        )
+        "success" => $success,
+        "result" => $result
     );
 }
 
@@ -450,12 +451,15 @@ if ($context['jsonrpc'] == "2.0") {
 }
 
 // check is it XML-RPC (stateless)
-// Use the target server as a simple CMS
+// Use the target server as a simple CMS API
 if ($xmlrpc_method) {
     $method = $xmlrpc_method;
     switch ($method) {
         case "metaWeblog.newPost":
-            // todo
+            list($blogid, $username, $password, $content, $publish) = $params;
+            
+            
+            
             break;
 
         case "metaWeblog.getRecentPosts":
