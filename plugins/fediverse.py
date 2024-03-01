@@ -18,7 +18,7 @@ import os.path
 from decouple import config
 from PIL import Image
 
-from server import Filter
+from server import Extension
 
 try:
     client_encoding = config('CLIENT_ENCODING')
@@ -29,8 +29,10 @@ try:
 except Exception as e:
     print ("[*] Invaild configration: %s" % (str(e)))
 
-class Fediverse(Filter):
+class Fediverse(Extension):
     def __init__(self):
+        self.type = "filter"   # this is a filter
+        
         # Load data to use KnownWords4 strategy
         # Download data: https://github.com/dwyl/english-words
         self.known_words = []
