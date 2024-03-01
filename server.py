@@ -549,13 +549,6 @@ class Extension():
     def dispatch(self, type, id, method, rpcdata):
         print ("[*] Not implemented")
 
-class RPCMethod():
-    methods = []
-
-    @classmethod
-    def register(cls, m):
-        cls.methods.append(
-
 if __name__== "__main__":
     # load extensions (filters, rcpmethods)
     Extension.register(importlib.import_module("plugins.fediverse").Fediverse())
