@@ -158,14 +158,19 @@ def conn_string(conn, data, addr):
     # check is it JSON-RPC 2.0 request
     if data.find(b'{') == 0:
         type, id, method, rpcdata = jsonrpc2_decode(data.decode(client_encoding))
-        if type == "call" and method == "relay_accept":
-            accepted_relay[id] = conn
-            connection_speed = rpcdata['connection_speed']
-            print ("[*] connection speed: %s miliseconds" % (str(connection_speed)))
-            while conn.fileno() > -1:
-                time.sleep(1)
-            del accepted_relay[id]
-            print ("[*] relay destroyed: %s" % (id))
+        if type == "call":
+            if method == "relay_accept":
+                accepted_relay[id] = conn
+                connection_speed = rpcdata['connection_speed']
+                print ("[*] connection speed: %s miliseconds" % (str(connection_speed)))
+                while conn.fileno() > -1:
+                    time.sleep(1)
+                del accepted_relay[id]
+                print ("[*] relay destroyed: %s" % (id))
+            else:
+                rpchandler = Extension.get_rpcmethod(method)
+                if rpchandler:
+                    rpchandler.dispatch(type, id, method, rpcdata)
             return
 
     # parse first data (header)
@@ -528,17 +533,20 @@ class Extension():
         return filters
 
     @classmethod
-    def get_rpcmethods(cls):
-        rpcmethods = []
+    def get_rpcmethod(cls, method):
         for extension in cls.extension:
-            if extension.type == "rpcmethod":
-                rpcmethods.append(extension)
-        return rpcmethods
+            if extension.method == method:
+                return extension
+        return None
 
-    def __init__():
-        self.type = "unknown"
-    
+    def __init__(self):
+        self.type = ""
+        self.method = ""
+        
     def test(self, filtered, data, webserver, port, scheme, method, url):
+        print ("[*] Not implemented")
+
+    def dispatch(type, id, method, rpcdata):
         print ("[*] Not implemented")
 
 class RPCMethod():
