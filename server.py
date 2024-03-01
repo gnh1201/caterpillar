@@ -546,7 +546,7 @@ class Extension():
     def test(self, filtered, data, webserver, port, scheme, method, url):
         print ("[*] Not implemented")
 
-    def dispatch(type, id, method, rpcdata):
+    def dispatch(self, type, id, method, rpcdata):
         print ("[*] Not implemented")
 
 class RPCMethod():
