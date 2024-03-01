@@ -213,8 +213,7 @@ def proxy_connect(webserver, conn):
 def proxy_check_filtered(data, webserver, port, scheme, method, url):
     filtered = False
 
-
-    filters = Filter.get_filters()
+    filters = Extension.get_filters()
     print ("[*] Checking data with %s filters..." % (str(len(filters))))
     for f in filters:
         filtered = f.test(filtered, data, webserver, port, scheme, method, url)
@@ -513,23 +512,45 @@ def start():    #Main Program
             print("\n[*] Graceful Shutdown")
             sys.exit(1)
 
-class Filter():
-    filters = []
-
+class Extension():
+    extensions = []
+    
     @classmethod
     def register(cls, f):
-        cls.filters.append(f)
+        cls.extensions.append(f)
 
     @classmethod
     def get_filters(cls):
-        return cls.filters
+        filters = []
+        for extension in cls.extensions:
+            if extension.type == "filter":
+                filters.append(extension)
+        return filters
 
+    @classmethod
+    def get_rpcmethods(cls):
+        rpcmethods = []
+        for extension in cls.extension:
+            if extension.type == "rpcmethod":
+                rpcmethods.append(extension)
+        return rpcmethods
+
+    def __init__():
+        self.type = "unknown"
+    
     def test(self, filtered, data, webserver, port, scheme, method, url):
         print ("[*] Not implemented")
 
+class RPCMethod():
+    methods = []
+
+    @classmethod
+    def register(cls, m):
+        cls.methods.append(
+
 if __name__== "__main__":
-    # load filters
-    Filter.register(importlib.import_module("plugins.fediverse").Fediverse())
+    # load extensions (filters, rcpmethods)
+    Extension.register(importlib.import_module("plugins.fediverse").Fediverse())
 
     # start Caterpillar
     start()
