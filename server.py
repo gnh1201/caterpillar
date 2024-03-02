@@ -157,21 +157,8 @@ def parse_first_data(data):
 def conn_string(conn, data, addr):
     # check is it JSON-RPC 2.0 request
     if data.find(b'{') == 0:
-        type, id, method, rpcdata = jsonrpc2_decode(data.decode(client_encoding))
-        if type == "call":
-            if method == "relay_accept":
-                accepted_relay[id] = conn
-                connection_speed = rpcdata['connection_speed']
-                print ("[*] connection speed: %s miliseconds" % (str(connection_speed)))
-                while conn.fileno() > -1:
-                    time.sleep(1)
-                del accepted_relay[id]
-                print ("[*] relay destroyed: %s" % (id))
-            else:
-                rpchandler = Extension.get_rpcmethod(method)
-                if rpchandler:
-                    rpchandler.dispatch(type, id, method, rpcdata)
-            return
+        jsonrpc2_server(conn, data)
+        return
 
     # parse first data (header)
     webserver, port, scheme, method, url = parse_first_data(data)
@@ -186,6 +173,34 @@ def conn_string(conn, data, addr):
             port = int(_port.decode(client_encoding))
 
     proxy_server(webserver, port, scheme, method, url, conn, addr, data)
+
+def jsonrpc2_server(conn, data):
+    # get following chunks
+    conn.settimeout(1)
+    while True:
+        try:
+            chunk = conn.recv(buffer_size)
+            if not chunk:
+                break
+            data += chunk
+        except:
+            break
+
+    # process JSON-RPC 2 request
+    type, id, method, rpcdata = jsonrpc2_decode(data.decode(client_encoding))
+    if type == "call":
+        if method == "relay_accept":
+            accepted_relay[id] = conn
+            connection_speed = rpcdata['connection_speed']
+            print ("[*] connection speed: %s miliseconds" % (str(connection_speed)))
+            while conn.fileno() > -1:
+                time.sleep(1)
+            del accepted_relay[id]
+            print ("[*] relay destroyed: %s" % (id))
+        else:
+            rpchandler = Extension.get_rpcmethod(method)
+            if rpchandler:
+                rpchandler.dispatch(type, id, method, rpcdata)
 
 def proxy_connect(webserver, conn):
     hostname = webserver.decode(client_encoding)
