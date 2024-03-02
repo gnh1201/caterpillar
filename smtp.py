@@ -18,17 +18,7 @@ import requests
 from decouple import config
 from requests.auth import HTTPBasicAuth
 
-def extract_credentials(url):
-    pattern = re.compile(r'(?P<scheme>\w+://)?(?P<username>[^:/]+):(?P<password>[^@]+)@(?P<url>.+)')
-    match = pattern.match(url)
-    if match:
-        scheme = match.group('scheme') if match.group('scheme') else 'https://'
-        username = match.group('username')
-        password = match.group('password')
-        url = match.group('url')
-        return username, password, scheme + url
-    else:
-        return None, None, url
+from server import extract_credentials, jsonrpc2_create_id, jsonrpc2_encode, jsonrpc2_decode
 
 try:
     smtp_host = config('SMTP_HOST', default='127.0.0.1')
@@ -42,40 +32,6 @@ except KeyboardInterrupt:
 auth = None
 if _username:
     auth = HTTPBasicAuth(_username, _password)
-
-def jsonrpc2_create_id(data):
-    return hashlib.sha1(json.dumps(data).encode(client_encoding)).hexdigest()
-
-def jsonrpc2_encode(method, params = None):
-    data = {
-        "jsonrpc": "2.0",
-        "method": method,
-        "params": params
-    }
-    id = jsonrpc2_create_id(data)
-    data['id'] = id
-    return (id, json.dumps(data))
-
-def jsonrpc2_decode(data):
-    type, id, method, rpcdata = (None, None, None, None)
-    typemap = {
-        "params": "call",
-        "error": "error",
-        "result": "result"
-    }
-
-    jsondata = json.loads(data)
-    if jsondata['jsonrpc'] == "2.0":
-        for k, v in typemap.items():
-            if k in jsondata:
-                type = v
-                rpcdata = jsondata[k]
-        id = jsondata['id']
-
-    if type == "call":
-        method = jsondata['method']
-
-    return type, id, method, rpcdata
 
 class CaterpillarSMTPServer(SMTPServer):
     def __init__(self, localaddr, remoteaddr):
