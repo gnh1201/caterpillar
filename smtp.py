@@ -36,7 +36,7 @@ if _username:
 class CaterpillarSMTPServer(SMTPServer):
     def __init__(self, localaddr, remoteaddr):
         self.__class__.smtpd_hostname = "CaterpillarSMTPServer"
-        self.__class__.smtp_version = "0.1.5"
+        self.__class__.smtp_version = "0.1.6"
         super().__init__(localaddr, remoteaddr)
 
     def process_message(self, peer, mailfrom, rcpttos, data, **kwargs):
@@ -48,15 +48,15 @@ class CaterpillarSMTPServer(SMTPServer):
             if pos > -1:
                 k = line[0:pos]
                 v = line[pos+1:]
-                if k = 'Subject':
+                if k == 'Subject':
                     subject = v
-                elif k = 'To':
+                elif k == 'To':
                     to = v
 
         # build a data
         proxy_data = {
             'headers': {
-                "User-Agent": "php-httpproxy/0.1.5 (Client; Python " + python_version() + "; Caterpillar; abuse@catswords.net)",
+                "User-Agent": "php-httpproxy/0.1.6 (Client; Python " + python_version() + "; Caterpillar; abuse@catswords.net)",
             },
             'data': {
                 "to": to,
