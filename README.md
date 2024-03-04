@@ -12,7 +12,7 @@ You <-> Proxy client (Python) <-> Parasitized proxy server (Optional, PHP) <-> O
 For example, build a simple web debugging proxy on the shared servers.
 
 ### Stateful mode
-This project supports two modes of connection. The default is stateless. You can use the stateful mode to avoid being constrained by transfer capacity limits (e.g., `max_upload_size`). See the [stateful mode compatibility](https://github.com/gnh1201/caterpillar/wiki/Stateful-mode-compatibility).
+This project supports two modes of connection. The default is stateless. You can use the stateful mode to avoid being constrained by transfer capacity limits (e.g., `max_upload_size`). See the [stateful mode compatibility (github.com/gnh1201/caterpillar wiki)](https://github.com/gnh1201/caterpillar/wiki/Stateful-mode-compatibility).
 
 ## (Optional) Before to use
 If you have a server that ***will be parasitized*** and you want to proxy it, you should upload the `index.php` file to a shared server. The index.php file is located in the `assets/php` directory within this repository.
@@ -49,23 +49,8 @@ sudo update-ca-certificates
 
 4. (Optional) With [Cloudflare](https://cloudflare.com), we can expect to accelerate the 4x speed and reduce the network stuck.
 
-## (Optional) For Mastodon users
-
-### In [Caterpillar installed directory]/settings.ini or .env
-1. set `SERVER_URL` variable to `localhost` in `.env`  (e.g. `SERVER_URL=localhost`)
-2. set `PROXY_PASS` variable to Mastodon backend URI (e.g. `http://127.0.0.1:3000`)
-3. if you want use notification, set `MASTODON_SERVER`(server domain) and `MASTODON_USER_TOKEN`(access token) variables
-
-### In [Mastodon installed directory]/env.production
-1. set `http_proxy` variable to `http://localhost:5555` (e.g. `http_proxy=http://localhost:5555`)
-
-### In NGINX configuration
-1. Check your port number of Caterpillar (default: 5555)
-1. In NGINX configuration (e.g. `/etc/nginx/conf.d/mastodon.conf`), edit the `proxy_pass` like a `proxy_pass http://localhost:5555`
-
-## References
-* https://github.com/anapeksha/python-proxy-server
-* https://github.com/inaz2/proxy2
+## Fediverse support
+See the [Fediverse (github.com/gnh1201/caterpillar wiki)](https://github.com/gnh1201/caterpillar/wiki/Fediverse).
 
 ## Thanks to
 
