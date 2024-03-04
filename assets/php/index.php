@@ -3,16 +3,19 @@
 // Namhyeon Go (Catswords Research) <abuse@catswords.net>
 // https://github.com/gnh1201/caterpillar
 // Created at: 2022-10-06
-// Updated at: 2024-02-29
+// Updated at: 2024-03-04
 
 define("PHP_HTTPPROXY_VERSION", "0.1.5");
+define("DEFAULT_SOCKET_TIMEOUT", 1);
+define("STATEFUL_SOCKET_TIMEOUT", 30);
+define("MAX_EXECUTION_TIME", 0);
 
 if (strpos($_SERVER['HTTP_USER_AGENT'], "php-httpproxy/") !== 0) {
     exit('<!DOCTYPE html><html><head><title>It works!</title><meta charset="utf-8"></head><body><h1>It works!</h1><p><a href="https://github.com/gnh1201/caterpillar">Download the client</a></p><hr><p>php-httpproxy/' . PHP_HTTPPROXY_VERSION . ' (Server; PHP ' . phpversion() . '; Caterpillar; abuse@catswords.net)</p></body></html>');
 }
 
-ini_set("default_socket_timeout", 1);  // must be. because of `feof()` works
-ini_set("max_execution_time", 0);
+ini_set("default_socket_timeout", DEFAULT_SOCKET_TIMEOUT);  // must be. because of `feof()` works
+ini_set("max_execution_time", MAX_EXECUTION_TIME);
 
 function jsonrpc2_encode($method, $params, $id = '') {
     $data = array(
@@ -65,7 +68,7 @@ function read_from_remote_server($remote_address, $remote_port, $scheme, $data =
         $remote_address = "tls://" . $remote_address;
     }
 
-    $sock = fsockopen($remote_address, $remote_port, $error_code, $error_message, 1);
+    $sock = fsockopen($remote_address, $remote_port, $error_code, $error_message, DEFAULT_SOCKET_TIMEOUT);
     if (!$sock) {
         $error = array(
             "status" => 502,
@@ -156,7 +159,7 @@ function relay_connect($params, $id = '') {
     $datetime = $params['datetime'];   // format: %Y-%m-%d %H:%M:%S.%f
 
     $starttime = microtime(true);
-    $conn = fsockopen($client_address, $client_port, $error_code, $error_message, 1);
+    $conn = fsockopen($client_address, $client_port, $error_code, $error_message, STATEFUL_SOCKET_TIMEOUT);
     if (!$conn) {
         $error = array(
             "status" => 502,
