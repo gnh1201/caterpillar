@@ -519,6 +519,13 @@ class Extension():
                 return extension
         return None
 
+    @classmethod
+    def send_accept(cls, conn, method, success = True):
+        message = jsonrpc2_encode(f"{method}_accept", {
+            "success": success
+        })
+        conn.send(message)
+    
     def __init__(self):
         self.type = ""
         self.method = ""
