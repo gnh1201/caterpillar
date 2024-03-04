@@ -44,17 +44,17 @@ def extract_credentials(url):
         return None, None, url
 
 try:
-    listening_port = config('PORT', cast=int)
-    _username, _password, server_url = extract_credentials(config('SERVER_URL'))
-    server_connection_type = config('SERVER_CONNECTION_TYPE')
-    cakey = config('CA_KEY')
-    cacert = config('CA_CERT')
-    certkey = config('CERT_KEY')
-    certdir = config('CERT_DIR')
-    openssl_binpath = config('OPENSSL_BINPATH')
-    client_encoding = config('CLIENT_ENCODING')
-    local_domain = config('LOCAL_DOMAIN')
-    proxy_pass = config('PROXY_PASS')
+    listening_port = config('PORT', default=5555, cast=int)
+    _username, _password, server_url = extract_credentials(config('SERVER_URL', default='localhost'))
+    server_connection_type = config('SERVER_CONNECTION_TYPE', default='stateless')
+    cakey = config('CA_KEY', default='')
+    cacert = config('CA_CERT', default='')
+    certkey = config('CERT_KEY', default='')
+    certdir = config('CERT_DIR', default='')
+    openssl_binpath = config('OPENSSL_BINPATH', default='openssl')
+    client_encoding = config('CLIENT_ENCODING', default='utf-8')
+    local_domain = config('LOCAL_DOMAIN', default='')
+    proxy_pass = config('PROXY_PASS', default='')
 except KeyboardInterrupt:
     print("\n[*] User has requested an interrupt")
     print("[*] Application Exiting.....")
