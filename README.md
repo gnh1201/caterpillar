@@ -31,12 +31,6 @@ CERT_KEY=cert.key
 CERT_DIR=certs/
 OPENSSL_BINPATH=openssl
 CLIENT_ENCODING=utf-8
-LOCAL_DOMAIN=example.org
-PROXY_PASS=http://127.0.0.1:3000
-DICTIONARY_FILE=
-TRUECAPTCHA_USERID=
-TRUECAPTCHA_APIKEY=
-LIBREY_APIURL=
 ```
 
 - (Optional) Install RootCA for SSL decryption ([Download CA Certificate](ca.crt))
