@@ -6,7 +6,7 @@
 # Namyheon Go (Catswords Research) <gnh1201@gmail.com>
 # https://github.com/gnh1201/caterpillar
 # Created at: 2022-10-06
-# Updated at: 2024-12-28
+# Updated at: 2024-03-04
 #
 
 import argparse
@@ -166,7 +166,8 @@ def jsonrpc2_server(conn, id, method, params):
         print ("[*] relay destroyed: %s" % (id))
     else:
         rpcmethod = Extension.get_rpcmethod(method)
-        rpcmethod.dispatch("call", id, params)
+        if rpcmethod:
+            rpcmethod.dispatch("call", id, params)
 
 def proxy_connect(webserver, conn):
     hostname = webserver.decode(client_encoding)
