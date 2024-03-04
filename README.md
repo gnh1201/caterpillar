@@ -11,19 +11,8 @@ You <-> Proxy client (Python) <-> Parasitized proxy server (Optional, PHP) <-> O
 ```
 For example, build a simple web debugging proxy on the shared servers.
 
+### Stateful mode
 This project supports two modes of connection. The default is stateless. You can use the stateful mode to avoid being constrained by transfer capacity limits (e.g., `max_upload_size`). See the [stateful mode compatibility](https://github.com/gnh1201/caterpillar/wiki/Stateful-mode-compatibility).
-
-### Spam filtering strategy (Fediverse only)
-* [K-Anonymity](https://en.wikipedia.org/wiki/K-anonymity) test - Estimating whether the characters has been arranged by humans. (use [Have I Been Pwned](https://haveibeenpwned.com/Passwords))
-* Not CAPTCHA - Image spam containing characters that look very similar to [CAPTCHA](https://en.wikipedia.org/wiki/CAPTCHA). (use [TrueCaptcha](https://truecaptcha.org/))
-* VowelRatio10 - In characters arranged by humans, there is a high frequency of [vowels](https://en.wikipedia.org/wiki/Vowel) (aeiou) and [semivowels](https://en.wikipedia.org/wiki/Semivowel) (wy) and vowel-ending patterns included in strings that are 10 characters.
-* Palindrome4 - Detect [palindromes](https://en.wikipedia.org/wiki/Palindrome) composed of 4 or more characters
-* KnownWords4 - Detect [well-known words](https://github.com/dwyl/english-words) composed of 4 or more characters
-* SearchEngine3 - In public search engine, the given string yields more than 2 results. (use [LibreY](https://github.com/Ahwxorg/librey))
-* RepeatedNumber3 - Detect a repeated numbers 3 times or more.
-* SSL decryption (MITM) when relaying to federated servers.
-
-The strategies were implemented to respond to [the Fediverse Spam Attacks which started on the 15th of February](https://github.com/Mastodon-DE/blocklists/blob/main/spam%2F2024-02-15%2F2024-02-15-spam-mute-list.md).
 
 ## (Optional) Before to use
 If you have a server that ***will be parasitized*** and you want to proxy it, you should upload the `index.php` file to a shared server. The index.php file is located in the `assets/php` directory within this repository.
