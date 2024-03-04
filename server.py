@@ -87,27 +87,6 @@ def jsonrpc2_encode(method, params = None):
     data['id'] = id
     return (id, json.dumps(data))
 
-def jsonrpc2_decode(data):
-    type, id, method, rpcdata = (None, None, None, None)
-    typemap = {
-        "params": "call",
-        "error": "error",
-        "result": "result"
-    }
-
-    jsondata = json.loads(data)
-    if jsondata['jsonrpc'] == "2.0":
-        for k, v in typemap.items():
-            if k in jsondata:
-                type = v
-                rpcdata = jsondata[k]
-        id = jsondata['id']
-
-    if type == "call":
-        method = jsondata['method']
-
-    return type, id, method, rpcdata
-
 def jsonrpc2_result_encode(result, id = ''):
     data = {
         "jsonrpc": "2.0",
@@ -157,8 +136,10 @@ def parse_first_data(data):
 def conn_string(conn, data, addr):
     # check is it JSON-RPC 2.0 request
     if data.find(b'{') == 0:
-        jsonrpc2_server(conn, data)
-        return
+        jsondata = json.loads(data.decode(client_encoding, errors='ignore'))
+        if jsondata['jsonrpc'] == "2.0":
+            jsonrpc2_server(conn, jsondata['id'], jsondata['method'], jsondata['params'])
+            return
 
     # parse first data (header)
     webserver, port, scheme, method, url = parse_first_data(data)
@@ -174,33 +155,18 @@ def conn_string(conn, data, addr):
 
     proxy_server(webserver, port, scheme, method, url, conn, addr, data)
 
-def jsonrpc2_server(conn, data):
-    # get following chunks
-    conn.settimeout(1)
-    while True:
-        try:
-            chunk = conn.recv(buffer_size)
-            if not chunk:
-                break
-            data += chunk
-        except:
-            break
-
-    # process JSON-RPC 2 request
-    type, id, method, rpcdata = jsonrpc2_decode(data.decode(client_encoding))
-    if type == "call":
-        if method == "relay_accept":
-            accepted_relay[id] = conn
-            connection_speed = rpcdata['connection_speed']
-            print ("[*] connection speed: %s miliseconds" % (str(connection_speed)))
-            while conn.fileno() > -1:
-                time.sleep(1)
-            del accepted_relay[id]
-            print ("[*] relay destroyed: %s" % (id))
-        else:
-            rpchandler = Extension.get_rpcmethod(method)
-            if rpchandler:
-                rpchandler.dispatch(type, id, method, rpcdata)
+def jsonrpc2_server(conn, id, method, params):
+    if method == "relay_accept":
+        accepted_relay[id] = conn
+        connection_speed = params['connection_speed']
+        print ("[*] connection speed: %s miliseconds" % (str(connection_speed)))
+        while conn.fileno() > -1:
+            time.sleep(1)
+        del accepted_relay[id]
+        print ("[*] relay destroyed: %s" % (id))
+    else:
+        rpcmethod = Extension.get_rpcmethod(method)
+        rpcmethod.dispatch("call", id, params)
 
 def proxy_connect(webserver, conn):
     hostname = webserver.decode(client_encoding)
@@ -357,10 +323,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                 if is_ssl and method == b'GET':
                     print ("[*] Trying to bypass blocked request...")
                     remote_url = "%s://%s%s" % (scheme.decode(client_encoding), webserver.decode(client_encoding), url.decode(client_encoding))
-                    remote_headers = {
-                        "User-Agent": "php-httpproxy/0.1.5 (Client; Python " + python_version() + "; Caterpillar; abuse@catswords.net)",
-                    }
-                    requests.get(remote_url, headers=remote_headers, stream=True, verify=False, hooks={'response': bypass_callback})
+                    requests.get(remote_url, stream=True, verify=False, hooks={'response': bypass_callback})
                 else:
                     conn.sendall(b"HTTP/1.1 403 Forbidden\r\n\r\n{\"status\":403}")
 
@@ -373,7 +336,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
 
             proxy_data = {
                 'headers': {
-                    "User-Agent": "php-httpproxy/0.1.5 (Client; Python " + python_version() + "; Caterpillar; abuse@catswords.net)",
+                    "User-Agent": "php-httpproxy/0.1.5 (Client; Python " + python_version() + "; abuse@catswords.net)",
                 },
                 'data': {
                     "buffer_size": str(buffer_size),
@@ -407,9 +370,10 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                     # The tunnel connect forever until the client destroy it
                     relay = requests.post(server_url, headers=proxy_data['headers'], data=raw_data, stream=True, timeout=None, auth=auth)
                     for chunk in relay.iter_content(chunk_size=buffer_size):
-                        type, _id, _, rpcdata = jsonrpc2_decode(chunk.decode(client_encoding))
-                        if type == "error" and id == _id:
-                            print ("[*] Error received from the relay server: (%s) %s" % (str(rpcdata['code']), str(rpcdata['message'])))
+                        jsondata = json.loads(chunk.decode(client_encoding, errors='ignore'))
+                        if jsondata['jsonrpc'] == "2.0" and ("error" in jsondata):
+                            e = jsondata['error']
+                            print ("[*] Error received from the relay server: (%s) %s" % (str(e['code']), str(e['message'])))
                 except requests.exceptions.ReadTimeout as e:
                     pass
             id, raw_data = jsonrpc2_encode('relay_connect', proxy_data['data'])
@@ -457,7 +421,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
             # stateless mode
             proxy_data = {
                 'headers': {
-                    "User-Agent": "php-httpproxy/0.1.5 (Client; Python " + python_version() + "; Caterpillar; abuse@catswords.net)",
+                    "User-Agent": "php-httpproxy/0.1.5 (Client; Python " + python_version() + "; abuse@catswords.net)",
                 },
                 'data': {
                     "buffer_size": str(buffer_size),
@@ -550,22 +514,22 @@ class Extension():
     @classmethod
     def get_rpcmethod(cls, method):
         for extension in cls.extension:
-            if extension.method == method:
+            if extension.type == "rpcmethod" and extension.method == method:
                 return extension
         return None
 
     def __init__(self):
         self.type = ""
         self.method = ""
-        
+
     def test(self, filtered, data, webserver, port, scheme, method, url):
         print ("[*] Not implemented")
 
-    def dispatch(self, type, id, method, rpcdata):
+    def dispatch(self, type, id, params):
         print ("[*] Not implemented")
 
 if __name__== "__main__":
-    # load extensions (filters, rcpmethods)
+    # load filters
     Extension.register(importlib.import_module("plugins.fediverse").Fediverse())
 
     # start Caterpillar
