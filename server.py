@@ -525,6 +525,22 @@ class Extension():
             "success": success
         })
         conn.send(message)
+
+    @classmethod
+    def readall(cls, conn):
+        data = b''
+
+        conn.settimeout(1)
+        while True:
+            try:
+                chunk = conn.recv(buffer_size)
+                if not chunk:
+                    break
+                data += chunk
+            except:
+                pass
+
+        return data
     
     def __init__(self):
         self.type = ""
