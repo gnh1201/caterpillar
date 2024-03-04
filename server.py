@@ -167,7 +167,7 @@ def jsonrpc2_server(conn, id, method, params):
     else:
         rpcmethod = Extension.get_rpcmethod(method)
         if rpcmethod:
-            rpcmethod.dispatch("call", id, params)
+            rpcmethod.dispatch("call", id, params, conn)
 
 def proxy_connect(webserver, conn):
     hostname = webserver.decode(client_encoding)
@@ -526,7 +526,7 @@ class Extension():
     def test(self, filtered, data, webserver, port, scheme, method, url):
         print ("[*] Not implemented")
 
-    def dispatch(self, type, id, params):
+    def dispatch(self, type, id, params, conn = None):
         print ("[*] Not implemented")
 
 if __name__== "__main__":
