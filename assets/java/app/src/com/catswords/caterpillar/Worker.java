@@ -57,18 +57,6 @@ public class Worker {
                 return (new JSONObject(this)).toString();
             }
         }
-
-        public static String encode(Map<String, String> params, String id, String method) {
-            return (new Call(params, id, method)).toString();
-        }
-
-        public static String errorEncode(Map<String, String> error, String id) {
-            return (new Error(error, id)).toString();
-        }
-
-        public static String resultEncode(Map<String, String> result, String id) {
-            return (new Result(result, id)).toString();
-        }
     }
 
     private static Map<String, String> parseHeaders(String str) {
@@ -149,7 +137,7 @@ public class Worker {
                 error.put("status", 405);
                 error.put("code", -1);
                 error.put("message", "Method Not Allowed");
-                out.println(JsonRpc2.errorEncode(error, id));
+                out.println((new JsonRpc2.Error(error, id)).toString());
                 break;
 
             default:
