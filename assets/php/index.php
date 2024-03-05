@@ -1,9 +1,13 @@
 <?php
-// Caterpillar - The simple and parasitic web proxy with spam filter
-// Namhyeon Go (Catswords Research) <abuse@catswords.net>
-// https://github.com/gnh1201/caterpillar
-// Created at: 2022-10-06
-// Updated at: 2024-03-04
+/* index.php
+ * Caterpillar Worker on PHP
+ * 
+ * Caterpillar Proxy - The simple and parasitic web proxy with spam filter
+ * Namhyeon Go (Catswords Research) <abuse@catswords.net>
+ * https://github.com/gnh1201/caterpillar
+ * Created at: 2022-10-06
+ * Updated at: 2024-03-05
+ */
 
 define("PHP_HTTPPROXY_VERSION", "0.1.5");
 define("DEFAULT_SOCKET_TIMEOUT", 1);
