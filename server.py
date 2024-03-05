@@ -512,10 +512,10 @@ class Extension():
         self.method = ""
 
     def test(self, filtered, data, webserver, port, scheme, method, url):
-        print ("[*] Not implemented")
+        raise NotImplementedError
 
     def dispatch(self, type, id, params, conn = None):
-        print ("[*] Not implemented")
+        raise NotImplementedError
 
 if __name__== "__main__":
     # initalization
