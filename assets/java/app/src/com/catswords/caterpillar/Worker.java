@@ -88,13 +88,16 @@ public class Worker {
 
     private static readFromRemoteServer(String remoteAddress, int remotePort, String scheme, byte[] requestData, object _out, int bufferSize, String id) {
         try {
+            // connect to the remote server
             Socket sock = new Socket();
             sock.connect(new InetSocketAddress(remoteAddress, remotePort));
             DataOutputStream outToServer = new DataOutputStream(sock.getOutputStream());
             BufferedReader inFromServer = new BufferedReader(new InputStreamReader(sock.getInputStream()));
 
-            outToServer.write(requestData, 0, sendData.length);
+            // send data to the remote server
+            outToServer.write(requestData, 0, requestData.length);
 
+            // receive a response
             char[] buffer = new char[bufferSize];
             int bytesRead;
             StringBuilder response = new StringBuilder();
@@ -102,6 +105,7 @@ public class Worker {
                 response.append(buffer, 0, bytesRead);
             }
 
+            // send output to the client
             if (out instanceof JspWriter) {
                 JspWriter out = (JspWriter) _out;
                 out.println(response.toString());
@@ -110,11 +114,14 @@ public class Worker {
                 conn.getOutputStream().write(response.toString().getBytes());
             }
         } catch (Exception e) {
+            // build a description of the error
             Map<String, Object> error = new HashMap<>();
             error.put("status", 502);
             error.put("code", e.getMessage());
             error.put("message", e.getMessage());
             String response = new JsonRpc2.Error(error, id);
+
+            // send output to the client
             if (out instanceof JspWriter) {
                 JspWriter out = (JspWriter) _out;
                 out.println(response.toString());
@@ -126,7 +133,7 @@ public class Worker {
     }
 
     // Stateless (Servlet only)
-    public static void relayRequest(Map<String, Object> params, String id, JspWriter out) throws Exception {
+    public static void relayRequest(Map<String, Object> params, String id, JspWriter out) {
         int bufferSize = Integer.parseInt((String) params.get("buffer_size"));
         byte[] requestData = java.util.Base64.getDecoder().decode((String) params.get("request_data"));
         Map<String, String> requestHeader = parseHeaders(new String(requestData));
@@ -147,6 +154,7 @@ public class Worker {
                 error.put("message", "Method Not Allowed");
                 out.println(JsonRpc2.errorEncode(error, id));
                 break;
+
             default:
                 readFromRemoteServer(remoteAddress, remotePort, scheme, requestData, out, bufferSize, id);
         }
@@ -154,12 +162,12 @@ public class Worker {
     }
 
     // Stateful (Servlet only)
-    public static void relayConenct(Map<String, Object> params, String id, JspWriter out) throws Exception {
+    public static void relayConenct(Map<String, Object> params, String id, JspWriter out) {
         // todo
     }
 
     // Stateful (Socket only)
-    public static void relayConenct(Map<String, Object> params, String id, Socket connection) throws Exception {
+    public static void relayConenct(Map<String, Object> params, String id, Socket connection) {
         // todo
     }
 
