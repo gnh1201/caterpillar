@@ -451,9 +451,8 @@ def start():    #Main Program
         sock.bind(('', listening_port))
         sock.listen(max_connection)
         print("[*] Server started successfully [ %d ]" %(listening_port))
-    except Exception:
-        print("[*] Unable to Initialize Socket")
-        print(Exception)
+    except Exception as e:
+        print("[*] Unable to Initialize Socket:", str(e))
         sys.exit(2)
 
     while True:
@@ -536,6 +535,8 @@ if __name__== "__main__":
         print("\n[*] User has requested an interrupt")
         print("[*] Application Exiting.....")
         sys.exit()
+    except Exception as e:
+        print("[*] Failed to initialize:", str(e))
     
     parser = argparse.ArgumentParser()
     parser.add_argument('--max_conn', help="Maximum allowed connections", default=255, type=int)
