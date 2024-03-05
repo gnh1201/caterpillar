@@ -14,10 +14,9 @@ import org.json.JSONObject;
 import javax.servlet.jsp.JspWriter;
 
 public class Worker {
-    private static final int DEFAULT_SOCKET_TIMEOUT = 5000;
 
+    @SuppressWarnings("unused")
     private static class JsonRpc2 {
-        @SuppressWarnings("unused")
         public class Call {
             public Call(Map<String, String> params, String id, String method) {
                 this.params = params;
@@ -33,7 +32,6 @@ public class Worker {
             }
         }
 
-        @SuppressWarnings("unused")
         public class Error {
             public Error(Map<String, String> error, String id) {
                 this.error = error;
@@ -47,7 +45,6 @@ public class Worker {
             }
         }
 
-        @SuppressWarnings("unused")
         public class Result {
             public Result(Map<String, String> result, String id) {
                 this.result = result;
@@ -89,18 +86,42 @@ public class Worker {
         return headers;
     }
 
-    private static readFromRemoteServer(String remoteAddress, int remotePort, String scheme, byte[] requestData, object out, int bufferSize, String id) {
-        Socket sock = new Socket();
-        sock.connect(new InetSocketAddress(remoteAddress, remotePort));
-        DataOutputStream outToServer = new DataOutputStream(sock.getOutputStream());
-        BufferedReader inFromServer = new BufferedReader(new InputStreamReader(sock.getInputStream()));
+    private static readFromRemoteServer(String remoteAddress, int remotePort, String scheme, byte[] requestData, object _out, int bufferSize, String id) {
+        try {
+            Socket sock = new Socket();
+            sock.connect(new InetSocketAddress(remoteAddress, remotePort));
+            DataOutputStream outToServer = new DataOutputStream(sock.getOutputStream());
+            BufferedReader inFromServer = new BufferedReader(new InputStreamReader(sock.getInputStream()));
 
-        if (out instanceof JspWriter) {
-            // todo
-        } else if (out instanceof Socket) {
-            // todo
-        } else {
-            // todo
+            outToServer.write(requestData, 0, sendData.length);
+
+            char[] buffer = new char[bufferSize];
+            int bytesRead;
+            StringBuilder response = new StringBuilder();
+            while ((bytesRead = inFromServer.read(buffer, 0, bufferSize)) != -1) {
+                response.append(buffer, 0, bytesRead);
+            }
+
+            if (out instanceof JspWriter) {
+                JspWriter out = (JspWriter) _out;
+                out.println(response.toString());
+            } else if (out instanceof Socket) {
+                Socket conn = (Socket) _out;
+                conn.getOutputStream().write(response.toString().getBytes());
+            }
+        } catch (Exception e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("status", 502);
+            error.put("code", e.getMessage());
+            error.put("message", e.getMessage());
+            String response = new JsonRpc2.Error(error, id);
+            if (out instanceof JspWriter) {
+                JspWriter out = (JspWriter) _out;
+                out.println(response.toString());
+            } else if (out instanceof Socket) {
+                Socket conn = (Socket) _out;
+                conn.getOutputStream().write(response.toString().getBytes());
+            }
         }
     }
 
