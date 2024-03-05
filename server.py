@@ -492,7 +492,7 @@ class Extension():
         _, message = jsonrpc2_encode(f"{method}_accept", {
             "success": success
         })
-        conn.send(message)
+        conn.send(message.encode(client_encoding))
 
     @classmethod
     def readall(cls, conn):
@@ -505,6 +505,7 @@ class Extension():
                 data += chunk
             except:
                 pass
+
         return data
     
     def __init__(self):
