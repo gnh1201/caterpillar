@@ -43,37 +43,6 @@ def extract_credentials(url):
     else:
         return None, None, url
 
-try:
-    listening_port = config('PORT', default=5555, cast=int)
-    _username, _password, server_url = extract_credentials(config('SERVER_URL', default='localhost'))
-    server_connection_type = config('SERVER_CONNECTION_TYPE', default='stateless')
-    cakey = config('CA_KEY', default='')
-    cacert = config('CA_CERT', default='')
-    certkey = config('CERT_KEY', default='')
-    certdir = config('CERT_DIR', default='')
-    openssl_binpath = config('OPENSSL_BINPATH', default='openssl')
-    client_encoding = config('CLIENT_ENCODING', default='utf-8')
-    local_domain = config('LOCAL_DOMAIN', default='')
-    proxy_pass = config('PROXY_PASS', default='')
-except KeyboardInterrupt:
-    print("\n[*] User has requested an interrupt")
-    print("[*] Application Exiting.....")
-    sys.exit()
-
-parser = argparse.ArgumentParser()
-parser.add_argument('--max_conn', help="Maximum allowed connections", default=255, type=int)
-parser.add_argument('--buffer_size', help="Number of samples to be used", default=8192, type=int)
-
-args = parser.parse_args()
-max_connection = args.max_conn
-buffer_size = args.buffer_size
-accepted_relay = {}
-resolved_address_list = []
-
-auth = None
-if _username:
-    auth = HTTPBasicAuth(_username, _password)
-
 def jsonrpc2_create_id(data):
     return hashlib.sha1(json.dumps(data).encode(client_encoding)).hexdigest()
 
@@ -553,7 +522,40 @@ class Extension():
         print ("[*] Not implemented")
 
 if __name__== "__main__":
-    # load filters
+    # initalization
+    try:
+        listening_port = config('PORT', default=5555, cast=int)
+        _username, _password, server_url = extract_credentials(config('SERVER_URL', default='localhost'))
+        server_connection_type = config('SERVER_CONNECTION_TYPE', default='stateless')
+        cakey = config('CA_KEY', default='ca.key')
+        cacert = config('CA_CERT', default='ca.crt')
+        certkey = config('CERT_KEY', default='cert.key')
+        certdir = config('CERT_DIR', default='certs/')
+        openssl_binpath = config('OPENSSL_BINPATH', default='openssl')
+        client_encoding = config('CLIENT_ENCODING', default='utf-8')
+        local_domain = config('LOCAL_DOMAIN', default='')
+        proxy_pass = config('PROXY_PASS', default='')
+    except KeyboardInterrupt:
+        print("\n[*] User has requested an interrupt")
+        print("[*] Application Exiting.....")
+        sys.exit()
+    
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--max_conn', help="Maximum allowed connections", default=255, type=int)
+    parser.add_argument('--buffer_size', help="Number of samples to be used", default=8192, type=int)
+
+    args = parser.parse_args()
+    max_connection = args.max_conn
+    buffer_size = args.buffer_size
+    accepted_relay = {}
+    resolved_address_list = []
+
+    # set basic authentication
+    auth = None
+    if _username:
+        auth = HTTPBasicAuth(_username, _password)
+    
+    # load extensions
     Extension.register(importlib.import_module("plugins.fediverse").Fediverse())
 
     # start Caterpillar
