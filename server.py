@@ -468,7 +468,7 @@ def start():    #Main Program
 
 class Extension():
     extensions = []
-    
+
     @classmethod
     def register(cls, f):
         cls.extensions.append(f)
@@ -483,14 +483,14 @@ class Extension():
 
     @classmethod
     def get_rpcmethod(cls, method):
-        for extension in cls.extension:
+        for extension in cls.extensions:
             if extension.type == "rpcmethod" and extension.method == method:
                 return extension
         return None
 
     @classmethod
     def send_accept(cls, conn, method, success = True):
-        message = jsonrpc2_encode(f"{method}_accept", {
+        _, message = jsonrpc2_encode(f"{method}_accept", {
             "success": success
         })
         conn.send(message)
@@ -498,8 +498,6 @@ class Extension():
     @classmethod
     def readall(cls, conn):
         data = b''
-
-        conn.settimeout(1)
         while True:
             try:
                 chunk = conn.recv(buffer_size)
@@ -508,7 +506,6 @@ class Extension():
                 data += chunk
             except:
                 pass
-
         return data
     
     def __init__(self):
