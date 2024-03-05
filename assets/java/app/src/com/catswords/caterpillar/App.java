@@ -1,11 +1,8 @@
 package com.catswords.caterpillar;
 
 public class App {
-    public String getGreeting() {
-        return "Hello World!";
-    }
-
     public static void main(String[] args) {
-        System.out.println(new App().getGreeting());
+        // Stateful mode only
+        throw new UnsupportedOperationException("This method is not yet implemented.");
     }
 }

@@ -71,7 +71,7 @@ public class Worker {
         }
     }
 
-    public static Map<String, String> parseHeaders(String str) {
+    private static Map<String, String> parseHeaders(String str) {
         Map<String, String> headers = new HashMap<>();
         String[] lines = str.split("\r?\n");
         String firstLine = lines[0];
@@ -87,6 +87,9 @@ public class Worker {
     }
 
     private static readFromRemoteServer(String remoteAddress, int remotePort, String scheme, byte[] requestData, object _out, int bufferSize, String id) {
+        JspWriter jspWriterOut = (out instanceof JspWriter ? (JspWriter) _out : null);
+        Socket conn = (out instanceof Socket ? (Socket) _out : null);
+
         try {
             // connect to the remote server
             Socket sock = new Socket();
@@ -97,21 +100,17 @@ public class Worker {
             // send data to the remote server
             outToServer.write(requestData, 0, requestData.length);
 
-            // receive a response
+            // receive a response and forward to the client
             char[] buffer = new char[bufferSize];
             int bytesRead;
-            StringBuilder response = new StringBuilder();
             while ((bytesRead = inFromServer.read(buffer, 0, bufferSize)) != -1) {
-                response.append(buffer, 0, bytesRead);
-            }
-
-            // send output to the client
-            if (out instanceof JspWriter) {
-                JspWriter out = (JspWriter) _out;
-                out.println(response.toString());
-            } else if (out instanceof Socket) {
-                Socket conn = (Socket) _out;
-                conn.getOutputStream().write(response.toString().getBytes());
+                if (jspWriterOut != null) {
+                    out.write(buffer, 0, bytesRead);
+                } else if (conn != null) {
+                    char[] outBuffer = new char[bytesRead];
+                    System.arraycopy(buffer, 0, outBuffer, 0, bytesRead);
+                    conn.getOutputStream().write(outBuffer);
+                }
             }
         } catch (Exception e) {
             // build a description of the error
@@ -122,11 +121,9 @@ public class Worker {
             String response = new JsonRpc2.Error(error, id);
 
             // send output to the client
-            if (out instanceof JspWriter) {
-                JspWriter out = (JspWriter) _out;
+            if (jspWriterOut != null) {
                 out.println(response.toString());
-            } else if (out instanceof Socket) {
-                Socket conn = (Socket) _out;
+            } else if (conn != null) {
                 conn.getOutputStream().write(response.toString().getBytes());
             }
         }
@@ -161,14 +158,14 @@ public class Worker {
         
     }
 
-    // Stateful (Servlet only)
+    // Stateful mode (Servlet only)
     public static void relayConenct(Map<String, Object> params, String id, JspWriter out) {
-        // todo
+        throw new UnsupportedOperationException("This method is not yet implemented.");
     }
 
-    // Stateful (Socket only)
+    // Stateful mode (Socket only)
     public static void relayConenct(Map<String, Object> params, String id, Socket connection) {
-        // todo
+        throw new UnsupportedOperationException("This method is not yet implemented.");
     }
 
 }
