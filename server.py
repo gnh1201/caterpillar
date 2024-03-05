@@ -553,7 +553,7 @@ if __name__== "__main__":
         auth = HTTPBasicAuth(_username, _password)
     
     # load extensions
-    Extension.register(importlib.import_module("plugins.fediverse").Fediverse())
+    #Extension.register(importlib.import_module("plugins.fediverse").Fediverse())
 
     # start Caterpillar
     start()
