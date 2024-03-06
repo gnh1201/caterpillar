@@ -488,7 +488,7 @@ class Extension():
     @classmethod
     def get_rpcmethod(cls, method):
         for extension in cls.extensions:
-            is_exported_method = (method == extension.method) or (method in extension.methods)
+            is_exported_method = (method == extension.method) or (method in extension.exported_methods)
             if extension.type == "rpcmethod" and is_exported_method:
                 return extension
         return None
@@ -535,7 +535,7 @@ class Extension():
     def __init__(self):
         self.type = None
         self.method = None
-        self.methods = []
+        self.exported_methods = []
         self.connection_type = None
 
     def test(self, filtered, data, webserver, port, scheme, method, url):
