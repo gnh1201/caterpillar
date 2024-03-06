@@ -231,7 +231,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                 except:
                     break
 
-        # do response
+        # localhost mode
         if server_url == "localhost":
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -303,7 +303,6 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
 
         # stateful mode
         elif server_connection_type == "stateful":
-
             proxy_data = {
                 'headers': {
                     "User-Agent": "php-httpproxy/0.1.5 (Client; Python " + python_version() + "; abuse@catswords.net)",
@@ -387,8 +386,8 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
 
             print("[*] Received %s chunks. (%s bytes per chunk)" % (str(i), str(buffer_size)))
 
-        else:
-            # stateless mode
+        # stateless mode
+        elif server_connection_type == "stateless":
             proxy_data = {
                 'headers': {
                     "User-Agent": "php-httpproxy/0.1.5 (Client; Python " + python_version() + "; abuse@catswords.net)",
@@ -424,6 +423,10 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                 i += 1
 
             print("[*] Received %s chunks. (%s bytes per chunk)" % (str(i), str(buffer_size)))
+
+        # nothing at all
+        else:
+            raise Exception("Unsupported connection type")
 
         print("[*] Request and received. Done. %s" % (str(addr[0])))
         conn.close()
