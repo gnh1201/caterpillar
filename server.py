@@ -134,9 +134,7 @@ def jsonrpc2_server(conn, id, method, params):
         del accepted_relay[id]
         print ("[*] relay destroyed: %s" % (id))
     else:
-        rpcmethod = Extension.get_rpcmethod(method)
-        if rpcmethod:
-            rpcmethod.dispatch("call", id, params, conn)
+        Extension.dispatch_rpcmethod(method, "call", id, params, conn)
 
 def proxy_connect(webserver, conn):
     hostname = webserver.decode(client_encoding)
@@ -490,9 +488,21 @@ class Extension():
     @classmethod
     def get_rpcmethod(cls, method):
         for extension in cls.extensions:
-            if extension.type == "rpcmethod" and ( (method == extension.method) or (method in extension.methods) ):
+            is_exported_method = (method == extension.method) or (method in extension.methods)
+            if extension.type == "rpcmethod" and is_exported_method:
                 return extension
         return None
+
+    @classmethod
+    def dispatch_rpcmethod(cls, method, type, id, params, conn):
+        rpcmethod = cls.get_rpcmethod(method)
+        if rpcmethod:
+            if rpcmethod.method == method:
+                rpcmethod.dispatch(type, id, params, conn)
+            else:
+                f = getattr(rpcmethod, method, None)
+                if f:
+                    f(type, id, params, conn)
 
     @classmethod
     def get_connector(cls, connection_type):
