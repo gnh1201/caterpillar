@@ -497,7 +497,7 @@ class Extension():
     @classmethod
     def get_connector(cls, connection_type):
         for extension in cls.extensions:
-            if extension.type == "connector" and extension.connection_type = connection_type:
+            if extension.type == "connector" and extension.connection_type == connection_type:
                 return extension
         return None
 
