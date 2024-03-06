@@ -8,14 +8,17 @@ class Container(Extension):
         self.method = "container_init"
         self.exported_methods = ["container_run", "container_stop"]
 
+        # docker
+        self.client = docker.from_env()
+
     def dispatch(self, type, id, params, conn):
         print ("[*] Greeting! dispatch")
         pass
 
     def container_run(self, type, id, params, conn):
-        print ("[*] Greeting! container_run")
-        # todo
-        pass
+        image = params['image']
+        container = client.containers.run(image, detach=True)
+        container.logs()
 
     def container_stop(self, type, id, params, conn):
         print ("[*] Greeting! container_stop")
