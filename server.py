@@ -587,6 +587,7 @@ if __name__== "__main__":
     
     # load extensions
     #Extension.register(importlib.import_module("plugins.fediverse").Fediverse())
+    #Extension.register(importlib.import_module("plugins.container").Container())
 
     # start Caterpillar
     start()
