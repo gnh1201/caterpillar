@@ -495,9 +495,9 @@ class Extension():
         return None
 
     @classmethod
-    def get_connector(cls, method):
+    def get_connector(cls, connection_type):
         for extension in cls.extensions:
-            if extension.type == "connector" and extension.method == method:
+            if extension.type == "connector" and extension.connection_type = connection_type:
                 return extension
         return None
 
@@ -523,8 +523,9 @@ class Extension():
         return data
     
     def __init__(self):
-        self.type = ""
-        self.method = ""
+        self.type = None
+        self.method = None
+        self.connection_type = None
 
     def test(self, filtered, data, webserver, port, scheme, method, url):
         raise NotImplementedError
