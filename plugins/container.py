@@ -3,6 +3,7 @@ import docker
 class Container(Extension):
     def __init__(self):
         self.type = "rpcmethod"
+        self.method = "container_init"
         self.methods = ["container_run", "container_stop"]
 
     def dispatch(self, type, id, params, conn):
