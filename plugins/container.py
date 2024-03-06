@@ -16,13 +16,30 @@ class Container(Extension):
         pass
 
     def container_run(self, type, id, params, conn):
+        devices = params['devices']
         image = params['image']
+        devices = params['devices']
+        name = params['name']
         environment = params['environment']
+        volumes = params['volumes']
 
-        container = client.containers.run(image=image, environment=environment, detach=True)
+        container = client.containers.run(
+            image,
+            devices=devices,
+            name=name,
+            volumes=volumes,
+            environment=environment,
+            detach=True
+        )
         container.logs()
 
+        print ("[*] Running...")
+
     def container_stop(self, type, id, params, conn):
-        print ("[*] Greeting! container_stop")
-        # todo
-        pass
+        name = params['name']
+
+        container = client.containers.get(name)
+        container.stop()
+
+        print ("[*] Stopped")
+
