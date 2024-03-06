@@ -531,7 +531,7 @@ class Extension():
     def test(self, filtered, data, webserver, port, scheme, method, url):
         raise NotImplementedError
 
-    def dispatch(self, type, id, params, conn = None, method = None):
+    def dispatch(self, type, id, params, method = None, conn = None):
         raise NotImplementedError
 
     def connect(self, conn, data, webserver, port, scheme, method, url):
