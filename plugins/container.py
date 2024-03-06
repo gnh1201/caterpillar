@@ -7,6 +7,7 @@ class Container(Extension):
         self.exported_methods = ["container_run", "container_stop"]
 
     def dispatch(self, type, id, params, conn):
+        print ("[*] Greeting!")
         pass
 
     def container_run(self, type, id, params, conn):
