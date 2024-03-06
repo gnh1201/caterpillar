@@ -13,7 +13,7 @@ class Container(Extension):
 
     def dispatch(self, type, id, params, conn):
         print ("[*] Greeting! dispatch")
-        conn.send("Greeting! dispatch")
+        conn.send(b'Greeting! dispatch')
 
     def container_run(self, type, id, params, conn):
         devices = params['devices']
