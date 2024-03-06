@@ -426,7 +426,11 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
 
         # nothing at all
         else:
-            raise Exception("Unsupported connection type")
+            connector = Extension.get_connector(server_connection_type)
+            if connector:
+                connector.connect(conn, data, webserver, port, scheme, method, url)
+            else:
+                raise Exception("Unsupported connection type")
 
         print("[*] Request and received. Done. %s" % (str(addr[0])))
         conn.close()
@@ -491,6 +495,13 @@ class Extension():
         return None
 
     @classmethod
+    def get_connector(cls, method):
+        for extension in cls.extensions:
+            if extension.type == "connector" and extension.method == method:
+                return extension
+        return None
+
+    @classmethod
     def send_accept(cls, conn, method, success = True):
         _, message = jsonrpc2_encode(f"{method}_accept", {
             "success": success
@@ -519,6 +530,9 @@ class Extension():
         raise NotImplementedError
 
     def dispatch(self, type, id, params, conn = None):
+        raise NotImplementedError
+
+    def connect(self, conn, data, webserver, port, scheme, method, url):
         raise NotImplementedError
 
 if __name__== "__main__":
