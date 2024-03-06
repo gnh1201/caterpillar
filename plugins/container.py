@@ -17,7 +17,9 @@ class Container(Extension):
 
     def container_run(self, type, id, params, conn):
         image = params['image']
-        container = client.containers.run(image, detach=True)
+        environment = params['environment']
+
+        container = client.containers.run(image=image, environment=environment, detach=True)
         container.logs()
 
     def container_stop(self, type, id, params, conn):
