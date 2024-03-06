@@ -490,7 +490,7 @@ class Extension():
     @classmethod
     def get_rpcmethod(cls, method):
         for extension in cls.extensions:
-            if extension.type == "rpcmethod" and extension.method == method:
+            if extension.type == "rpcmethod" and (method in extension.methods):
                 return extension
         return None
 
@@ -524,13 +524,13 @@ class Extension():
     
     def __init__(self):
         self.type = None
-        self.method = None
+        self.methods = []
         self.connection_type = None
 
     def test(self, filtered, data, webserver, port, scheme, method, url):
         raise NotImplementedError
 
-    def dispatch(self, type, id, params, conn = None):
+    def dispatch(self, type, id, params, method, conn = None):
         raise NotImplementedError
 
     def connect(self, conn, data, webserver, port, scheme, method, url):
