@@ -103,15 +103,29 @@ def parse_first_data(data):
     return parsed_data
 
 def conn_string(conn, data, addr):
-    # check is it JSON-RPC 2.0 request
-    if data.find(b'{') == 0:
+    # JSON-RPC 2.0 request
+    def process_jsonrpc2(data):
         jsondata = json.loads(data.decode(client_encoding, errors='ignore'))
         if jsondata['jsonrpc'] == "2.0":
             jsonrpc2_server(conn, jsondata['id'], jsondata['method'], jsondata['params'])
-            return
+            return True
+        return False
+
+    # JSON-RPC 2.0 request over Socket
+    if data.find(b'{') == 0 and process_jsonrpc2(data):
+        # no connection close: wait until the client disconnected
+        return
 
     # parse first data (header)
     webserver, port, scheme, method, url = parse_first_data(data)
+
+    # JSON-RPC 2.0 request over HTTP
+    if url.decode(client_encoding).endswith("/proxy-cgi/jsonrpc2"):
+        conn.send(b'HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n\r\n')
+        pos = data.find(b'\r\n\r\n')
+        if pos > -1 and process_jsonrpc2(data[pos+4:]):
+            conn.close()   # connection close: when the request is completed, the server will disconnect
+            return
 
     # if it is reverse proxy
     if local_domain != '':
