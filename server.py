@@ -113,7 +113,7 @@ def conn_string(conn, data, addr):
 
     # JSON-RPC 2.0 request over Socket
     if data.find(b'{') == 0 and process_jsonrpc2(data):
-        # no connection close: wait until the client disconnected
+        # will be close by the client
         return
 
     # parse first data (header)
@@ -124,7 +124,7 @@ def conn_string(conn, data, addr):
         conn.send(b'HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n\r\n')
         pos = data.find(b'\r\n\r\n')
         if pos > -1 and process_jsonrpc2(data[pos+4:]):
-            conn.close()   # connection close: when the request is completed, the server will disconnect
+            conn.close()   # will be close by the server
             return
 
     # if it is reverse proxy
