@@ -136,6 +136,8 @@ def jsonrpc2_server(conn, id, method, params):
     else:
         Extension.dispatch_rpcmethod(method, "call", id, params, conn)
 
+    conn.close()
+
 def proxy_connect(webserver, conn):
     hostname = webserver.decode(client_encoding)
     certpath = "%s/%s.crt" % (certdir.rstrip('/'), hostname)
