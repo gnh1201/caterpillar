@@ -29,6 +29,7 @@ from platform import python_version
 import re
 import requests
 from requests.auth import HTTPBasicAuth
+from urllib.parse import urlparse
 from decouple import config
 
 def extract_credentials(url):
@@ -120,7 +121,8 @@ def conn_string(conn, data, addr):
     webserver, port, scheme, method, url = parse_first_data(data)
 
     # JSON-RPC 2.0 request over HTTP
-    if url.decode(client_encoding).endswith("/proxy-cgi/jsonrpc2"):
+    path = urlparse(url.decode(client_encoding)).path
+    if path == "/proxy-cgi/jsonrpc2":
         conn.send(b'HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n\r\n')
         pos = data.find(b'\r\n\r\n')
         if pos > -1 and process_jsonrpc2(data[pos+4:]):
