@@ -47,8 +47,8 @@ def extract_credentials(url):
 # initalization
 try:
     listening_port = config('PORT', default=5555, cast=int)
-    _username, _password, server_url = extract_credentials(config('SERVER_URL', default='localhost'))
-    server_connection_type = config('SERVER_CONNECTION_TYPE', default='stateless')
+    _username, _password, server_url = extract_credentials(config('SERVER_URL', default=''))
+    server_connection_type = config('SERVER_CONNECTION_TYPE', default='')
     cakey = config('CA_KEY', default='ca.key')
     cacert = config('CA_CERT', default='ca.crt')
     certkey = config('CERT_KEY', default='cert.key')
