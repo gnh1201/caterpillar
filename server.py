@@ -112,7 +112,7 @@ def conn_string(conn, data, addr):
             return True
         return False
 
-    # JSON-RPC 2.0 request over Socket
+    # JSON-RPC 2.0 request over Socket (stateful)
     if data.find(b'{') == 0 and process_jsonrpc2(data):
         # will be close by the client
         return
@@ -120,7 +120,7 @@ def conn_string(conn, data, addr):
     # parse first data (header)
     webserver, port, scheme, method, url = parse_first_data(data)
 
-    # JSON-RPC 2.0 request over HTTP
+    # JSON-RPC 2.0 request over HTTP (stateless)
     path = urlparse(url.decode(client_encoding)).path
     if path == "/proxy-cgi/jsonrpc2":
         conn.send(b'HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n\r\n')
