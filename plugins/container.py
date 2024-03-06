@@ -1,5 +1,7 @@
 import docker
 
+from server import Extension
+
 class Container(Extension):
     def __init__(self):
         self.type = "rpcmethod"
