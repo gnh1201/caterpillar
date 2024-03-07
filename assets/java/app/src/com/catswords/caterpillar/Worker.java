@@ -176,7 +176,7 @@ public class Worker {
             JSONObject data = new JSONObject();
             data.put("success", true);
             data.put("connection_speed", connectionSpeed);
-            String jsonData = jsonrpc2Encode("relay_accept", data, id);
+            String jsonData = JsonPpc2.Call("relay_accept", data, id).toString();
 
             DataOutputStream outToClient = new DataOutputStream(conn.getOutputStream());
             outToClient.writeBytes(jsonData + "\r\n\r\n");
