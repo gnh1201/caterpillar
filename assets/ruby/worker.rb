@@ -154,13 +154,7 @@ def relay_connect(params, id = '')
 
   begin
     Timeout.timeout(STATEFUL_SOCKET_TIMEOUT) do
-      if ["https", "ssl", "tls"].include?(scheme)
-        ssl_context = OpenSSL::SSL::SSLContext.new
-        conn = OpenSSL::SSL::SSLSocket.new(TCPSocket.open(client_address, client_port), ssl_context)
-        conn.connect
-      else
-        conn = TCPSocket.open(client_address, client_port)
-      end
+      conn = TCPSocket.open(client_address, client_port)
     end
   rescue Timeout::Error
     error = {
