@@ -130,10 +130,6 @@ sub relay_request {
     my $scheme = $params->{'scheme'};
     my $datetime = $params->{'datetime'};
 
-    if ($scheme ~~ ["https", "ssl", "tls"]) {
-        $remote_address = "tls://" . $remote_address;
-    }
-
     given ($request_header->{'@method'}[0]) {
         when ("CONNECT") {
             my $error = {
