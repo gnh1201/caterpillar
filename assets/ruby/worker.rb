@@ -1,5 +1,8 @@
 require 'socket'
 require 'json'
+require 'openssl'
+require 'base64'
+require 'timeout'
 
 DEFAULT_SOCKET_TIMEOUT = 1
 STATEFUL_SOCKET_TIMEOUT = 30
@@ -44,10 +47,13 @@ end
 
 def read_from_remote_server(remote_address, remote_port, scheme, data = nil, conn = nil, buffer_size = 8192, id = '')
   if ["https", "ssl", "tls"].include?(scheme)
-    remote_address = "tls://" + remote_address
+    ssl_context = OpenSSL::SSL::SSLContext.new
+    sock = OpenSSL::SSL::SSLSocket.new(TCPSocket.open(remote_address, remote_port), ssl_context)
+    sock.connect
+  else
+    sock = TCPSocket.open(remote_address, remote_port)
   end
 
-  sock = TCPSocket.open(remote_address, remote_port)
   if sock.nil?
     error = {
       "status" => 502,
@@ -102,8 +108,23 @@ def relay_request(params, id = '')
   scheme = params['scheme']
   datetime = params['datetime'] # format: %Y-%m-%d %H:%M:%S.%f
 
-  if ["https", "ssl", "tls"].include?(scheme)
-    remote_address = "tls://" + remote_address
+  begin
+    Timeout.timeout(DEFAULT_SOCKET_TIMEOUT) do
+      if ["https", "ssl", "tls"].include?(scheme)
+        ssl_context = OpenSSL::SSL::SSLContext.new
+        sock = OpenSSL::SSL::SSLSocket.new(TCPSocket.open(remote_address, remote_port), ssl_context)
+        sock.connect
+      else
+        sock = TCPSocket.open(remote_address, remote_port)
+      end
+    end
+  rescue Timeout::Error
+    error = {
+      "status" => 504,
+      "message" => "Gateway Timeout"
+    }
+    puts jsonrpc2_error_encode(error, id)
+    return
   end
 
   case request_header['@method'][0]
@@ -130,27 +151,36 @@ def relay_connect(params, id = '')
   datetime = params['datetime'] # format: %Y-%m-%d %H:%M:%S.%f
 
   starttime = Time.now.to_f
-  conn = TCPSocket.open(client_address, client_port)
-  if conn.nil?
+
+  begin
+    Timeout.timeout(STATEFUL_SOCKET_TIMEOUT) do
+      if ["https", "ssl", "tls"].include?(scheme)
+        ssl_context = OpenSSL::SSL::SSLContext.new
+        conn = OpenSSL::SSL::SSLSocket.new(TCPSocket.open(client_address, client_port), ssl_context)
+        conn.connect
+      else
+        conn = TCPSocket.open(client_address, client_port)
+      end
+    end
+  rescue Timeout::Error
     error = {
-      "status" => 502,
-      "code" => error_code,
-      "message" => error_message,
-      "_params" => params
+      "status" => 504,
+      "message" => "Gateway Timeout"
     }
     puts jsonrpc2_error_encode(error, id)
-  else
-    stoptime = Time.now.to_f
-    connection_speed = ((stoptime - starttime) * 1000).to_i
-    data = jsonrpc2_encode("relay_accept", {
-      "success" => true,
-      "connection_speed" => connection_speed
-    }, id)
-    conn.write(data + "\r\n\r\n")
-
-    read_from_remote_server(remote_address, remote_port, scheme, nil, conn, buffer_size, id)
-    conn.close
+    return
   end
+
+  stoptime = Time.now.to_f
+  connection_speed = ((stoptime - starttime) * 1000).to_i
+  data = jsonrpc2_encode("relay_accept", {
+    "success" => true,
+    "connection_speed" => connection_speed
+  }, id)
+  conn.write(data + "\r\n\r\n")
+
+  read_from_remote_server(remote_address, remote_port, scheme, nil, conn, buffer_size, id)
+  conn.close
 end
 
 context = JSON.parse(STDIN.read)
