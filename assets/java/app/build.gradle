@@ -32,7 +32,7 @@ dependencies {
 
 application {
     // Define the main class for the application.
-    mainClass = 'com.catswords.caterpillar.App'
+    mainClass = 'com.github.gnh1201.caterpillar.App'
 }
 
 tasks.named('test') {

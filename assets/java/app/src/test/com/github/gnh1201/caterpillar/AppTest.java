@@ -1,4 +1,4 @@
-package com.catswords.caterpillar;
+package com.github.gnh1201.caterpillar;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;

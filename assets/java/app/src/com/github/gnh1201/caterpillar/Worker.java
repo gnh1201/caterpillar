@@ -1,4 +1,4 @@
-package com.catswords.caterpillar;
+package com.github.gnh1201.caterpillar;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;

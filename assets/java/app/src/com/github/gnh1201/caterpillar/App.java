@@ -1,4 +1,4 @@
-package com.catswords.caterpillar;
+package com.github.gnh1201.caterpillar;
 
 public class App {
     public static void main(String[] args) {
