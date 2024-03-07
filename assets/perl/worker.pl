@@ -1,5 +1,6 @@
 use JSON;
 use IO::Socket::INET;
+use IO::Socket::SSL;
 use Time::HiRes qw(time);
 
 use constant DEFAULT_SOCKET_TIMEOUT => 1;
@@ -56,16 +57,22 @@ sub parse_headers {
 
 sub read_from_remote_server {
     my ($remote_address, $remote_port, $scheme, $data, $conn, $buffer_size, $id) = @_;
+    my $sock;
     if ($scheme ~~ ["https", "ssl", "tls"]) {
-        $remote_address = "tls://" . $remote_address;
+        $sock = IO::Socket::SSL->new(
+            PeerAddr => $remote_address,
+            PeerPort => $remote_port,
+            SSL_verify_mode => 0,  # You may adjust SSL options as needed
+            Timeout  => DEFAULT_SOCKET_TIMEOUT
+        );
+    } else {
+        $sock = IO::Socket::INET->new(
+            PeerAddr => $remote_address,
+            PeerPort => $remote_port,
+            Proto    => 'tcp',
+            Timeout  => DEFAULT_SOCKET_TIMEOUT
+        );
     }
-
-    my $sock = IO::Socket::INET->new(
-        PeerAddr => $remote_address,
-        PeerPort => $remote_port,
-        Proto    => 'tcp',
-        Timeout  => DEFAULT_SOCKET_TIMEOUT
-    );
 
     if (!$sock) {
         my $error = {
