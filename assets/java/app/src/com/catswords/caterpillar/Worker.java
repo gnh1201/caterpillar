@@ -77,27 +77,38 @@ public class Worker {
     private static readFromRemoteServer(String remoteAddress, int remotePort, String scheme, byte[] requestData, object _out, int bufferSize, String id) {
         JspWriter jspWriterOut = (out instanceof JspWriter ? (JspWriter) _out : null);
         Socket conn = (out instanceof Socket ? (Socket) _out : null);
-
+    
+        char[] buffer = new char[bufferSize];
+        int bytesRead;
+    
         try {
             // connect to the remote server
             Socket sock = new Socket();
             sock.connect(new InetSocketAddress(remoteAddress, remotePort));
-            DataOutputStream outToServer = new DataOutputStream(sock.getOutputStream());
-            BufferedReader inFromServer = new BufferedReader(new InputStreamReader(sock.getInputStream()));
+            DataOutputStream outRemote = new DataOutputStream(sock.getOutputStream());
+            BufferedReader inRemote = new BufferedReader(new InputStreamReader(sock.getInputStream()));
+            DataOutputStream outClient = new DataOutputStream(conn.getOutputStream());
+            BufferedReader inClient = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 
             // send data to the remote server
-            outToServer.write(requestData, 0, requestData.length);
+            if (jspWriterOut != null) {
+                outRemote.write(requestData, 0, requestData.length);
+            } else if (conn != null) {
+                while ((bytesRead = inClient.read(buffer, 0, bufferSize)) != -1) {
+                    char[] outBuffer = new char[bytesRead];
+                    System.arraycopy(buffer, 0, outBuffer, 0, bytesRead);
+                    outRemote.write(outBuffer);
+                }
+            }
 
             // receive a response and forward to the client
-            char[] buffer = new char[bufferSize];
-            int bytesRead;
-            while ((bytesRead = inFromServer.read(buffer, 0, bufferSize)) != -1) {
+            while ((bytesRead = inRemote.read(buffer, 0, bufferSize)) != -1) {
                 if (jspWriterOut != null) {
                     out.write(buffer, 0, bytesRead);
                 } else if (conn != null) {
                     char[] outBuffer = new char[bytesRead];
                     System.arraycopy(buffer, 0, outBuffer, 0, bytesRead);
-                    conn.getOutputStream().write(outBuffer);
+                    outClient.write(outBuffer);
                 }
             }
         } catch (Exception e) {
@@ -143,17 +154,42 @@ public class Worker {
             default:
                 readFromRemoteServer(remoteAddress, remotePort, scheme, requestData, out, bufferSize, id);
         }
-        
     }
 
-    // Stateful mode (Servlet only)
+    // Stateful mode (Servlet + Socket combination)
     public static void relayConenct(Map<String, Object> params, String id, JspWriter out) {
-        throw new UnsupportedOperationException("This method is not yet implemented.");
-    }
+        int bufferSize = Integer.parseInt((String) params.get("buffer_size"));
+        String clientAddress = (String) params.get("client_address");
+        int clientPort = Integer.parseInt((String) params.get("client_port"));
+        String clientEncoding = (String) params.get("client_encoding");
+        String remoteAddress = (String) params.get("remote_address");
+        int remotePort = Integer.parseInt((String) params.get("remote_port"));
+        String scheme = (String) params.get("scheme");
+        String datetime = (String) params.get("datetime");
 
-    // Stateful mode (Socket only)
-    public static void relayConenct(Map<String, Object> params, String id, Socket connection) {
-        throw new UnsupportedOperationException("This method is not yet implemented.");
-    }
+        long startTime = System.currentTimeMillis();
+        try {
+            Socket conn = new Socket(clientAddress, clientPort);
 
+            long stopTime = System.currentTimeMillis();
+            long connectionSpeed = stopTime - startTime;
+            JSONObject data = new JSONObject();
+            data.put("success", true);
+            data.put("connection_speed", connectionSpeed);
+            String jsonData = jsonrpc2Encode("relay_accept", data, id);
+
+            DataOutputStream outToClient = new DataOutputStream(conn.getOutputStream());
+            outToClient.writeBytes(jsonData + "\r\n\r\n");
+
+            readFromRemoteServer(remoteAddress, remotePort, scheme, null, conn, bufferSize, id);
+            conn.close();
+        } catch (Exception e) {
+            JSONObject error = new JSONObject();
+            error.put("status", 502);
+            error.put("code", e.getMessage());
+            error.put("message", e.getMessage());
+            error.put("_params", params);
+            out.println(new JsonRpc2.Error(error, id)).toString();
+        }
+    }
 }
