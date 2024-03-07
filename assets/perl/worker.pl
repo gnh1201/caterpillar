@@ -1,5 +1,9 @@
 use JSON;
 use IO::Socket::INET;
+use Time::HiRes qw(time);
+
+use constant DEFAULT_SOCKET_TIMEOUT => 1;
+use constant STATEFUL_SOCKET_TIMEOUT => 30;
 
 sub jsonrpc2_encode {
     my ($method, $params, $id) = @_;
@@ -59,7 +63,8 @@ sub read_from_remote_server {
     my $sock = IO::Socket::INET->new(
         PeerAddr => $remote_address,
         PeerPort => $remote_port,
-        Proto    => 'tcp'
+        Proto    => 'tcp',
+        Timeout  => DEFAULT_SOCKET_TIMEOUT
     );
 
     if (!$sock) {
@@ -148,11 +153,12 @@ sub relay_connect {
     my $scheme = $params->{'scheme'};
     my $datetime = $params->{'datetime'};
 
-    my $starttime = Time::HiRes::time();
+    my $starttime = time();
     my $conn = IO::Socket::INET->new(
         PeerAddr => $client_address,
         PeerPort => $client_port,
-        Proto    => 'tcp'
+        Proto    => 'tcp',
+        Timeout  => STATEFUL_SOCKET_TIMEOUT
     );
     if (!$conn) {
         my $error = {
@@ -162,7 +168,7 @@ sub relay_connect {
         };
         print jsonrpc2_error_encode($error, $id);
     } else {
-        my $stoptime = Time::HiRes::time();
+        my $stoptime = time();
         my $connection_speed = int(($stoptime - $starttime) * 1000);
         my $data = jsonrpc2_encode("relay_accept", {
             success           => 1,
@@ -184,10 +190,10 @@ if ($context->{'jsonrpc'} eq "2.0") {
     my $method = $context->{'method'};
     given ($method) {
         when ("relay_request") {
-            relay_request($context->{'params'}, $context->{'id'});    # Stateless mode
+            relay_request($context->{'params'}, $context->{'id'});    # stateless mode
         }
         when ("relay_connect") {
-            relay_connect($context->{'params'}, $context->{'id'});    # Stateful mode
+            relay_connect($context->{'params'}, $context->{'id'});    # stateful mode
         }
     }
 }
