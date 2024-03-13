@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 #
 # wayback.py
-# Wayback Machine plugin for Caterpillar Proxy
+# Cached previous page (e.g. Wayback Machine) integration plugin for Caterpillar Proxy
 #
 # Caterpillar Proxy - The simple and parasitic web proxy with SPAM filter
 # Namyheon Go (Catswords Research) <gnh1201@gmail.com>
