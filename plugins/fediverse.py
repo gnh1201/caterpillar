@@ -1,9 +1,9 @@
 #!/usr/bin/python3
 #
 # fediverse.py
-# Fediverse (Mastodon, Misskey, Pleroma, ...) SPAM filter plugin for Caterpillar
+# Fediverse (Mastodon, Misskey, Pleroma, ...) SPAM filter plugin for Caterpillar Proxy
 #
-# Caterpillar - The simple and parasitic web proxy with spam filter
+# Caterpillar Proxy - The simple and parasitic web proxy with SPAM filter
 # Namyheon Go (Catswords Research) <gnh1201@gmail.com>
 # https://github.com/gnh1201/caterpillar
 # Created at: 2022-10-06
