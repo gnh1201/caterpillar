@@ -1,3 +1,15 @@
+#!/usr/bin/python3
+#
+# container.py
+# Linux Container (e.g. Docker) plugin for Caterpillar Proxy
+#
+# Caterpillar Proxy - The simple and parasitic web proxy with SPAM filter
+# Namyheon Go (Catswords Research) <gnh1201@gmail.com>
+# https://github.com/gnh1201/caterpillar
+# Created at: 2024-03-04
+# Updated at: 2024-03-13
+#
+
 import docker
 
 from server import Extension
