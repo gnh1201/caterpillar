@@ -50,7 +50,7 @@ sudo update-ca-certificates
 4. (Optional) With [Cloudflare](https://cloudflare.com), we can expect to accelerate the 4x speed and reduce the network stuck.
 
 ## Extensions
-* Fediverse: See the [Fediverse (github.com/gnh1201/caterpillar wiki)](https://github.com/gnh1201/caterpillar/wiki/Fediverse).
+* Fediverse (e.g. Mastodon): See the [Fediverse (github.com/gnh1201/caterpillar wiki)](https://github.com/gnh1201/caterpillar/wiki/Fediverse).
 * Wayback (Private browsing with Google or Wayback cache): See the [Wayback (github.com/gnh1201/caterpillar wiki)](https://github.com/gnh1201/caterpillar/wiki/Wayback).
 
 ## Thanks to
