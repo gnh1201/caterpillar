@@ -19,8 +19,27 @@ try:
 except Exception as e:
     print ("[*] Invaild configration: %s" % (str(e)))
 
+def get_cached_page_from_google(url):
+    status_code, text = (0, '')
+
+    # Google Cache URL
+    google_cache_url = "https://webcache.googleusercontent.com/search?q=cache:" + url
+
+    # Send a GET request to Google Cache URL
+    response = requests.get(google_cache_url)
+
+    # Check if the request was successful (status code 200)
+    if response.status_code == 200:
+        text = response.text    # Extract content from response
+    else:
+        status_code = response.status_code
+
+    return status_code, text
+
 # API documentation: https://archive.org/help/wayback_api.php
-def get_previous_page_content(url):
+def get_cached_page_from_wayback(url):
+    status_code, text = (0, '')
+
     # Wayback Machine API URL
     wayback_api_url = "http://archive.org/wayback/available?url=" + url
 
@@ -38,22 +57,23 @@ def get_previous_page_content(url):
             # Check if the URL is available in the archive
             if closest_snapshot:
                 archived_url = closest_snapshot.get("url", "")
-                
+
                 # If URL is available, fetch the content of the archived page
                 if archived_url:
                     archived_page_response = requests.get(archived_url)
-                    if archived_page_response.status_code == 200:
-                        return archived_page_response.text
-                    else:
-                        return "Error fetching archived page content. Status code: " + str(archived_page_response.status_code)
+                    status_code = archived_page_response.status_code;
+                    if status_code == 200:
+                        text = archived_page_response.text
                 else:
-                    return "No archived URL found."
+                    status_code = 404
             else:
-                return "URL is not available in the archive."
-        except Exception as e:
-            return "Error processing response: " + str(e)
+                status_code = 404
+        except:
+            status_code = 502
     else:
-        return "Error accessing Wayback Machine API. Status code: " + str(response.status_code)
+        status_code = response.status_code
+
+    return status_code, text
 
 class Wayback(Extension):
     def __init__(self):
@@ -61,5 +81,20 @@ class Wayback(Extension):
         self.connection_type = "wayback"
 
     def connect(self, conn, data, webserver, port, scheme, method, url):
-        previous_page_content = get_previous_page_content(url.decode(client_encoding))
-        conn.send(previous_page_content.encode(client_encoding)
+        connected = False
+
+        target_url = url.decode(client_encoding)
+
+        if not connected:
+            status_code, text = get_cached_page_from_google(target_url)
+            if status_code == 200:
+                conn.send(text.encode(client_encoding))
+                connected = True
+
+        if not connected:
+            status_code, text = get_cached_page_from_wayback(target_url)
+            if status_code == 200:
+                conn.send(text.encode(client_encoding))
+                connected = True
+
+        return connected
