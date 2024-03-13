@@ -60,7 +60,5 @@ class Wayback(Extension):
         self.connection_type = "wayback"
 
     def connect(self, conn, data, webserver, port, scheme, method, url):
-        previous_page_content = get_previous_page_content(url)
+        previous_page_content = get_previous_page_content(url.decode(client_encoding))
         conn.send(previous_page_content.encode(client_encoding)
-
-        
