@@ -605,6 +605,7 @@ if __name__== "__main__":
     # load extensions
     #Extension.register(importlib.import_module("plugins.fediverse").Fediverse())
     #Extension.register(importlib.import_module("plugins.container").Container())
-
+    #Extension.register(importlib.import_module("plugins.wayback").Wayback())
+    
     # start Caterpillar
     start()
