@@ -51,7 +51,7 @@ sudo update-ca-certificates
 
 ## Extensions
 * Fediverse: See the [Fediverse (github.com/gnh1201/caterpillar wiki)](https://github.com/gnh1201/caterpillar/wiki/Fediverse).
-* Wayback: See the [Wayback (github.com/gnh1201/caterpillar wiki)](https://github.com/gnh1201/caterpillar/wiki/Wayback). - Private browsing with Google and Wayback cache
+* Wayback (Private browsing with Google or Wayback cache): See the [Wayback (github.com/gnh1201/caterpillar wiki)](https://github.com/gnh1201/caterpillar/wiki/Wayback).
 
 ## Thanks to
 
