@@ -19,6 +19,7 @@ try:
 except Exception as e:
     print ("[*] Invaild configration: %s" % (str(e)))
 
+# API documentation: https://archive.org/help/wayback_api.php
 def get_previous_page_content(url):
     # Wayback Machine API URL
     wayback_api_url = "http://archive.org/wayback/available?url=" + url
