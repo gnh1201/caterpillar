@@ -446,6 +446,16 @@ if ($context['jsonrpc'] == "2.0") {
         case "get_client_address":
             echo jsonrpc2_result_encode(get_client_address(), $context['id']);
             break;
-    }
-}
 
+        default:
+            echo jsonrpc2_error_encode(array(
+                "status" => 403,
+                "message" => "Unsupported method"
+            ), $context['id']);
+    }
+} else {
+    echo jsonrpc2_error_encode(array(
+       "status" => 403,
+       "message" => "Unsupported format"
+    ), "");
+}
