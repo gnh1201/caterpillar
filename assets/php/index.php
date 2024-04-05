@@ -226,7 +226,7 @@ function relay_mysql_query($params, $mysqli) {
     }
     $query_result = $mysqli->query($query);
 
-    if (!$mysqli->error) {
+    if ($mysqli->error) {
         return array(
             "success" => false,
             "error" => array(
