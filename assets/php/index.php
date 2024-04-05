@@ -14,8 +14,8 @@ define("DEFAULT_SOCKET_TIMEOUT", 1);
 define("STATEFUL_SOCKET_TIMEOUT", 30);
 define("MAX_EXECUTION_TIME", 0);
 
-if (strpos($_SERVER['HTTP_USER_AGENT'], "php-httpproxy/") !== 0) {
-    exit('<!DOCTYPE html><html><head><title>It works!</title><meta charset="utf-8"></head><body><h1>It works!</h1><p><a href="https://github.com/gnh1201/caterpillar">Download the client</a></p><hr><p>php-httpproxy/' . PHP_HTTPPROXY_VERSION . ' (Server; PHP ' . phpversion() . '; Caterpillar; abuse@catswords.net)</p></body></html>');
+if (strpos($_SERVER['HTTP_USER_AGENT'], "php-httpproxy/") !== 0 && strpos($_SERVER['HTTP_USER_AGENT'], "WelsonJS/") ) {
+    exit('<!DOCTYPE html><html><head><title>It works!</title><meta charset="utf-8"></head><body><h1>It works!</h1><p><a href="https://github.com/gnh1201/caterpillar">Download the client</a></p><p>' . $_SERVER['HTTP_USER_AGENT'] . '</p><hr><p>php-httpproxy/' . PHP_HTTPPROXY_VERSION . ' (Server; PHP ' . phpversion() . '; Caterpillar; abuse@catswords.net)</p></body></html>');
 }
 
 ini_set("default_socket_timeout", DEFAULT_SOCKET_TIMEOUT);  // must be. because of `feof()` works
