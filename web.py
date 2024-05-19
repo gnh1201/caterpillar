@@ -68,11 +68,11 @@ class Connection():
     def send(self, data):
         self.messages.append(data)
 
-    def recv(self):
-        print ("Not allowed")
+    def recv(self, size):
+        print ("Not allowed method")
 
     def close(self):
-        print ("Not allowed")
+        print ("Not allowed method")
 
     def __init__(self, req):
         self.messages = []
