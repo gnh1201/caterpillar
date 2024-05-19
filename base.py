@@ -1,3 +1,15 @@
+#!/usr/bin/python3
+#
+# base.py
+# base file
+#
+# Caterpillar Proxy - The simple and parasitic web proxy SPAM spam filter
+# Namyheon Go (Catswords Research) <gnh1201@gmail.com>
+# https://github.com/gnh1201/caterpillar
+# Created at: 2024-05-20
+# Updated at: 2024-05-20
+#
+
 import hashlib
 import json
 
