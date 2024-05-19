@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 #
 # server.py
-# Main server file
+# server file with TCP connection mode
 #
 # Caterpillar Proxy - The simple and parasitic web proxy SPAM spam filter
 # Namyheon Go (Catswords Research) <gnh1201@gmail.com>
