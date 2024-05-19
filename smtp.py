@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 #
 # smtp.py
-# SMTP gateway for Caterpillar Proxy
+# SMTP over HTTP gateway
 #
 # Caterpillar Proxy - The simple and parasitic web proxy with SPAM filter
 # Namyheon Go (Catswords Research) <gnh1201@gmail.com>
