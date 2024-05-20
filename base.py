@@ -7,11 +7,12 @@
 # Namyheon Go (Catswords Research) <gnh1201@gmail.com>
 # https://github.com/gnh1201/caterpillar
 # Created at: 2024-05-20
-# Updated at: 2024-05-20
+# Updated at: 2024-05-21
 #
 
 import hashlib
 import json
+import re
 
 client_encoding = 'utf-8'
 
