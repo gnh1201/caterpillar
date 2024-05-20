@@ -33,20 +33,8 @@ from requests.auth import HTTPBasicAuth
 from urllib.parse import urlparse
 from decouple import config
 
-from base import Extension, jsonrpc2_create_id, jsonrpc2_encode, jsonrpc2_result_encode
+from base import Extension, extract_credentials, jsonrpc2_create_id, jsonrpc2_encode, jsonrpc2_result_encode
 
-def extract_credentials(url):
-    pattern = re.compile(r'(?P<scheme>\w+://)?(?P<username>[^:/]+):(?P<password>[^@]+)@(?P<url>.+)')
-    match = pattern.match(url)
-    if match:
-        scheme = match.group('scheme') if match.group('scheme') else 'https://'
-        username = match.group('username')
-        password = match.group('password')
-        url = match.group('url')
-        return username, password, scheme + url
-    else:
-        return None, None, url
-    
 # initalization
 try:
     listening_port = config('PORT', default=5555, cast=int)
