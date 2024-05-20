@@ -7,7 +7,7 @@
 # Namyheon Go (Catswords Research) <gnh1201@gmail.com>
 # https://github.com/gnh1201/caterpillar
 # Created at: 2024-03-01
-# Updated at: 2024-03-12
+# Updated at: 2024-05-20
 #
 
 import asyncore
@@ -18,18 +18,7 @@ import requests
 
 from decouple import config
 from requests.auth import HTTPBasicAuth
-
-def extract_credentials(url):
-    pattern = re.compile(r'(?P<scheme>\w+://)?(?P<username>[^:/]+):(?P<password>[^@]+)@(?P<url>.+)')
-    match = pattern.match(url)
-    if match:
-        scheme = match.group('scheme') if match.group('scheme') else 'https://'
-        username = match.group('username')
-        password = match.group('password')
-        url = match.group('url')
-        return username, password, scheme + url
-    else:
-        return None, None, url
+from base import extract_credentials, jsonrpc2_create_id, jsonrpc2_encode, jsonrpc2_result_encode
 
 try:
     smtp_host = config('SMTP_HOST', default='127.0.0.1')
@@ -43,27 +32,6 @@ except KeyboardInterrupt:
 auth = None
 if _username:
     auth = HTTPBasicAuth(_username, _password)
-
-def jsonrpc2_create_id(data):
-    return hashlib.sha1(json.dumps(data).encode(client_encoding)).hexdigest()
-
-def jsonrpc2_encode(method, params = None):
-    data = {
-        "jsonrpc": "2.0",
-        "method": method,
-        "params": params
-    }
-    id = jsonrpc2_create_id(data)
-    data['id'] = id
-    return (id, json.dumps(data))
-
-def jsonrpc2_result_encode(result, id = ''):
-    data = {
-        "jsonrpc": "2.0",
-        "result": result,
-        "id": id
-    }
-    return json.dumps(data)
 
 class CaterpillarSMTPServer(SMTPServer):
     def __init__(self, localaddr, remoteaddr):
