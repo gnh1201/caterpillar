@@ -25,7 +25,7 @@ try:
     truecaptcha_userid = config('TRUECAPTCHA_USERID')   # truecaptcha.org
     truecaptcha_apikey = config('TRUECAPTCHA_APIKEY')   # truecaptcha.org
     dictionary_file = config('DICTIONARY_FILE', default='words_alpha.txt')    # https://github.com/dwyl/english-words
-    librey_apiurl = config('LIBREY_APIURL')    # https://github.com/Ahwxorg/librey
+    librey_apiurl = config('LIBREY_APIURL', default='https://search.catswords.net')    # https://github.com/Ahwxorg/librey
 except Exception as e:
     print ("[*] Invaild configration: %s" % (str(e)))
 
