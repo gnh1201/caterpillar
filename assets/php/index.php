@@ -9,7 +9,7 @@
  * Updated at: 2024-06-19
  */
 
-define("PHP_HTTPPROXY_VERSION", "0.1.5.14");
+define("PHP_HTTPPROXY_VERSION", "0.1.5.15");
 define("DEFAULT_SOCKET_TIMEOUT", 1);
 define("STATEFUL_SOCKET_TIMEOUT", 30);
 define("MAX_EXECUTION_TIME", 0);
@@ -194,18 +194,29 @@ function relay_mysql_connect($params) {
     $port = array_key_exists('port', $params) ? intval($params['port']) : null;
     $charset = array_key_exists('charset', $params) ? $params['charset'] : "utf8";
 
-    $mysqli = new mysqli($hostname, $username, $password, $database, $port);
-    if ($mysqli->connect_errno) {
+    try {
+        $mysqli = new mysqli($hostname, $username, $password, $database, $port);
+        if ($mysqli->connect_errno) {
+            return array(
+                "success" => false,
+                "error" => array(
+                    "status" => 503,
+                    "code" => $mysqli->connect_errno,
+                    "message" => $mysqli->connect_error
+                )
+            );
+        } else {
+            $mysqli->set_charset($charset);
+        }
+    } catch (Exception $e) {
         return array(
             "success" => false,
             "error" => array(
                 "status" => 503,
-                "code" => $mysqli->connect_errno,
-                "message" => $mysqli->connect_error
+                "code" => -1,
+                "message" => $e->__toString()
             )
         );
-    } else {
-        $mysqli->set_charset($charset);
     }
 
     return array(
