@@ -1,5 +1,5 @@
 # gnh1201/caterpillar
-Caterpillar Proxy - The simple and parasitic web proxy with SPAM filter (formerly, php-httpproxy)
+Caterpillar Proxy - The simple web debugging proxy (formerly, php-httpproxy)
 
 ![title image](assets/img/title.jfif)
 
