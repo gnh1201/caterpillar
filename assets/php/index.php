@@ -307,7 +307,7 @@ function relay_sendmail($params) {
 
 function relay_get_version() {
     return array(
-        "data" => PHP_HTTPPROXY_VERSION;
+        "data" => PHP_HTTPPROXY_VERSION
     );
 }
 
