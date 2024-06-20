@@ -9,7 +9,7 @@
  * Updated at: 2024-06-19
  */
 
-define("PHP_HTTPPROXY_VERSION", "0.1.5.15");
+define("PHP_HTTPPROXY_VERSION", "0.1.5.16");
 define("DEFAULT_SOCKET_TIMEOUT", 1);
 define("STATEFUL_SOCKET_TIMEOUT", 30);
 define("MAX_EXECUTION_TIME", 0);
@@ -373,6 +373,30 @@ function relay_get_geolocation() {
     );
 }
 
+function relay_call_user_func($params) {
+    $callback = $params['callback'];
+    $args = (is_array($params['args']) ? $params['args'] : array());
+
+    try {
+        return array(
+            "success" => true,
+            "result" => array(
+                "status" => 200,
+                "data" => call_user_func_array($callback, $args)
+            )
+        );
+    } catch (Exception $e) {
+        return array(
+            "success" => false,
+            "error" => array(
+                "status" => 503,
+                "code" => -1,
+                "message" => $e->__toString()
+            )
+        );
+    }
+}
+
 function get_client_address() {
     $client_address = '';
     if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
@@ -447,6 +471,15 @@ if ($context['jsonrpc'] == "2.0") {
 
         case "relay_get_geolocation":
             $result = relay_get_geolocation();
+            if ($result['success']) {
+                echo jsonrpc2_result_encode($result['result'], $context['id']); 
+            } else {
+                echo jsonrpc2_error_encode($result['error'], $context['id']); 
+            }
+            break;
+
+        case "relay_call_user_func":
+            $result = relay_call_user_func($context['params']);
             if ($result['success']) {
                 echo jsonrpc2_result_encode($result['result'], $context['id']); 
             } else {
