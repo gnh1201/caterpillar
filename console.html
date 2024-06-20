@@ -29,13 +29,17 @@
                     url: env.target,
                     type: 'POST',
                     contentType: 'application/json',
+                    dataType: 'json',
                     data: JSON.stringify(requestData),
                     beforeSend: function(xhr) {
                         xhr.setRequestHeader("X-User-Agent", "php-httpproxy/0.1.5 (Client; WebConsole; abuse@catswords.net)");
                     },
                     success: function(response) {
-                        var responseData = JSON.parse(response);
-                        term.echo(responseData.result.data);
+                        if (typeof response.result.data === "object") {
+                            term.echo(JSON.stringify(response.result.data));
+                        } else {
+                            term.echo(response.result.data);
+                        }
                     },
                     error: function(xhr, status, error) {
                         term.echo(error);
