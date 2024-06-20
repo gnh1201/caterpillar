@@ -51,6 +51,10 @@
                 $('#console').terminal({
                     set: function(k, v) {
                         env[k] = v;
+
+                        if (k == "method") {
+                            this.set_prompt('method([[b;red;black]' + env.method + '])> ');
+                        }
                     },
                     show: function(k) {
                         if (k == "target") {
