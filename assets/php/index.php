@@ -9,12 +9,16 @@
  * Updated at: 2024-06-20
  */
 
-define("PHP_HTTPPROXY_VERSION", "0.1.5.17");
+define("PHP_HTTPPROXY_VERSION", "0.1.5.18");
 define("DEFAULT_SOCKET_TIMEOUT", 1);
 define("STATEFUL_SOCKET_TIMEOUT", 30);
 define("MAX_EXECUTION_TIME", 0);
 
-if (strpos($_SERVER['HTTP_USER_AGENT'], "php-httpproxy/") !== 0) {
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: *');
+header("Access-Control-Allow-Headers: *");
+
+if (strpos($_SERVER['HTTP_USER_AGENT'], "php-httpproxy/") !== 0 && strpos($_SERVER['HTTP_X_USER_AGENT'], "php-httpproxy/") !== 0) {
     exit('<!DOCTYPE html><html><head><title>It works!</title><meta charset="utf-8"></head><body><h1>It works!</h1><p><a href="https://github.com/gnh1201/caterpillar">Download the client</a></p><p>' . $_SERVER['HTTP_USER_AGENT'] . '</p><hr><p>php-httpproxy/' . PHP_HTTPPROXY_VERSION . ' (Server; PHP ' . phpversion() . '; Caterpillar; abuse@catswords.net)</p></body></html>');
 }
 
@@ -302,15 +306,21 @@ function relay_sendmail($params) {
 }
 
 function relay_get_version() {
-    return PHP_HTTPPROXY_VERSION;
+    return array(
+        "data" => PHP_HTTPPROXY_VERSION;
+    );
 }
 
 function relay_get_phpversion() {
-    return phpversion();
+    return array(
+        "data" => phpversion()
+    );
 }
 
 function relay_get_loaded_extensions() {
-    return get_loaded_extensions();
+    return array(
+        "data" => get_loaded_extensions()
+    );
 }
 
 function relay_dns_get_record($params) {
@@ -406,7 +416,10 @@ function get_client_address() {
     } else {
         $client_address = $_SERVER['REMOTE_ADDR'];
     }
-    return array("client_address" => $client_address);
+    return array(
+        "data" => $client_address,
+        "client_address" => $client_address    // compatible under version 0.1.5.18
+    );
 }
 
 // parse a context

@@ -7,7 +7,7 @@
 # Namyheon Go (Catswords Research) <gnh1201@gmail.com>
 # https://github.com/gnh1201/caterpillar
 # Created at: 2022-10-06
-# Updated at: 2024-05-20
+# Updated at: 2024-06-20
 #
 
 import argparse
@@ -352,8 +352,8 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                     query = requests.post(server_url, headers=proxy_data['headers'], data=query_data, timeout=1, auth=auth)
                     if query.status_code == 200:
                         result = query.json()['result']
-                        resolved_address_list.append(result['client_address'])
-                    print ("[*] resolved IP: %s" % (result['client_address']))
+                        resolved_address_list.append(result['data'])
+                    print ("[*] resolved IP: %s" % (result['data']))
                 except requests.exceptions.ReadTimeout as e:
                     pass
             proxy_data['data']['client_address'] = resolved_address_list[0]
