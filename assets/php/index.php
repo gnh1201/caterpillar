@@ -9,7 +9,7 @@
  * Updated at: 2024-06-20
  */
 
-define("PHP_HTTPPROXY_VERSION", "0.1.5.16");
+define("PHP_HTTPPROXY_VERSION", "0.1.5.17");
 define("DEFAULT_SOCKET_TIMEOUT", 1);
 define("STATEFUL_SOCKET_TIMEOUT", 30);
 define("MAX_EXECUTION_TIME", 0);
@@ -373,7 +373,7 @@ function relay_get_geolocation() {
     );
 }
 
-function relay_call_user_func($params) {
+function relay_invoke_method($params) {
     $callback = $params['callback'];
     $args = (is_array($params['args']) ? $params['args'] : array());
 
@@ -478,8 +478,8 @@ if ($context['jsonrpc'] == "2.0") {
             }
             break;
 
-        case "relay_call_user_func":
-            $result = relay_call_user_func($context['params']);
+        case "relay_invoke_method":
+            $result = relay_invoke_method($context['params']);
             if ($result['success']) {
                 echo jsonrpc2_result_encode($result['result'], $context['id']); 
             } else {
