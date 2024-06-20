@@ -1,0 +1,86 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Caterpillar Proxy Web Console</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/jquery.terminal/2.42.0/css/jquery.terminal.min.css" rel="stylesheet"/>
+    </head>
+    <body>
+        <h1>Caterpillar Proxy Web Console</h1>
+        <div id="console"></div>
+        <p>https://github.com/gnh1201/caterpillar</p>
+
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.terminal/2.42.0/js/jquery.terminal.min.js"></script>
+        <script type="text/javascript">//<!--<![CDATA[
+            var env = {
+                "target": "http://localhost/",
+                "method": ""
+            };
+            var jsonrpc2_request = function(term, method, params) {
+                var requestData = {
+                    jsonrpc: "2.0",
+                    method: method,
+                    params: params,
+                    id: null
+                };
+
+                $.ajax({
+                    url: env.target,
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(requestData),
+                    beforeSend: function(xhr) {
+                        xhr.setRequestHeader("X-User-Agent", "php-httpproxy/0.1.5 (Client; WebConsole; abuse@catswords.net)");
+                    },
+                    success: function(response) {
+                        var responseData = JSON.parse(response);
+                        term.echo(responseData.result.data);
+                    },
+                    error: function(xhr, status, error) {
+                        term.echo(error);
+                    }
+                });
+            };
+
+            jQuery(function($, undefined) {
+                $('#console').terminal({
+                    set: function(k, v) {
+                        env[k] = v;
+                    },
+                    show: function(k) {
+                        if (k == "target") {
+                            this.echo(env[k]);
+                        }
+                    },
+                    do: function(...args) {
+                        if (env.method == "") {
+                            this.echo("Please set a method");
+                            return;
+                        }
+                    
+                        if (env.method == "relay_invoke_method") {
+                            if (args.length < 1) {
+                                this.echo("Please set a callback");
+                                return;
+                            }
+
+                            jsonrpc2_request(this, env.method, {
+                                "callback": args[0],
+                                "args": args.slice(1)
+                            });
+                            return;
+                        }
+
+                        jsonrpc2_request(this, env.method, {});
+                    }
+                }, {
+                    height: 480,
+                    width: 640,
+                    prompt: '> ',
+                    checkArity: false
+                });
+            });
+        //]]>--></script>
+    </body>
+</html>
