@@ -6,6 +6,7 @@ Caterpillar Proxy - The simple web debugging proxy (formerly, php-httpproxy)
 ## Use cases
 * [Build a network tunnel using Python and the LAMP(PHP) stack.](https://qiita.com/gnh1201/items/40f9350ca6d308def6d4)
 * [K-Anonymity for Spam Filtering: Case with Mastodon, and Misskey](https://qiita.com/gnh1201/items/09f4081f84610db3a9d3)
+* [File Upload Vulnerability Test with Caterpillar Proxy](https://youtu.be/p170HurnZN0)
 
 ## How it works
 
