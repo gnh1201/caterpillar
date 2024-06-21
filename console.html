@@ -55,6 +55,7 @@
                             }
                         };
                         var process_corrupted_json = function(s) {
+                            // for dirty response (e.g., magic header, advertise logo)
                             try {
                                 var start = s.indexOf('{');
                                 var end = s.lastIndexOf('}');
