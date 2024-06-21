@@ -51,7 +51,7 @@
                     success: function(response) {
                         var responseData = {
                             "error": {
-                                "message": "Empty response data"
+                                "message": "Unknown error"
                             }
                         };
                         var process_corrupted_json = function(s) {
@@ -63,12 +63,16 @@
                                     responseData = JSON.parse(s.substring(start, end));
                                 }
                             } catch (e) {
-                                responseData.error.message = e.message;
+                                responseData.error.message = e.message
+                                    + "\r\nRaw response data:"
+                                    + "\r\n" + response;
                             }
                         };
 
                         try {
-                            if (response.trim() != "") {
+                            if (response.trim() == "") {
+                                responseData.error.message = "Received an empty response data";
+                            } else {
                                 responseData = JSON.parse(response);
                             }
                         } catch (e) {
