@@ -16,11 +16,21 @@
         <script type="text/javascript">//<!--<![CDATA[
             var env = {
                 "target": "http://localhost/",
-                "method": ""
+                "method": "",
+                "filename": null
             };
             var pretty_jsonify = function(data) {
                 return JSON.stringify(data, null, 4);
             };
+            var download_text = function(filename, text) {
+                var element = document.createElement('a');
+                element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+                element.setAttribute('download', filename);
+                element.style.display = 'none';
+                document.body.appendChild(element);
+                element.click();
+                document.body.removeChild(element);
+            }
             var jsonrpc2_request = function(term, method, params) {
                 var requestData = {
                     jsonrpc: "2.0",
@@ -39,14 +49,21 @@
                         xhr.setRequestHeader("X-User-Agent", "php-httpproxy/0.1.5 (Client; WebConsole; abuse@catswords.net)");
                     },
                     success: function(response) {
+                        var text = "";
                         if ("error" in response) {
-                            term.echo(response.error.message);
+                            text = response.error.message;
                         } else {
                             if (typeof response.result.data === "object") {
-                                term.echo(pretty_jsonify(response.result.data));
+                                text = pretty_jsonify(response.result.data);
                             } else {
-                                term.echo(response.result.data);
+                                text = response.result.data;
                             }
+                        }
+                        term.echo(text);
+
+                        // save as a file
+                        if (env.filename != null) {
+                            download_text(env.filename, text);
                         }
                     },
                     error: function(xhr, status, error) {
@@ -63,7 +80,7 @@
                             return;
                         }
 
-                        env[k] = v;
+                        env[k] = v || null;
 
                         if (k == "method") {
                             this.set_prompt('method([[b;red;black]' + env.method + '])> ');
