@@ -1,7 +1,7 @@
 <?php
 /* index.php
  * Caterpillar Worker on PHP
- * 
+ *
  * Caterpillar Proxy - The simple web debugging proxy (formerly, php-httpproxy)
  * Namhyeon Go (Catswords Research) <abuse@catswords.net>
  * https://github.com/gnh1201/caterpillar
@@ -9,7 +9,7 @@
  * Updated at: 2024-06-21
  */
 
-define("PHP_HTTPPROXY_VERSION", "0.1.5.19");
+define("PHP_HTTPPROXY_VERSION", "0.1.5.20");
 define("DEFAULT_SOCKET_TIMEOUT", 1);
 define("STATEFUL_SOCKET_TIMEOUT", 30);
 define("MAX_EXECUTION_TIME", 0);
@@ -53,9 +53,35 @@ function jsonrpc2_error_encode($error, $id = '') {
     return json_encode($data);
 }
 
+// https://stackoverflow.com/questions/277224/how-do-i-catch-a-php-fatal-e-error-error
+// https://stackoverflow.com/questions/3258634/php-how-to-send-http-response-code
+function fatal_handler() {
+    $errfile = "unknown file";
+    $errstr  = "shutdown";
+    $errno   = E_CORE_ERROR;
+    $errline = 0;
+
+    $error = error_get_last();
+
+    if($error !== NULL) {
+        $errno   = $error["type"];
+        $errfile = $error["file"];
+        $errline = $error["line"];
+        $errstr  = $error["message"];
+
+        header("HTTP/1.1 200 OK");
+        exit(jsonrpc2_error_encode(array(
+            "status" => 503,
+            "code" => $errno,
+            "message"=> "Error occurred in file '$errfile' at line $errline: $errstr"
+        )));
+    }
+}
+register_shutdown_function("fatal_handler");
+
+// https://stackoverflow.com/questions/16934409/curl-as-proxy-deal-with-https-connect-method
+// https://stackoverflow.com/questions/12433958/how-to-parse-response-headers-in-php
 function parse_headers($str) { // Parses HTTP headers into an array
-    // https://stackoverflow.com/questions/16934409/curl-as-proxy-deal-with-https-connect-method
-    // https://stackoverflow.com/questions/12433958/how-to-parse-response-headers-in-php
     $headers = array();
 
     $lines = preg_split("'\r?\n'", $str);
@@ -239,7 +265,7 @@ function relay_mysql_query($params, $mysqli) {
     if ($pos !== false) {
         $query_type = strtolower(substr($query, 0, $pos));
     }
-    
+
     try {
         $query_result = $mysqli->query($query);
 
@@ -257,7 +283,7 @@ function relay_mysql_query($params, $mysqli) {
         $success = false;
         $result = array(
             "status" => 200
-        ); 
+        );
         switch($query_type) {
             case "select":
                 $success = true;
@@ -478,9 +504,9 @@ if ($context['jsonrpc'] == "2.0") {
         case "relay_sendmail":
             $result = relay_sendmail($context['params']);
             if ($result['success']) {
-                echo jsonrpc2_result_encode($result['result'], $context['id']); 
+                echo jsonrpc2_result_encode($result['result'], $context['id']);
             } else {
-                echo jsonrpc2_error_encode($result['error'], $context['id']); 
+                echo jsonrpc2_error_encode($result['error'], $context['id']);
             }
             break;
 
@@ -499,27 +525,27 @@ if ($context['jsonrpc'] == "2.0") {
         case "relay_dns_get_record":
             $result = relay_dns_get_record($context['params']);
             if ($result['success']) {
-                echo jsonrpc2_result_encode($result['result'], $context['id']); 
+                echo jsonrpc2_result_encode($result['result'], $context['id']);
             } else {
-                echo jsonrpc2_error_encode($result['error'], $context['id']); 
+                echo jsonrpc2_error_encode($result['error'], $context['id']);
             }
             break;
 
         case "relay_get_geolocation":
             $result = relay_get_geolocation();
             if ($result['success']) {
-                echo jsonrpc2_result_encode($result['result'], $context['id']); 
+                echo jsonrpc2_result_encode($result['result'], $context['id']);
             } else {
-                echo jsonrpc2_error_encode($result['error'], $context['id']); 
+                echo jsonrpc2_error_encode($result['error'], $context['id']);
             }
             break;
 
         case "relay_invoke_method":
             $result = relay_invoke_method($context['params']);
             if ($result['success']) {
-                echo jsonrpc2_result_encode($result['result'], $context['id']); 
+                echo jsonrpc2_result_encode($result['result'], $context['id']);
             } else {
-                echo jsonrpc2_error_encode($result['error'], $context['id']); 
+                echo jsonrpc2_error_encode($result['error'], $context['id']);
             }
             break;
 
