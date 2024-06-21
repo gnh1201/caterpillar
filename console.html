@@ -17,6 +17,9 @@
                 "target": "http://localhost/",
                 "method": ""
             };
+            var pretty_jsonify = function(data) {
+                return JSON.stringify(data, null, 4);
+            };
             var jsonrpc2_request = function(term, method, params) {
                 var requestData = {
                     jsonrpc: "2.0",
@@ -36,7 +39,7 @@
                     },
                     success: function(response) {
                         if (typeof response.result.data === "object") {
-                            term.echo(JSON.stringify(response.result.data));
+                            term.echo(pretty_jsonify(response.result.data));
                         } else {
                             term.echo(response.result.data);
                         }
@@ -65,9 +68,9 @@
                         var v = env[k];
 
                         if (typeof env[k] === "object") {
-                            this.echo(JSON.stringify(v));
+                            this.echo(pretty_jsonify(v));
                         } else if (k == "env") {
-                            this.echo(JSON.stringify(env));
+                            this.echo(pretty_jsonify(env));
                         } else {
                             this.echo(v);
                         }
