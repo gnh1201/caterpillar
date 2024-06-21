@@ -61,6 +61,8 @@
                                 var end = s.lastIndexOf('}');
                                 if (start > -1 && end > -1 && end > start) {
                                     responseData = JSON.parse(s.substring(start, end));
+                                } else {
+                                    throw new Error("It does not seem like a JSON format.");
                                 }
                             } catch (e) {
                                 responseData.error.message = e.message
