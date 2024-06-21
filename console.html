@@ -43,20 +43,46 @@
                     url: env.target,
                     type: 'POST',
                     contentType: 'application/json',
-                    dataType: 'json',
+                    dataType: 'text',
                     data: JSON.stringify(requestData),
                     beforeSend: function(xhr) {
                         xhr.setRequestHeader("X-User-Agent", "php-httpproxy/0.1.5 (Client; WebConsole; abuse@catswords.net)");
                     },
                     success: function(response) {
+                        var responseData = {
+                            "error": {
+                                "message": "Empty response data"
+                            }
+                        };
+                        var process_corrupted_json = function(s) {
+                            try {
+                                var start = s.indexOf('{');
+                                var end = s.lastIndexOf('}');
+                                if (start > -1 && end > -1 && end > start) {
+                                    responseData = JSON.parse(s.substring(start, end));
+                                }
+                            } catch (e) {
+                                responseData.error.message = e.message;
+                            }
+                        };
+
+                        try {
+                            if (response != "") {
+                                responseData = JSON.parse(response);
+                            }
+                        } catch (e) {
+                            responseData.error.message = e.message;
+                            process_corrupted_json(response);
+                        }
+
                         var text = "";
-                        if ("error" in response) {
-                            text = response.error.message;
+                        if ("error" in responseData) {
+                            text = responseData.error.message;
                         } else {
-                            if (typeof response.result.data === "object") {
-                                text = pretty_jsonify(response.result.data);
+                            if (typeof responseData.result.data === "object") {
+                                text = pretty_jsonify(responseData.result.data);
                             } else {
-                                text = response.result.data;
+                                text = responseData.result.data;
                             }
                         }
                         term.echo(text);
