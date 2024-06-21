@@ -239,42 +239,54 @@ function relay_mysql_query($params, $mysqli) {
     if ($pos !== false) {
         $query_type = strtolower(substr($query, 0, $pos));
     }
-    $query_result = $mysqli->query($query);
+    
+    try {
+        $query_result = $mysqli->query($query);
 
-    if ($mysqli->error) {
+        if ($mysqli->error) {
+            return array(
+                "success" => false,
+                "error" => array(
+                    "status" => 503,
+                    "code" => $msqli->errno,
+                    "message" => $mysqli->error
+                )
+            );
+        }
+
+        $success = false;
+        $result = array(
+            "status" => 200
+        ); 
+        switch($query_type) {
+            case "select":
+                $success = true;
+                $result['data'] = mysqli_fetch_all($query_result, MYSQLI_ASSOC);
+                break;
+
+            case "insert":
+                $success = $query_result;
+                $result['last_id'] = @$mysqli->insert_id();
+                break;
+
+            default:
+                $success = $query_result;
+        }
+
+        return array(
+            "success" => $success,
+            "result" => $result
+        );
+    } catch (Exception $e) {
         return array(
             "success" => false,
             "error" => array(
                 "status" => 503,
-                "code" => $msqli->errno,
-                "message" => $mysqli->error
+                "code" => -1,
+                "message" => $e->__toString()
             )
         );
     }
-
-    $success = false;
-    $result = array(
-        "status" => 200
-    ); 
-    switch($query_type) {
-        case "select":
-            $success = true;
-            $result['data'] = mysqli_fetch_all($query_result, MYSQLI_ASSOC);
-            break;
-
-        case "insert":
-            $success = $query_result;
-            $result['last_id'] = @$mysqli->insert_id();
-            break;
-
-        default:
-            $success = $query_result;
-    }
-
-    return array(
-        "success" => $success,
-        "result" => $result
-    );
 }
 
 function relay_sendmail($params) {
