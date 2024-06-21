@@ -6,10 +6,10 @@
  * Namhyeon Go (Catswords Research) <abuse@catswords.net>
  * https://github.com/gnh1201/caterpillar
  * Created at: 2022-10-06
- * Updated at: 2024-06-20
+ * Updated at: 2024-06-21
  */
 
-define("PHP_HTTPPROXY_VERSION", "0.1.5.18");
+define("PHP_HTTPPROXY_VERSION", "0.1.5.19");
 define("DEFAULT_SOCKET_TIMEOUT", 1);
 define("STATEFUL_SOCKET_TIMEOUT", 30);
 define("MAX_EXECUTION_TIME", 0);
@@ -350,37 +350,48 @@ function relay_dns_get_record($params) {
 function relay_get_geolocation() {
     $url = "https://ipapi.co/json/";
 
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    try {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
-    $response = curl_exec($ch);
-    $error_code = curl_errno($ch);
-    if ($error_code) {
-        $error_message = curl_error($ch);
+        $response = curl_exec($ch);
+        $error_code = curl_errno($ch);
+        if ($error_code) {
+            $error_message = curl_error($ch);
+            curl_close($ch);
+
+            return array(
+                "success" => false,
+                "error" => array(
+                    "status" => 502,
+                    "code" => $error_code,
+                    "message" => $error_message
+                )
+            );
+        }
         curl_close($ch);
+        $data = json_decode($response, true);
 
+        return array(
+            "success" => true,
+            "result" => array(
+                "status" => 200,
+                "data" => $data
+            )
+        );
+    } catch (Exception $e) {
         return array(
             "success" => false,
             "error" => array(
-                "status" => 502,
-                "code" => $error_code,
-                "message" => $error_message
+                "status" => 503,
+                "code" => -1,
+                "message" => $e->__toString()
             )
         );
     }
-    curl_close($ch);
-    $data = json_decode($response, true);
-
-    return array(
-        "success" => true,
-        "result" => array(
-            "status" => 200,
-            "data" => $data
-        )
-    );
 }
 
 function relay_invoke_method($params) {
