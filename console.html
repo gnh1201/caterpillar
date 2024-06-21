@@ -50,6 +50,11 @@
             jQuery(function($, undefined) {
                 $('#console').terminal({
                     set: function(k, v) {
+                        if (k == "env") {
+                            this.echo("env is the reserved word");
+                            return;
+                        }
+
                         env[k] = v;
 
                         if (k == "method") {
@@ -57,8 +62,14 @@
                         }
                     },
                     show: function(k) {
-                        if (k == "target") {
-                            this.echo(env[k]);
+                        var v = env[k];
+
+                        if (typeof env[k] === "object") {
+                            this.echo(JSON.stringify(v));
+                        } else if (k == "env") {
+                            this.echo(JSON.stringify(env));
+                        } else {
+                            this.echo(v);
                         }
                     },
                     do: function(...args) {
