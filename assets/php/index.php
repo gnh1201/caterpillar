@@ -9,7 +9,7 @@
  * Updated at: 2024-06-21
  */
 
-define("PHP_HTTPPROXY_VERSION", "0.1.5.20");
+define("PHP_HTTPPROXY_VERSION", "0.1.5.21");
 define("DEFAULT_SOCKET_TIMEOUT", 1);
 define("STATEFUL_SOCKET_TIMEOUT", 30);
 define("MAX_EXECUTION_TIME", 0);
@@ -437,13 +437,18 @@ function relay_invoke_method($params) {
     $args = (is_array($params['args']) ? $params['args'] : array());
 
     try {
-        return array(
-            "success" => true,
-            "result" => array(
-                "status" => 200,
-                "data" => call_user_func_array($callback, $args)
-            )
-        );
+        $data = call_user_func_array($callback, $args);
+        if ($data == null) {
+            exit();   // Call to `fatal_handler` is delayed compared to the return.
+        } else {
+            return array(
+                "success" => true,
+                "result" => array(
+                    "status" => 200,
+                    "data" => $data
+                )
+            );
+        }
     } catch (Exception $e) {
         return array(
             "success" => false,
