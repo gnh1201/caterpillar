@@ -67,7 +67,7 @@
                         };
 
                         try {
-                            if (response != "") {
+                            if (response.trim() != "") {
                                 responseData = JSON.parse(response);
                             }
                         } catch (e) {
