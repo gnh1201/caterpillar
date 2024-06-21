@@ -62,11 +62,8 @@ sudo update-ca-certificates
 * Wayback (Private browsing with Google or Wayback cache): See the [Wayback (github.com/gnh1201/caterpillar wiki)](https://github.com/gnh1201/caterpillar/wiki/Wayback).
 
 ## Thanks to
-
-### Pan Arts
-
-#### [#](@yeohangdang@i.peacht.art)
-![Caterpillar Project Pan Art by @yeohangdang@i.peacht.art](assets/img/logo.png)
+* Pan Art by [@yeohangdang@i.peacht.art](#): ![Caterpillar Project Pan Art by @yeohangdang@i.peacht.art](assets/img/logo.png)
+* [GitHub Sponsors](https://github.com/sponsors/gnh1201)
 
 ## Report abuse
 * ActivityPub [@gnh1201@catswords.social](https://catswords.social/@gnh1201)
