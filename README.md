@@ -57,12 +57,15 @@ sudo update-ca-certificates
 4. (Optional) With [Cloudflare](https://cloudflare.com), we can expect to accelerate the 4x speed and reduce the network stuck.
 
 ## Extensions
+* [Web Console Available](https://pub-1a7a176eea68479cb5423e44273657ad.r2.dev/console.html)
 * Fediverse (e.g., Mastodon): See the [Fediverse (github.com/gnh1201/caterpillar wiki)](https://github.com/gnh1201/caterpillar/wiki/Fediverse).
 * Wayback (Private browsing with Google or Wayback cache): See the [Wayback (github.com/gnh1201/caterpillar wiki)](https://github.com/gnh1201/caterpillar/wiki/Wayback).
 
 ## Thanks to
 
-### Pan Art by [@yeohangdang@i.peacht.art](https://i.peacht.art/@yeohangdang)
+### Pan Arts
+
+#### @yeohangdang@i.peacht.art
 ![Caterpillar Project Pan Art by @yeohangdang@i.peacht.art](assets/img/logo.png)
 
 ## Report abuse
