@@ -60,7 +60,7 @@
                                 var start = s.indexOf('{');
                                 var end = s.lastIndexOf('}');
                                 if (start > -1 && end > -1 && end > start) {
-                                    responseData = JSON.parse(s.substring(start, end));
+                                    responseData = JSON.parse(s.substring(start, end + 1));
                                 } else {
                                     throw new Error("It does not seem like a JSON format.");
                                 }
