@@ -48,6 +48,13 @@
                 "method": "",
                 "filename": null
             };
+            var set_default_env = function(_env) {
+                for (k in _env) {
+                    if (!(k in env)) {
+                        env[k] = _env[k];
+                    }
+                }
+            };
             var pretty_jsonify = function(data) {
                 return JSON.stringify(data, null, 4);
             };
@@ -166,21 +173,25 @@
                         if (k == "method") {
                             this.set_prompt('method([[b;red;black]' + env.method + '])> ');
 
+                            // method(relay_sendmail)
+                            if (env.method == "relay_sendmail") {
+                                set_default_env({
+                                    "mail_to": "noreply@example.org",
+                                    "mail_from": "noreply@example.org",
+                                    "mail_subject": "Important Message from System Administrator"
+                                });
+                            }
+
+                            // method(relay_mysql_query)
                             if (env.method == "relay_mysql_query") {
-                                var _env = {
+                                set_default_env({
                                     "mysql_hostname": "localhost",
                                     "mysql_username": "root",
                                     "mysql_password": null,
                                     "mysql_database": null,
                                     "mysql_port": "3306",
                                     "mysql_charset": "utf8"
-                                };
-
-                                for (k in _env) {
-                                    if (!(k in env)) {
-                                        env[k] = _env[k];
-                                    }
-                                }
+                                });
                             }
                         }
                     },
@@ -240,6 +251,20 @@
                                 "url": args[0]
                             });
                             
+                            return;
+                        }
+                        
+                        // method(relay_sendmail)
+                        if (env.method == "relay_sendmail") {
+                            this.echo("From: " + env.mail_from + "\r\nTo: " + env.mail_to + "\r\nSubject: " + env.mail_subject);
+                            this.read("Enter your message:\r\n", function(message) {
+                                jsonrpc2_request(this, env.method, {
+                                    "to": env.mail_to,
+                                    "from": env.mail_from,
+                                    "subject": env.mail_subject,
+                                    "message": message
+                                });
+                            });
                             return;
                         }
                         
