@@ -148,8 +148,8 @@
                                 var _env = {
                                     "mysql_hostname": "localhost",
                                     "mysql_username": "root",
-                                    "mysql_password": "",
-                                    "mysql_database": "mysql",
+                                    "mysql_password": null,
+                                    "mysql_database": null,
                                     "mysql_port": "3306",
                                     "mysql_charset": "utf8"
                                 };
@@ -210,7 +210,7 @@
                         // method(relay_mysql_query)
                         if (env.method == "relay_mysql_query") {
                             var _this = this;
-                            this.read("Enter MySQL query:\r\n", function(query) {
+                            var do_query = function(query) {
                                 jsonrpc2_request(_this, env.method, {
                                     "hostname": env.mysql_hostname,
                                     "username": env.mysql_username,
@@ -220,7 +220,13 @@
                                     "charset": env.mysql_charset,
                                     "query": query
                                 });
-                            });
+                            }
+
+                            if (args.length < 1) {
+                                this.read("Enter MySQL query:\r\n", do_query);
+                            } else {
+                                do_query(args.join(' '));
+                            }
                             return;
                         }
 
