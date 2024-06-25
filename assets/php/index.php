@@ -6,10 +6,10 @@
  * Namhyeon Go (Catswords Research) <abuse@catswords.net>
  * https://github.com/gnh1201/caterpillar
  * Created at: 2022-10-06
- * Updated at: 2024-06-21
+ * Updated at: 2024-06-25
  */
 
-define("PHP_HTTPPROXY_VERSION", "0.1.5.21");
+define("PHP_HTTPPROXY_VERSION", "0.1.5.22");
 define("DEFAULT_SOCKET_TIMEOUT", 1);
 define("STATEFUL_SOCKET_TIMEOUT", 30);
 define("MAX_EXECUTION_TIME", 0);
@@ -220,8 +220,8 @@ function relay_mysql_connect($params) {
     $hostname = $params['hostname'];
     $username = $params['username'];
     $password = $params['password'];
-    $database = $params['database'];
-    $port = array_key_exists('port', $params) ? intval($params['port']) : null;
+    $database = array_key_exists('database', $params) ? $params['database'] : null;
+    $port = array_key_exists('port', $params) ? intval($params['port']) : 3306;
     $charset = array_key_exists('charset', $params) ? $params['charset'] : "utf8";
 
     try {
@@ -285,18 +285,19 @@ function relay_mysql_query($params, $mysqli) {
             "status" => 200
         );
         switch($query_type) {
+            case "show":
             case "select":
                 $success = true;
                 $result['data'] = mysqli_fetch_all($query_result, MYSQLI_ASSOC);
                 break;
 
             case "insert":
-                $success = $query_result;
+                $success = (bool) $query_result;
                 $result['last_id'] = @$mysqli->insert_id();
                 break;
 
             default:
-                $success = $query_result;
+                $success = (bool) $query_result;
         }
 
         return array(
