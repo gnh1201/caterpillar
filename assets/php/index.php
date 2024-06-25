@@ -9,17 +9,18 @@
  * Updated at: 2024-06-25
  */
 
-define("PHP_HTTPPROXY_VERSION", "0.1.5.22");
+define("PHP_HTTPPROXY_VERSION", "0.1.5.23");
 define("DEFAULT_SOCKET_TIMEOUT", 1);
 define("STATEFUL_SOCKET_TIMEOUT", 30);
 define("MAX_EXECUTION_TIME", 0);
+define("DEFAULT_USER_AGENT", $_SERVER['HTTP_USER_AGENT'] . '</p><hr><p>php-httpproxy/' . PHP_HTTPPROXY_VERSION . ' (Server; PHP ' . phpversion() . '; Caterpillar; abuse@catswords.net)');
 
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: *');
 header("Access-Control-Allow-Headers: *");
 
 if (strpos($_SERVER['HTTP_USER_AGENT'], "php-httpproxy/") !== 0 && strpos($_SERVER['HTTP_X_USER_AGENT'], "php-httpproxy/") !== 0) {
-    exit('<!DOCTYPE html><html><head><title>It works!</title><meta charset="utf-8"></head><body><h1>It works!</h1><p><a href="https://github.com/gnh1201/caterpillar">Download the client</a></p><p>' . $_SERVER['HTTP_USER_AGENT'] . '</p><hr><p>php-httpproxy/' . PHP_HTTPPROXY_VERSION . ' (Server; PHP ' . phpversion() . '; Caterpillar; abuse@catswords.net)</p></body></html>');
+    exit('<!DOCTYPE html><html><head><title>It works!</title><meta charset="utf-8"></head><body><h1>It works!</h1><p><a href="https://github.com/gnh1201/caterpillar">Download the client</a></p><p>' . DEFAULT_USER_AGENT . '</p></body></html>');
 }
 
 ini_set("default_socket_timeout", DEFAULT_SOCKET_TIMEOUT);  // must be. because of `feof()` works
@@ -386,12 +387,13 @@ function relay_dns_get_record($params) {
     );
 }
 
-function relay_get_geolocation() {
-    $url = "https://ipapi.co/json/";
+function relay_fetch_url($params) {
+    $url = $params['url'];
 
     try {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_USERAGENT, DEFAULT_USER_AGENT);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -412,13 +414,12 @@ function relay_get_geolocation() {
             );
         }
         curl_close($ch);
-        $data = json_decode($response, true);
 
         return array(
             "success" => true,
             "result" => array(
                 "status" => 200,
-                "data" => $data
+                "data" => $response
             )
         );
     } catch (Exception $e) {
@@ -432,6 +433,24 @@ function relay_get_geolocation() {
         );
     }
 }
+
+function relay_get_geolocation() {
+    $result = relay_fetch_url(array(
+        "url" => "http://ip-api.com/json"
+    ));
+    if ($result['success']) {
+        return array(
+            "success" => true,
+            "result" => array(
+                "status" => 200,
+                "data" => json_decode($result['result']['data'], true)
+            )
+        );
+    } else {
+        return $result;
+    }
+}
+
 
 function relay_invoke_method($params) {
     $callback = $params['callback'];
@@ -537,8 +556,17 @@ if ($context['jsonrpc'] == "2.0") {
             }
             break;
 
+        case "relay_fetch_url":
+            $result = relay_fetch_url($context['params']);
+            if ($result['success']) {
+                echo jsonrpc2_result_encode($result['result'], $context['id']);
+            } else {
+                echo jsonrpc2_error_encode($result['error'], $context['id']);
+            }
+            break;
+
         case "relay_get_geolocation":
-            $result = relay_get_geolocation();
+            $result = relay_get_geolocation($context['params']);
             if ($result['success']) {
                 echo jsonrpc2_result_encode($result['result'], $context['id']);
             } else {

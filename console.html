@@ -206,6 +206,20 @@
                             
                             return;
                         }
+						
+						// method(relay_fetch_url)
+						if (env.method == "relay_fetch_url") {
+                            if (args.length < 1) {
+                                this.echo("Please set a URL");
+                                return;
+                            }
+							
+                            jsonrpc2_request(this, env.method, {
+                                "url": args[0]
+                            });
+                            
+                            return;
+						}
                         
                         // method(relay_mysql_query)
                         if (env.method == "relay_mysql_query") {
