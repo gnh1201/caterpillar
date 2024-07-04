@@ -18,7 +18,7 @@ from base import Extension
 class PortScanner(Extension):
     def __init__(self):
         self.type = "rpcmethod"
-        self.method = "discover_ports_by_hosts"
+        self.method = "scan_ports_by_hosts"
         self.exported_methods = []
     
     def dispatch(self, type, id, params, conn):
