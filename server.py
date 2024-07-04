@@ -7,7 +7,7 @@
 # Namyheon Go (Catswords Research) <gnh1201@gmail.com>
 # https://github.com/gnh1201/caterpillar
 # Created at: 2022-10-06
-# Updated at: 2024-06-20
+# Updated at: 2024-07-04
 #
 
 import argparse
@@ -502,6 +502,8 @@ if __name__== "__main__":
     #Extension.register(importlib.import_module("plugins.fediverse").Fediverse())
     #Extension.register(importlib.import_module("plugins.container").Container())
     #Extension.register(importlib.import_module("plugins.wayback").Wayback())
-    
+    #Extension.register(importlib.import_module("plugins.bio").Bio())
+    #Extension.register(importlib.import_module("plugins.nmap").PortScanner())
+
     # start Caterpillar
     start()
