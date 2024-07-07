@@ -13,8 +13,7 @@ import json
 from Bio.Seq import Seq
 from Bio.SeqUtils import gc_fraction
 
-from server import Extension
-
+from base import Extension
 
 def _analyze_sequence(sequence) -> dict[str, str]:
     """
