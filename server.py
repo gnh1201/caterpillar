@@ -23,7 +23,6 @@ import time
 import hashlib
 import traceback
 import textwrap
-import importlib
 from datetime import datetime
 from platform import python_version
 
@@ -499,11 +498,10 @@ def start():    #Main Program
 
 if __name__== "__main__":
     # load extensions
-    #Extension.register(importlib.import_module("plugins.fediverse").Fediverse())
-    #Extension.register(importlib.import_module("plugins.container").Container())
-    #Extension.register(importlib.import_module("plugins.wayback").Wayback())
-    #Extension.register(importlib.import_module("plugins.bio").Bio())
-    #Extension.register(importlib.import_module("plugins.nmap").PortScanner())
+    #Extension.register("plugins.fediverse", "Fediverse")
+    #Extension.register("plugins.container", "Container")
+    Extension.register("plugins.wayback", "Wayback")
+    #Extension.register("plugins.bio", "PyBio")
 
-    # start Caterpillar
+   # start Caterpillar
     start()
