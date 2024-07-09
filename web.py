@@ -94,6 +94,6 @@ if __name__ == "__main__":
     Extension.set_protocol('http')
 
     # load extensions
-    #Extension.register("plugins.YOUR_OWN_MODULE_NAME", "YOUR_OWN_CLASS_NAME");
+    map(Extension.register, use_extension.split(','))
 
     app.run(debug=True, host='0.0.0.0', port=listening_port)
