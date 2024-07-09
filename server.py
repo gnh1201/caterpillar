@@ -47,6 +47,7 @@ try:
     client_encoding = config('CLIENT_ENCODING', default='utf-8')
     local_domain = config('LOCAL_DOMAIN', default='')
     proxy_pass = config('PROXY_PASS', default='')
+    use_extensions = config('USE_EXTENSIONS', default='')
 except KeyboardInterrupt:
     print("\n[*] User has requested an interrupt")
     print("[*] Application Exiting.....")
@@ -498,10 +499,7 @@ def start():    #Main Program
 
 if __name__== "__main__":
     # load extensions
-    #Extension.register("plugins.fediverse", "Fediverse")
-    #Extension.register("plugins.container", "Container")
-    Extension.register("plugins.wayback", "Wayback")
-    #Extension.register("plugins.bio", "PyBio")
+    map(Extension.register, use_extension.split(',')))
 
-   # start Caterpillar
+    # start Caterpillar
     start()
