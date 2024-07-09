@@ -8,7 +8,7 @@
 # https://github.com/gnh1201/caterpillar
 #
 # Created in: 2022-10-06
-# Updated in: 2024-06-05
+# Updated in: 2024-07-06
 #
 
 import io
@@ -19,7 +19,7 @@ import os.path
 from decouple import config
 from PIL import Image
 
-from server import Extension
+from base import Extension
 
 try:
     client_encoding = config('CLIENT_ENCODING', default='utf-8')
