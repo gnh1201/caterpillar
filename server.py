@@ -7,7 +7,7 @@
 # Namyheon Go (Catswords Research) <gnh1201@gmail.com>
 # https://github.com/gnh1201/caterpillar
 # Created at: 2022-10-06
-# Updated at: 2024-07-04
+# Updated at: 2024-07-09
 #
 
 import argparse
@@ -499,7 +499,7 @@ def start():    #Main Program
 
 if __name__== "__main__":
     # load extensions
-    map(Extension.register, use_extension.split(',')))
+    map(Extension.register, use_extension.split(','))
 
     # start Caterpillar
     start()
