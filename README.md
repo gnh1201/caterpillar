@@ -36,7 +36,7 @@ CERT_KEY=cert.key
 CERT_DIR=certs/
 OPENSSL_BINPATH=openssl
 CLIENT_ENCODING=utf-8
-USE_EXTENSIONS=Wayback,PyBio
+USE_EXTENSIONS=wayback.Wayback,bio.PyBio
 ```
 
 - (Optional) Create a certificate for SSL decryption
