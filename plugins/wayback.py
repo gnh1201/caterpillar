@@ -13,12 +13,14 @@
 import requests
 from decouple import config
 
-from base import Extension
+from base import Extension, Logger
+
+logger = Logger(name="wayback")
 
 try:
     client_encoding = config('CLIENT_ENCODING')
 except Exception as e:
-    print ("[*] Invaild configration: %s" % (str(e)))
+    logger.error("[*] Invalid configuration", exc_info=e)
 
 def get_cached_page_from_google(url):
     status_code, text = (0, '')

@@ -5,15 +5,21 @@
 #
 # Caterpillar Proxy - The simple web debugging proxy (formerly, php-httpproxy)
 # Namyheon Go (Catswords Research) <gnh1201@gmail.com>
+# Euiseo Cha (Wonkwang University) <zeroday0619_dev@outlook.com>
 # https://github.com/gnh1201/caterpillar
 # Created at: 2024-05-20
 # Updated at: 2024-07-06
 #
 
+import logging
 import hashlib
 import json
+import os
 import re
 import importlib
+
+from datetime import datetime, timezone
+from typing import Union, List
 
 client_encoding = 'utf-8'
 
@@ -162,3 +168,30 @@ class Extension():
 
     def connect(self, conn, data, webserver, port, scheme, method, url):
         raise NotImplementedError
+
+
+class Logger(logging.Logger):
+    def __init__(self, name: str, level: int = logging.NOTSET):
+        super().__init__(name, level)
+        self.formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+        if not os.path.isdir("logs"):
+            os.mkdir("logs")
+        stream_handler = logging.StreamHandler()
+        file_handler = logging.FileHandler('logs/' + name + "-" + self._generate_timestamp() + '.log')
+
+        self._set_formatters([stream_handler, file_handler])
+        self._add_handlers([stream_handler, file_handler])
+
+    @staticmethod
+    def _generate_timestamp():
+        date = datetime.now(tz=timezone.utc).strftime('%Y-%m-%d')
+        return date
+
+    def _set_formatters(self, handlers: List[Union[logging.StreamHandler, logging.FileHandler]]):
+        for handler in handlers:
+            handler.setFormatter(self.formatter)
+
+    def _add_handlers(self, handlers: List[Union[logging.StreamHandler, logging.FileHandler]]):
+        for handler in handlers:
+            self.addHandler(handler)

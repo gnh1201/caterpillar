@@ -19,10 +19,13 @@ import importlib
 import hashlib
 from decouple import config
 
-from base import Extension, jsonrpc2_create_id, jsonrpc2_result_encode, jsonrpc2_error_encode
+from base import Extension, jsonrpc2_create_id, jsonrpc2_result_encode, jsonrpc2_error_encode, Logger
 
+# TODO: 나중에 Flask 커스텀 핸들러 구현 해야 함
+logger = Logger(name="web")
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'data/'
+
 
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
     os.makedirs(app.config['UPLOAD_FOLDER'])
@@ -69,10 +72,10 @@ class Connection():
         self.messages.append(data)
 
     def recv(self, size):
-        print ("Not allowed method")
+        logger.info("Not allowed method")
 
     def close(self):
-        print ("Not allowed method")
+        logger.info("Not allowed method")
 
     def __init__(self, req):
         self.messages = []
@@ -84,11 +87,11 @@ if __name__ == "__main__":
         listening_port = config('PORT', default=5555, cast=int)
         client_encoding = config('CLIENT_ENCODING', default='utf-8')
     except KeyboardInterrupt:
-        print("\n[*] User has requested an interrupt")
-        print("[*] Application Exiting.....")
+        logger.warning("[*] User has requested an interrupt")
+        logger.warning("[*] Application Exiting.....")
         sys.exit()
     except Exception as e:
-        print("[*] Failed to initialize:", str(e))
+        logger.error("[*] Failed to initialize", exc_info=e)
 
     # set environment of Extension
     Extension.set_protocol('http')

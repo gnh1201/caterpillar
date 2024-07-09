@@ -3,3 +3,4 @@ savedfiles/
 settings.ini
 .env
 *.pyc
+logs/**

@@ -32,9 +32,11 @@ from requests.auth import HTTPBasicAuth
 from urllib.parse import urlparse
 from decouple import config
 
-from base import Extension, extract_credentials, jsonrpc2_create_id, jsonrpc2_encode, jsonrpc2_result_encode
+from base import Extension, extract_credentials, jsonrpc2_create_id, jsonrpc2_encode, jsonrpc2_result_encode, Logger
 
-# initalization
+logger = Logger(name="server")
+
+# initialization
 try:
     listening_port = config('PORT', default=5555, cast=int)
     _username, _password, server_url = extract_credentials(config('SERVER_URL', default=''))
@@ -48,11 +50,11 @@ try:
     local_domain = config('LOCAL_DOMAIN', default='')
     proxy_pass = config('PROXY_PASS', default='')
 except KeyboardInterrupt:
-    print("\n[*] User has requested an interrupt")
-    print("[*] Application Exiting.....")
+    logger.warning("[*] User has requested an interrupt")
+    logger.warning("[*] Application Exiting.....")
     sys.exit()
 except Exception as e:
-    print("[*] Failed to initialize:", str(e))
+    logger.error("[*] Failed to initialize:", exc_info=e)
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--max_conn', help="Maximum allowed connections", default=255, type=int)
@@ -107,7 +109,7 @@ def parse_first_data(data):
 
         parsed_data = (webserver, port, scheme, method, url)
     except Exception as e:
-        print("[*] Exception on parsing the header. Cause: %s" % (str(e)))
+        logger.error("[*] Exception on parsing the header", exc_info=e)
 
     return parsed_data
 
@@ -141,7 +143,7 @@ def conn_string(conn, data, addr):
     if local_domain != '':
         localserver = local_domain.encode(client_encoding)
         if webserver == localserver or data.find(b'\nHost: ' + localserver) > -1:
-            print ("[*] Detected the reverse proxy request: %s" % (local_domain))
+            logger.info("[*] Detected the reverse proxy request: %s" % local_domain)
             scheme, _webserver, _port = proxy_pass.encode(client_encoding).split(b':')
             webserver = _webserver[2:]
             port = int(_port.decode(client_encoding))
@@ -152,11 +154,11 @@ def jsonrpc2_server(conn, id, method, params):
     if method == "relay_accept":
         accepted_relay[id] = conn
         connection_speed = params['connection_speed']
-        print ("[*] connection speed: %s miliseconds" % (str(connection_speed)))
+        logger.info("[*] connection speed: %s milliseconds" % (str(connection_speed)))
         while conn.fileno() > -1:
             time.sleep(1)
         del accepted_relay[id]
-        print ("[*] relay destroyed: %s" % (id))
+        logger.info("[*] relay destroyed: %s" % id)
     else:
         Extension.dispatch_rpcmethod(method, "call", id, params, conn)
 
@@ -177,7 +179,7 @@ def proxy_connect(webserver, conn):
             p2 = Popen([openssl_binpath, "x509", "-req", "-days", "3650", "-CA", cacert, "-CAkey", cakey, "-set_serial", epoch, "-out", certpath], stdin=p1.stdout, stderr=PIPE)
             p2.communicate()
     except Exception as e:
-        print("[*] Skipped generating the certificate. Cause: %s" % (str(e)))
+        logger.error("[*] Skipped generating the certificate.", exc_info=e)
 
     # https://stackoverflow.com/questions/11255530/python-simple-ssl-socket-server
     # https://docs.python.org/3/library/ssl.html
@@ -194,7 +196,7 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
     filtered = False
 
     filters = Extension.get_filters()
-    print ("[*] Checking data with %s filters..." % (str(len(filters))))
+    logger.info("[*] Checking data with %s filters..." % (str(len(filters))))
     for f in filters:
         filtered = f.test(filtered, data, webserver, port, scheme, method, url)
 
@@ -202,7 +204,7 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
 
 def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
     try:
-        print("[*] Started the request. %s" % (str(addr[0])))
+        logger.info("[*] Started the request. %s" % (str(addr[0])))
 
         # SSL negotiation
         is_ssl = scheme in [b'https', b'tls', b'ssl']
@@ -295,7 +297,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
 
             # when blocked
             if is_http_403:
-                print ("[*] Blocked the request by remote server: %s" % (webserver.decode(client_encoding)))
+                logger.warning("[*] Blocked the request by remote server: %s" % (webserver.decode(client_encoding)))
 
                 def bypass_callback(response, *args, **kwargs):
                     if response.status_code != 200:
@@ -315,7 +317,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                         conn.send(chunk)
 
                 if is_ssl and method == b'GET':
-                    print ("[*] Trying to bypass blocked request...")
+                    logger.info("[*] Trying to bypass blocked request...")
                     remote_url = "%s://%s%s" % (scheme.decode(client_encoding), webserver.decode(client_encoding), url.decode(client_encoding))
                     requests.get(remote_url, stream=True, verify=False, hooks={'response': bypass_callback})
                 else:
@@ -323,7 +325,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
 
             sock_close(sock, is_ssl)
 
-            print("[*] Received %s chunks. (%s bytes per chunk)" % (str(i), str(buffer_size)))
+            logger.info("[*] Received %s chunks. (%s bytes per chunk)" % (str(i), str(buffer_size)))
 
         # stateful mode
         elif server_connection_type == "stateful":
@@ -344,7 +346,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
             }
 
             # get client address
-            print ("[*] resolving the client address...")
+            logger.info("[*] resolving the client address...")
             while len(resolved_address_list) == 0:
                 try:
                     _, query_data = jsonrpc2_encode('get_client_address')
@@ -352,7 +354,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                     if query.status_code == 200:
                         result = query.json()['result']
                         resolved_address_list.append(result['data'])
-                    print ("[*] resolved IP: %s" % (result['data']))
+                    logger.info("[*] resolved IP: %s" % (result['data']))
                 except requests.exceptions.ReadTimeout as e:
                     pass
             proxy_data['data']['client_address'] = resolved_address_list[0]
@@ -366,14 +368,14 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                         jsondata = json.loads(chunk.decode(client_encoding, errors='ignore'))
                         if jsondata['jsonrpc'] == "2.0" and ("error" in jsondata):
                             e = jsondata['error']
-                            print ("[*] Error received from the relay server: (%s) %s" % (str(e['code']), str(e['message'])))
+                            logger.error("[*] Error received from the relay server: (%s) %s" % (str(e['code']), str(e['message'])))
                 except requests.exceptions.ReadTimeout as e:
                     pass
             id, raw_data = jsonrpc2_encode('relay_connect', proxy_data['data'])
             start_new_thread(relay_connect, (id, raw_data, proxy_data))
 
             # wait for the relay
-            print ("[*] waiting for the relay... %s" % (id))
+            logger.info("[*] waiting for the relay... %s" % id)
             max_reties = 30
             t = 0
             while t < max_reties and not id in accepted_relay:
@@ -381,11 +383,11 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                 t += 1
             if t < max_reties:
                 sock = accepted_relay[id]
-                print ("[*] connected the relay. %s" % (id))
+                logger.info("[*] connected the relay. %s" % id)
                 sendall(sock, conn, data)
             else:
                 resolved_address_list.remove(resolved_address_list[0])
-                print ("[*] the relay is gone. %s" % (id))
+                logger.info("[*] the relay is gone. %s" % id)
                 sock_close(sock, is_ssl)
                 return
 
@@ -408,7 +410,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
 
             sock_close(sock, is_ssl)
 
-            print("[*] Received %s chunks. (%s bytes per chunk)" % (str(i), str(buffer_size)))
+            logger.info("[*] Received %s chunks. (%s bytes per chunk)" % (str(i), str(buffer_size)))
 
         # stateless mode
         elif server_connection_type == "stateless":
@@ -431,7 +433,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
             }
             _, raw_data = jsonrpc2_encode('relay_request', proxy_data['data'])
 
-            print("[*] Sending %s bytes..." % (str(len(raw_data))))
+            logger.info("[*] Sending %s bytes..." % (str(len(raw_data))))
 
             i = 0
             relay = requests.post(server_url, headers=proxy_data['headers'], data=raw_data, stream=True, auth=auth)
@@ -446,7 +448,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                     buffered = buffered[-buffer_size*2:]
                 i += 1
 
-            print("[*] Received %s chunks. (%s bytes per chunk)" % (str(i), str(buffer_size)))
+            logger.info("[*] Received %s chunks. (%s bytes per chunk)" % (str(i), str(buffer_size)))
 
         # nothing at all
         else:
@@ -456,11 +458,11 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
             else:
                 raise Exception("Unsupported connection type")
 
-        print("[*] Request and received. Done. %s" % (str(addr[0])))
+        logger.info("[*] Request and received. Done. %s" % (str(addr[0])))
         conn.close()
     except Exception as e:
         print(traceback.format_exc())
-        print("[*] Exception on requesting the data. Cause: %s" % (str(e)))
+        logger.error("[*] Exception on requesting the data.", exc_info=e)
         conn.sendall(b"HTTP/1.1 403 Forbidden\r\n\r\n{\"status\":403}")
         conn.close()
 
@@ -481,9 +483,9 @@ def start():    #Main Program
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.bind(('', listening_port))
         sock.listen(max_connection)
-        print("[*] Server started successfully [ %d ]" %(listening_port))
+        logger.info("[*] Server started successfully [ %d ]" % listening_port)
     except Exception as e:
-        print("[*] Unable to Initialize Socket:", str(e))
+        logger.error("[*] Unable to Initialize Socket", exc_info=e)
         sys.exit(2)
 
     while True:
@@ -493,7 +495,7 @@ def start():    #Main Program
             start_new_thread(conn_string, (conn, data, addr)) #Starting a thread
         except KeyboardInterrupt:
             sock.close()
-            print("\n[*] Graceful Shutdown")
+            logger.info("[*] Graceful Shutdown")
             sys.exit(1)
 
 if __name__== "__main__":

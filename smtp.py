@@ -12,21 +12,25 @@
 
 import asyncore
 from smtpd import SMTPServer
+
 import re
+import sys
 import json
 import requests
 
 from decouple import config
 from requests.auth import HTTPBasicAuth
-from base import extract_credentials, jsonrpc2_create_id, jsonrpc2_encode, jsonrpc2_result_encode
+from base import extract_credentials, jsonrpc2_create_id, jsonrpc2_encode, jsonrpc2_result_encode, Logger
+
+logger = Logger(name="smtp")
 
 try:
     smtp_host = config('SMTP_HOST', default='127.0.0.1')
     smtp_port = config('SMTP_PORT', default=25, cast=int)
     _username, _password, server_url = extract_credentials(config('SERVER_URL', default=''))
 except KeyboardInterrupt:
-    print("\n[*] User has requested an interrupt")
-    print("[*] Application Exiting.....")
+    logger.warning("[*] User has requested an interrupt")
+    logger.warning("[*] Application Exiting.....")
     sys.exit()
 
 auth = None
@@ -73,13 +77,13 @@ class CaterpillarSMTPServer(SMTPServer):
             if response.status_code == 200:
                 type, id, method, rpcdata = jsonrpc2_decode(response.text)
                 if rpcdata['success']:
-                    print("[*] Email sent successfully.")
+                    logger.info("[*] Email sent successfully.")
                 else:
                     raise Exception("(%s) %s" % (str(rpcdata['code']), rpcdata['message']))
             else:
                 raise Exception("Status %s" % (str(response.status_code)))
         except Exception as e:
-            print("[*] Failed to send email:", str(e))
+            logger.error("[*] Failed to send email", exc_info=e)
 
 # Start SMTP server
 smtp_server = CaterpillarSMTPServer((smtp_host, smtp_port), None)
