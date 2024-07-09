@@ -72,8 +72,8 @@ class Extension():
         cls.buffer_size = _buffer_size
 
     @classmethod
-    def register(cls, s)
-        module_name, class_name = s.trim().split('.')[0:2]
+    def register(cls, s):
+        module_name, class_name = s.strip().split('.')[0:2]
         module_path = 'plugins.' + module_name
 
         try:

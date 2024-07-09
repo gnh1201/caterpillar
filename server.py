@@ -499,7 +499,8 @@ def start():    #Main Program
 
 if __name__== "__main__":
     # load extensions
-    map(Extension.register, use_extension.split(','))
+    for s in use_extensions.split(','):
+        Extension.register(s)
 
     # start Caterpillar
     start()
