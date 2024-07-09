@@ -73,9 +73,8 @@ class Extension():
 
     @classmethod
     def register(cls, s)
-        module_name = s.split('.')[0]
+        module_name, class_name = s.trim().split('.')[0:2]
         module_path = 'plugins.' + module_name
-        class_name = s.split('.')[-1]
 
         try:
             module = importlib.import_module(module_path)
