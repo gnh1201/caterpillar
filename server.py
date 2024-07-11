@@ -517,9 +517,13 @@ def start():  #Main Program
 
 
 if __name__ == "__main__":
-    # load extensions
-    for s in use_extensions.split(','):
-        Extension.register(s)
+    # Fix Value error
+    if use_extensions:
+        # load extensions
+        for s in use_extensions.split(','):
+            Extension.register(s)
+    else:
+        logger.warning("[*] No extensions registered")
 
     # start Caterpillar
     start()
