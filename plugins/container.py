@@ -28,15 +28,15 @@ class Container(Extension):
 
     def dispatch(self, type, id, params, conn):
         logger.info("[*] Greeting! dispatch")
-        conn.send(b"Greeting! dispatch")
+        conn.send(b'Greeting! dispatch')
 
     def container_run(self, type, id, params, conn):
-        devices = params["devices"]
-        image = params["image"]
-        devices = params["devices"]
-        name = params["name"]
-        environment = params["environment"]
-        volumes = params["volumes"]
+        devices = params['devices']
+        image = params['image']
+        devices = params['devices']
+        name = params['name']
+        environment = params['environment']
+        volumes = params['volumes']
 
         container = self.client.containers.run(
             image,
@@ -44,16 +44,17 @@ class Container(Extension):
             name=name,
             volumes=volumes,
             environment=environment,
-            detach=True,
+            detach=True
         )
         container.logs()
 
         logger.info("[*] Running...")
 
     def container_stop(self, type, id, params, conn):
-        name = params["name"]
+        name = params['name']
 
         container = self.client.containers.get(name)
         container.stop()
 
         logger.info("[*] Stopped")
+

@@ -15,22 +15,20 @@ import json
 
 from base import Extension
 
-
 class PortScanner(Extension):
     def __init__(self):
         self.type = "rpcmethod"
         self.method = "scan_ports_by_hosts"
         self.exported_methods = []
-
+    
     def dispatch(self, type, id, params, conn):
-        hosts = params["hosts"]
-        binpath = params["binpath"]
+        hosts = params['hosts']
+        binpath = params['binpath']
 
         nm = nmap.PortScanner(nmap_search_path=(binpath,))
-        result = nm.scan(hosts=hosts, arguments="-T5 -sV -p0-65535 --max-retries 0")
+        result = nm.scan(hosts=hosts, arguments='-T5 -sV -p0-65535 --max-retries 0')
 
-        return result
-
+        return result;
 
 if __name__ == "__main__":
     main(sys.argv)
