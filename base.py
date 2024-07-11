@@ -5,17 +5,24 @@
 #
 # Caterpillar Proxy - The simple web debugging proxy (formerly, php-httpproxy)
 # Namyheon Go (Catswords Research) <gnh1201@gmail.com>
+# Euiseo Cha (Wonkwang University) <zeroday0619_dev@outlook.com>
 # https://github.com/gnh1201/caterpillar
 # Created at: 2024-05-20
 # Updated at: 2024-07-09
 #
 
+import logging
 import hashlib
 import json
+import os
 import re
 import importlib
 
+from datetime import datetime, timezone
+from typing import Union, List
+
 client_encoding = 'utf-8'
+
 
 def extract_credentials(url):
     pattern = re.compile(r'(?P<scheme>\w+://)?(?P<username>[^:/]+):(?P<password>[^@]+)@(?P<url>.+)')
@@ -29,10 +36,12 @@ def extract_credentials(url):
     else:
         return None, None, url
 
+
 def jsonrpc2_create_id(data):
     return hashlib.sha1(json.dumps(data).encode(client_encoding)).hexdigest()
 
-def jsonrpc2_encode(method, params = None):
+
+def jsonrpc2_encode(method, params=None):
     data = {
         "jsonrpc": "2.0",
         "method": method,
@@ -42,7 +51,8 @@ def jsonrpc2_encode(method, params = None):
     data['id'] = id
     return (id, json.dumps(data))
 
-def jsonrpc2_result_encode(result, id = ''):
+
+def jsonrpc2_result_encode(result, id=''):
     data = {
         "jsonrpc": "2.0",
         "result": result,
@@ -50,13 +60,15 @@ def jsonrpc2_result_encode(result, id = ''):
     }
     return json.dumps(data)
 
-def jsonrpc2_error_encode(error, id = ''):
+
+def jsonrpc2_error_encode(error, id=''):
     data = {
         "jsonrpc": "2.0",
         "error": error,
         "id": id
     }
     return json.dumps(data)
+
 
 class Extension():
     extensions = []
@@ -118,14 +130,14 @@ class Extension():
         return None
 
     @classmethod
-    def send_accept(cls, conn, method, success = True):
+    def send_accept(cls, conn, method, success=True):
         if 'tcp' in cls.protocols:
             _, message = jsonrpc2_encode(f"{method}_accept", {
                 "success": success
             })
             conn.send(message.encode(client_encoding))
 
-        print (f"Accepted request with {cls.protocols[0]} protocol")
+        print(f"Accepted request with {cls.protocols[0]} protocol")
 
     @classmethod
     def readall(cls, conn):
@@ -141,7 +153,7 @@ class Extension():
                     pass
 
             return data
-        
+
         elif 'http' in cls.protocols:
             # empty binary when an file not exists
             if 'file' not in conn.request.files:
@@ -150,7 +162,7 @@ class Extension():
             # read an uploaded file with binary mode
             file = conn.request.files['file']
             return file.read()
-    
+
     def __init__(self):
         self.type = None
         self.method = None
@@ -160,8 +172,35 @@ class Extension():
     def test(self, filtered, data, webserver, port, scheme, method, url):
         raise NotImplementedError
 
-    def dispatch(self, type, id, params, method = None, conn = None):
+    def dispatch(self, type, id, params, method=None, conn=None):
         raise NotImplementedError
 
     def connect(self, conn, data, webserver, port, scheme, method, url):
         raise NotImplementedError
+
+
+class Logger(logging.Logger):
+    def __init__(self, name: str, level: int = logging.NOTSET):
+        super().__init__(name, level)
+        self.formatter = logging.Formatter('[%(asctime)s] %(levelname)s %(module)s: %(message)s')
+
+        if not os.path.isdir("logs"):
+            os.mkdir("logs")
+        stream_handler = logging.StreamHandler()
+        file_handler = logging.FileHandler('logs/' + name + "-" + self._generate_timestamp() + '.log')
+
+        self._set_formatters([stream_handler, file_handler])
+        self._add_handlers([stream_handler, file_handler])
+
+    @staticmethod
+    def _generate_timestamp():
+        date = datetime.now(tz=timezone.utc).strftime('%Y-%m-%d')
+        return date
+
+    def _set_formatters(self, handlers: List[Union[logging.StreamHandler, logging.FileHandler]]):
+        for handler in handlers:
+            handler.setFormatter(self.formatter)
+
+    def _add_handlers(self, handlers: List[Union[logging.StreamHandler, logging.FileHandler]]):
+        for handler in handlers:
+            self.addHandler(handler)

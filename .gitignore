@@ -1,5 +1,6 @@
 certs/
 savedfiles/
+logs/
 settings.ini
 .env
 *.crt

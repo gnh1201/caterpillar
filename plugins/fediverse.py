@@ -10,7 +10,8 @@
 # Created in: 2022-10-06
 # Updated in: 2024-07-06
 #
-
+import base64
+import hashlib
 import io
 import re
 import requests
@@ -19,7 +20,9 @@ import os.path
 from decouple import config
 from PIL import Image
 
-from base import Extension
+from base import Extension, Logger
+
+logger = Logger(name="fediverse")
 
 try:
     client_encoding = config('CLIENT_ENCODING', default='utf-8')
@@ -28,7 +31,7 @@ try:
     dictionary_file = config('DICTIONARY_FILE', default='words_alpha.txt')    # https://github.com/dwyl/english-words
     librey_apiurl = config('LIBREY_APIURL', default='https://search.catswords.net')    # https://github.com/Ahwxorg/librey
 except Exception as e:
-    print ("[*] Invaild configration: %s" % (str(e)))
+    logger.error("[*] Invalid configuration", exc_info=e)
 
 class Fediverse(Extension):
     def __init__(self):
@@ -41,7 +44,7 @@ class Fediverse(Extension):
             with open(dictionary_file, "r") as file:
                 words = file.readlines()
                 self.known_words = [word.strip() for word in words if len(word.strip()) > 3]
-                print ("[*] Data loaded to use KnownWords4 strategy")
+                logger.info("[*] Data loaded to use KnownWords4 strategy")
 
     def test(self, filtered, data, webserver, port, scheme, method, url):
         # prevent cache confusing
@@ -63,11 +66,11 @@ class Fediverse(Extension):
         pattern = r'\b(?:(?<=\/@)|(?<=acct:))([a-zA-Z0-9]{10})\b'
         matches = list(set(re.findall(pattern, text)))
         if len(matches) > 0:
-            print ("[*] Found ID: %s" % (', '.join(matches)))
+            logger.info("[*] Found ID: %s" % (', '.join(matches)))
             try:
                 filtered = not all(map(self.pwnedpasswords_test, matches))
             except Exception as e:
-                print ("[*] K-Anonymity strategy not working! %s" % (str(e)))
+                logger.error("[*] K-Anonymity strategy not working!", exc_info=e)
                 filtered = True
 
         # feedback
@@ -131,20 +134,20 @@ class Fediverse(Extension):
                     if filtered:
                         break
 
-                    print ("[*] downloading... %s" % (url))
+                    logger.info("[*] downloading... %s" % (url))
                     encoded_image = webp_to_png_base64(url)
-                    print ("[*] downloaded.")
+                    logger.info("[*] downloaded.")
                     if encoded_image:
-                        print ("[*] solving...")
+                        logger.info("[*] solving...")
                         try:
-                            solved = truecaptcha_solve(encoded_image)
+                            solved = self.truecaptcha_solve(encoded_image)
                             if solved:
-                                print ("[*] solved: %s" % (solved))
+                                logger.info("[*] solved: %s" % (solved))
                                 filtered = filtered or (solved.lower() in ['ctkpaarr', 'spam'])
                             else:
-                                print ("[*] not solved")
+                                logger.info("[*] not solved")
                         except Exception as e:
-                            print ("[*] Not CAPTCHA strategy not working! %s" % (str(e)))
+                            logger.error("[*] Not CAPTCHA strategy not working!", exc_info=e)
 
         return filtered
 

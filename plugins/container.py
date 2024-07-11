@@ -12,7 +12,10 @@
 
 import docker
 
-from base import Extension
+from base import Extension, Logger
+
+logger = Logger("Container")
+
 
 class Container(Extension):
     def __init__(self):
@@ -24,7 +27,7 @@ class Container(Extension):
         self.client = docker.from_env()
 
     def dispatch(self, type, id, params, conn):
-        print ("[*] Greeting! dispatch")
+        logger.info("[*] Greeting! dispatch")
         conn.send(b'Greeting! dispatch')
 
     def container_run(self, type, id, params, conn):
@@ -35,7 +38,7 @@ class Container(Extension):
         environment = params['environment']
         volumes = params['volumes']
 
-        container = client.containers.run(
+        container = self.client.containers.run(
             image,
             devices=devices,
             name=name,
@@ -45,13 +48,13 @@ class Container(Extension):
         )
         container.logs()
 
-        print ("[*] Running...")
+        logger.info("[*] Running...")
 
     def container_stop(self, type, id, params, conn):
         name = params['name']
 
-        container = client.containers.get(name)
+        container = self.client.containers.get(name)
         container.stop()
 
-        print ("[*] Stopped")
+        logger.info("[*] Stopped")
 
