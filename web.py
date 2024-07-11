@@ -7,7 +7,7 @@
 # Namyheon Go (Catswords Research) <gnh1201@gmail.com>
 # https://github.com/gnh1201/caterpillar
 # Created at: 2024-05-20
-# Updated at: 2024-07-06
+# Updated at: 2024-07-10
 #
 
 from flask import Flask, request, redirect, url_for, render_template
@@ -97,6 +97,7 @@ if __name__ == "__main__":
     Extension.set_protocol('http')
 
     # load extensions
-    #Extension.register("plugins.YOUR_OWN_MODULE_NAME", "YOUR_OWN_CLASS_NAME");
+    for s in use_extensions.split(','):
+        Extension.register(s)
 
     app.run(debug=True, host='0.0.0.0', port=listening_port)

@@ -8,7 +8,7 @@
 # Euiseo Cha (Wonkwang University) <zeroday0619_dev@outlook.com>
 # https://github.com/gnh1201/caterpillar
 # Created at: 2024-05-20
-# Updated at: 2024-07-06
+# Updated at: 2024-07-09
 #
 
 import logging
@@ -78,13 +78,16 @@ class Extension():
         cls.buffer_size = _buffer_size
 
     @classmethod
-    def register(cls, module_path, class_name):
+    def register(cls, s):
+        module_name, class_name = s.strip().split('.')[0:2]
+        module_path = 'plugins.' + module_name
+
         try:
             module = importlib.import_module(module_path)
             _class = getattr(module, class_name)
             cls.extensions.append(_class())
         except (ImportError, AttributeError) as e:
-            raise ImportError(class_name + " in " + module_path)
+            raise ImportError(class_name + " in the extension " + module_name)
 
     @classmethod
     def get_filters(cls):

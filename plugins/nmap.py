@@ -7,7 +7,7 @@
 # Namyheon Go (Catswords Research) <gnh1201@gmail.com>
 # https://github.com/gnh1201/caterpillar
 # Created at: 2022-01-26 (github.com/gnh1201/welsonjs)
-# Updated at: 2024-07-04
+# Updated at: 2024-07-09
 #
 import sys
 import nmap
@@ -25,7 +25,7 @@ class PortScanner(Extension):
         hosts = params['hosts']
         binpath = params['binpath']
 
-        #result = nm.scan(hosts=hosts, arguments='-T5 -sV -p21-25,80,139,443,445,1883,2179,2323,3389,7547,8080,8443,8883')
+        nm = nmap.PortScanner(nmap_search_path=(binpath,))
         result = nm.scan(hosts=hosts, arguments='-T5 -sV -p0-65535 --max-retries 0')
 
         return result;
