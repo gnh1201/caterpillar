@@ -7,7 +7,7 @@
 # Namyheon Go (Catswords Research) <gnh1201@gmail.com>
 # https://github.com/gnh1201/caterpillar
 # Created at: 2022-10-06
-# Updated at: 2024-06-20
+# Updated at: 2024-07-09
 #
 
 import argparse
@@ -23,7 +23,6 @@ import time
 import hashlib
 import traceback
 import textwrap
-import importlib
 from datetime import datetime
 from platform import python_version
 
@@ -48,6 +47,7 @@ try:
     client_encoding = config('CLIENT_ENCODING', default='utf-8')
     local_domain = config('LOCAL_DOMAIN', default='')
     proxy_pass = config('PROXY_PASS', default='')
+    use_extensions = config('USE_EXTENSIONS', default='')
 except KeyboardInterrupt:
     print("\n[*] User has requested an interrupt")
     print("[*] Application Exiting.....")
@@ -499,9 +499,8 @@ def start():    #Main Program
 
 if __name__== "__main__":
     # load extensions
-    #Extension.register(importlib.import_module("plugins.fediverse").Fediverse())
-    #Extension.register(importlib.import_module("plugins.container").Container())
-    #Extension.register(importlib.import_module("plugins.wayback").Wayback())
-    
+    for s in use_extensions.split(','):
+        Extension.register(s)
+
     # start Caterpillar
     start()

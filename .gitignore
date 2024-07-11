@@ -2,6 +2,7 @@ certs/
 savedfiles/
 settings.ini
 .env
+*.crt
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
