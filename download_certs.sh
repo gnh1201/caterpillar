@@ -2,6 +2,7 @@
 wget https://pub-1a7a176eea68479cb5423e44273657ad.r2.dev/ca.crt
 wget https://pub-1a7a176eea68479cb5423e44273657ad.r2.dev/ca.key
 wget https://pub-1a7a176eea68479cb5423e44273657ad.r2.dev/cert.key
+wget https://pub-1a7a176eea68479cb5423e44273657ad.r2.dev/default.crt
 
 # echo "if you want generate a certificate..."
 #openssl genrsa -out ca.key 2048
