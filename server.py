@@ -240,13 +240,16 @@ def proxy_connect(webserver, conn):
     except Exception as e:
         logger.error("[*] Skipping certificate issuance.", exc_info=e)
         certpath = "default.crt"
+        
+    logger.info("[*] Certificate file: %s" % (certpath))
+    logger.info("[*] Private key file: %s" % (certkey))
 
     # https://stackoverflow.com/questions/11255530/python-simple-ssl-socket-server
     # https://docs.python.org/3/library/ssl.html
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
     context.check_hostname = False
     context.verify_mode = ssl.CERT_NONE
-    context.load_cert_chain(certpath, certkey)
+    context.load_cert_chain(certfile=certpath, keyfile=certkey)
 
     try:
         # https://stackoverflow.com/questions/11255530/python-simple-ssl-socket-server
@@ -254,7 +257,7 @@ def proxy_connect(webserver, conn):
         data = conn.recv(buffer_size)
     except ssl.SSLError as e:
         logger.error(
-            "[*] SSL negotiation failed. Check that the CA certificate is installed.",
+            "[*] SSL negotiation failed.",
             exc_info=e,
         )
         return (conn, b"")

@@ -28,8 +28,8 @@ If you have a server that ***will be parasitized*** and you want to proxy it, yo
 ```
 [settings]
 PORT=5555
-SERVER_URL=http://example.org
-SERVER_CONNECTION_TYPE=stateless
+SERVER_URL=localhost
+SERVER_CONNECTION_TYPE=
 CA_KEY=ca.key
 CA_CERT=ca.crt
 CERT_KEY=cert.key
@@ -38,6 +38,8 @@ OPENSSL_BINPATH=openssl
 CLIENT_ENCODING=utf-8
 USE_EXTENSIONS=wayback.Wayback,bio.PyBio
 ```
+
+***Note***: If using Caterpillar Proxy (Python) alone, set `SERVER_URL=localhost`. Otherwise, use the endpoint URL of the Worker script (PHP or Java), e.g., `SERVER_URL=http://example.org`.
 
 - (Optional) Create a certificate for SSL decryption
 
