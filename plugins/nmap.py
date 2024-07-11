@@ -1,13 +1,13 @@
 #!/usr/bin/python3
 #
-# portscanner.py
+# portscan.py
 # NMAP port scanning wrapper for Caterpillar Proxy
 #
 # Caterpillar Proxy - The simple web debugging proxy (formerly, php-httpproxy)
 # Namyheon Go (Catswords Research) <gnh1201@gmail.com>
 # https://github.com/gnh1201/caterpillar
-# Created at: 2022-01-26 (from github.com/gnh1201/welsonjs)
-# Updated at: 2024-07-11
+# Created at: 2022-01-26 (github.com/gnh1201/welsonjs)
+# Updated at: 2024-07-09
 #
 import sys
 import nmap
