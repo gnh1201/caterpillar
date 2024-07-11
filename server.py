@@ -7,7 +7,7 @@
 # Namyheon Go (Catswords Research) <gnh1201@gmail.com>
 # https://github.com/gnh1201/caterpillar
 # Created at: 2022-10-06
-# Updated at: 2024-07-09
+# Updated at: 2024-07-11
 #
 
 import argparse
@@ -38,6 +38,7 @@ from base import (
     jsonrpc2_create_id,
     jsonrpc2_encode,
     jsonrpc2_result_encode,
+    find_openssl_binpath,
     Logger,
 )
 
@@ -54,7 +55,7 @@ try:
     cacert = config("CA_CERT", default="ca.crt")
     certkey = config("CERT_KEY", default="cert.key")
     certdir = config("CERT_DIR", default="certs/")
-    openssl_binpath = config("OPENSSL_BINPATH", default="openssl")
+    openssl_binpath = config("OPENSSL_BINPATH", default=find_openssl_binpath())
     client_encoding = config("CLIENT_ENCODING", default="utf-8")
     local_domain = config("LOCAL_DOMAIN", default="")
     proxy_pass = config("PROXY_PASS", default="")
@@ -230,17 +231,33 @@ def proxy_connect(webserver, conn):
                 stderr=PIPE,
             )
             p2.communicate()
+    except FileNotFoundError as e:
+        logger.error(
+            "[*] OpenSSL distribution not found on this system. Skipping certificate issuance.",
+            exc_info=e,
+        )
+        certpath = "default.crt"
     except Exception as e:
-        logger.error("[*] Skipped generating the certificate.", exc_info=e)
+        logger.error("[*] Skipping certificate issuance.", exc_info=e)
+        certpath = "default.crt"
 
     # https://stackoverflow.com/questions/11255530/python-simple-ssl-socket-server
     # https://docs.python.org/3/library/ssl.html
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    context.check_hostname = False
+    context.verify_mode = ssl.CERT_NONE
     context.load_cert_chain(certpath, certkey)
 
-    # https://stackoverflow.com/questions/11255530/python-simple-ssl-socket-server
-    conn = context.wrap_socket(conn, server_side=True)
-    data = conn.recv(buffer_size)
+    try:
+        # https://stackoverflow.com/questions/11255530/python-simple-ssl-socket-server
+        conn = context.wrap_socket(conn, server_side=True)
+        data = conn.recv(buffer_size)
+    except ssl.SSLError as e:
+        logger.error(
+            "[*] SSL negotiation failed. Check that the CA certificate is installed.",
+            exc_info=e,
+        )
+        return (conn, b"")
 
     return (conn, data)
 

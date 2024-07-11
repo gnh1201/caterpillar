@@ -8,7 +8,7 @@
 # Euiseo Cha (Wonkwang University) <zeroday0619_dev@outlook.com>
 # https://github.com/gnh1201/caterpillar
 # Created at: 2024-05-20
-# Updated at: 2024-07-09
+# Updated at: 2024-07-11
 #
 
 import logging
@@ -17,6 +17,8 @@ import json
 import os
 import re
 import importlib
+import subprocess
+import platform
 
 from datetime import datetime, timezone
 from typing import Union, List
@@ -58,6 +60,59 @@ def jsonrpc2_result_encode(result, id=""):
 def jsonrpc2_error_encode(error, id=""):
     data = {"jsonrpc": "2.0", "error": error, "id": id}
     return json.dumps(data)
+
+
+def find_openssl_binpath():
+    system = platform.system()
+
+    if system == "Windows":
+        possible_paths = [
+            os.path.join(
+                os.getenv("ProgramFiles", "C:\\Program Files"),
+                "OpenSSL-Win64",
+                "bin",
+                "openssl.exe",
+            ),
+            os.path.join(
+                os.getenv("ProgramFiles", "C:\\Program Files"),
+                "OpenSSL-Win32",
+                "bin",
+                "openssl.exe",
+            ),
+            os.path.join(
+                os.getenv("ProgramFiles(x86)", "C:\\Program Files (x86)"),
+                "OpenSSL-Win32",
+                "bin",
+                "openssl.exe",
+            ),
+            os.path.join(
+                os.getenv("ProgramW6432", "C:\\Program Files"),
+                "OpenSSL-Win64",
+                "bin",
+                "openssl.exe",
+            ),
+            os.path.join(
+                os.getenv("ProgramW6432", "C:\\Program Files"),
+                "OpenSSL-Win32",
+                "bin",
+                "openssl.exe",
+            ),
+        ]
+        for path in possible_paths:
+            if os.path.exists(path):
+                return path
+    else:
+        try:
+            result = subprocess.run(
+                ["which", "openssl"], stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            )
+            path = result.stdout.decode().strip()
+            if path:
+                return path
+        except Exception as e:
+            pass
+
+    return "openssl"
 
 
 class Extension:
