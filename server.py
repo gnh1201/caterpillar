@@ -167,6 +167,9 @@ def proxy_connect(webserver, conn):
     hostname = webserver.decode(client_encoding)
     certpath = "%s/%s.crt" % (certdir.rstrip('/'), hostname)
 
+    if not os.path.exists(certdir):
+        os.makedirs(certdir)
+
     # https://stackoverflow.com/questions/24055036/handle-https-request-in-proxy-server-by-c-sharp-connect-tunnel
     conn.send(b'HTTP/1.1 200 Connection Established\r\n\r\n')
 
