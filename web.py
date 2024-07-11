@@ -10,29 +10,24 @@
 # Updated at: 2024-07-10
 #
 
-from flask import Flask, request, redirect, url_for, render_template
 import os
 import sys
-import json
-import importlib
-
-import hashlib
 from decouple import config
-
-from base import Extension, jsonrpc2_create_id, jsonrpc2_result_encode, jsonrpc2_error_encode, Logger
+from flask import Flask, request, render_template
+from base import Extension, jsonrpc2_error_encode, Logger
 
 # TODO: 나중에 Flask 커스텀 핸들러 구현 해야 함
 logger = Logger(name="web")
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'data/'
-
-
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
     os.makedirs(app.config['UPLOAD_FOLDER'])
+
 
 @app.route('/')
 def upload_form():
     return render_template('upload.html')
+
 
 @app.route('/upload', methods=['POST'])
 def process_upload():
@@ -45,9 +40,10 @@ def process_upload():
     params = {
         'filename': filename
     }
-    
+
     # just do it
     return Extension.dispatch_rpcmethod(method, 'call', '', params, conn)
+
 
 @app.route('/jsonrpc2', methods=['POST'])
 def process_jsonrpc2():
@@ -64,8 +60,10 @@ def process_jsonrpc2():
         'message': "Not vaild JSON-RPC 2.0 request"
     })
 
+
 def jsonrpc2_server(conn, id, method, params):
     return Extension.dispatch_rpcmethod(method, "call", id, params, conn)
+
 
 class Connection():
     def send(self, data):
@@ -81,11 +79,13 @@ class Connection():
         self.messages = []
         self.request = req
 
+
 if __name__ == "__main__":
-    # initalization
+    # initialization
     try:
         listening_port = config('PORT', default=5555, cast=int)
         client_encoding = config('CLIENT_ENCODING', default='utf-8')
+        use_extensions = config('USE_EXTENSIONS', default='')
     except KeyboardInterrupt:
         logger.warning("[*] User has requested an interrupt")
         logger.warning("[*] Application Exiting.....")
@@ -96,8 +96,12 @@ if __name__ == "__main__":
     # set environment of Extension
     Extension.set_protocol('http')
 
-    # load extensions
-    for s in use_extensions.split(','):
-        Extension.register(s)
+    # Fix Value error
+    if use_extensions:
+        # load extensions
+        for s in use_extensions.split(','):
+            Extension.register(s)
+    else:
+        logger.warning("[*] No extensions registered")
 
     app.run(debug=True, host='0.0.0.0', port=listening_port)

@@ -23,6 +23,7 @@ from typing import Union, List
 
 client_encoding = 'utf-8'
 
+
 def extract_credentials(url):
     pattern = re.compile(r'(?P<scheme>\w+://)?(?P<username>[^:/]+):(?P<password>[^@]+)@(?P<url>.+)')
     match = pattern.match(url)
@@ -35,10 +36,12 @@ def extract_credentials(url):
     else:
         return None, None, url
 
+
 def jsonrpc2_create_id(data):
     return hashlib.sha1(json.dumps(data).encode(client_encoding)).hexdigest()
 
-def jsonrpc2_encode(method, params = None):
+
+def jsonrpc2_encode(method, params=None):
     data = {
         "jsonrpc": "2.0",
         "method": method,
@@ -48,7 +51,8 @@ def jsonrpc2_encode(method, params = None):
     data['id'] = id
     return (id, json.dumps(data))
 
-def jsonrpc2_result_encode(result, id = ''):
+
+def jsonrpc2_result_encode(result, id=''):
     data = {
         "jsonrpc": "2.0",
         "result": result,
@@ -56,13 +60,15 @@ def jsonrpc2_result_encode(result, id = ''):
     }
     return json.dumps(data)
 
-def jsonrpc2_error_encode(error, id = ''):
+
+def jsonrpc2_error_encode(error, id=''):
     data = {
         "jsonrpc": "2.0",
         "error": error,
         "id": id
     }
     return json.dumps(data)
+
 
 class Extension():
     extensions = []
@@ -124,14 +130,14 @@ class Extension():
         return None
 
     @classmethod
-    def send_accept(cls, conn, method, success = True):
+    def send_accept(cls, conn, method, success=True):
         if 'tcp' in cls.protocols:
             _, message = jsonrpc2_encode(f"{method}_accept", {
                 "success": success
             })
             conn.send(message.encode(client_encoding))
 
-        print (f"Accepted request with {cls.protocols[0]} protocol")
+        print(f"Accepted request with {cls.protocols[0]} protocol")
 
     @classmethod
     def readall(cls, conn):
@@ -147,7 +153,7 @@ class Extension():
                     pass
 
             return data
-        
+
         elif 'http' in cls.protocols:
             # empty binary when an file not exists
             if 'file' not in conn.request.files:
@@ -156,7 +162,7 @@ class Extension():
             # read an uploaded file with binary mode
             file = conn.request.files['file']
             return file.read()
-    
+
     def __init__(self):
         self.type = None
         self.method = None
@@ -166,7 +172,7 @@ class Extension():
     def test(self, filtered, data, webserver, port, scheme, method, url):
         raise NotImplementedError
 
-    def dispatch(self, type, id, params, method = None, conn = None):
+    def dispatch(self, type, id, params, method=None, conn=None):
         raise NotImplementedError
 
     def connect(self, conn, data, webserver, port, scheme, method, url):
@@ -176,7 +182,7 @@ class Extension():
 class Logger(logging.Logger):
     def __init__(self, name: str, level: int = logging.NOTSET):
         super().__init__(name, level)
-        self.formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        self.formatter = logging.Formatter('[%(asctime)s] %(levelname)s %(module)s: %(message)s')
 
         if not os.path.isdir("logs"):
             os.mkdir("logs")

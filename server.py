@@ -76,6 +76,7 @@ auth = None
 if _username:
     auth = HTTPBasicAuth(_username, _password)
 
+
 def parse_first_data(data):
     parsed_data = (b'', b'', b'', b'', b'')
 
@@ -84,12 +85,12 @@ def parse_first_data(data):
 
         method, url = first_line.split()[0:2]
 
-        http_pos = url.find(b'://') #Finding the position of ://
+        http_pos = url.find(b'://')  #Finding the position of ://
         scheme = b'http'  # check http/https or other protocol
         if http_pos == -1:
             temp = url
         else:
-            temp = url[(http_pos+3):]
+            temp = url[(http_pos + 3):]
             scheme = url[0:http_pos]
 
         port_pos = temp.find(b':')
@@ -103,7 +104,7 @@ def parse_first_data(data):
             port = 80
             webserver = temp[:webserver_pos]
         else:
-            port = int((temp[(port_pos+1):])[:webserver_pos-port_pos-1])
+            port = int((temp[(port_pos + 1):])[:webserver_pos - port_pos - 1])
             webserver = temp[:port_pos]
             if port == 443:
                 scheme = b'https'
@@ -113,6 +114,7 @@ def parse_first_data(data):
         logger.error("[*] Exception on parsing the header", exc_info=e)
 
     return parsed_data
+
 
 def conn_string(conn, data, addr):
     # JSON-RPC 2.0 request
@@ -136,8 +138,8 @@ def conn_string(conn, data, addr):
     if path == "/proxy-cgi/jsonrpc2":
         conn.send(b'HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n\r\n')
         pos = data.find(b'\r\n\r\n')
-        if pos > -1 and process_jsonrpc2(data[pos+4:]):
-            conn.close()   # will be close by the server
+        if pos > -1 and process_jsonrpc2(data[pos + 4:]):
+            conn.close()  # will be close by the server
             return
 
     # if it is reverse proxy
@@ -150,6 +152,7 @@ def conn_string(conn, data, addr):
             port = int(_port.decode(client_encoding))
 
     proxy_server(webserver, port, scheme, method, url, conn, addr, data)
+
 
 def jsonrpc2_server(conn, id, method, params):
     if method == "relay_accept":
@@ -165,6 +168,7 @@ def jsonrpc2_server(conn, id, method, params):
 
     #return in conn_string()
 
+
 def proxy_connect(webserver, conn):
     hostname = webserver.decode(client_encoding)
     certpath = "%s/%s.crt" % (certdir.rstrip('/'), hostname)
@@ -177,7 +181,9 @@ def proxy_connect(webserver, conn):
         if not os.path.isfile(certpath):
             epoch = "%d" % (time.time() * 1000)
             p1 = Popen([openssl_binpath, "req", "-new", "-key", certkey, "-subj", "/CN=%s" % hostname], stdout=PIPE)
-            p2 = Popen([openssl_binpath, "x509", "-req", "-days", "3650", "-CA", cacert, "-CAkey", cakey, "-set_serial", epoch, "-out", certpath], stdin=p1.stdout, stderr=PIPE)
+            p2 = Popen(
+                [openssl_binpath, "x509", "-req", "-days", "3650", "-CA", cacert, "-CAkey", cakey, "-set_serial", epoch,
+                 "-out", certpath], stdin=p1.stdout, stderr=PIPE)
             p2.communicate()
     except Exception as e:
         logger.error("[*] Skipped generating the certificate.", exc_info=e)
@@ -193,6 +199,7 @@ def proxy_connect(webserver, conn):
 
     return (conn, data)
 
+
 def proxy_check_filtered(data, webserver, port, scheme, method, url):
     filtered = False
 
@@ -202,6 +209,7 @@ def proxy_check_filtered(data, webserver, port, scheme, method, url):
         filtered = f.test(filtered, data, webserver, port, scheme, method, url)
 
     return filtered
+
 
 def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
     try:
@@ -213,18 +221,19 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
             while True:
                 try:
                     conn, data = proxy_connect(webserver, conn)
-                    break   # success
+                    break  # success
                 #except OSError as e:
                 #    print ("[*] Retrying SSL negotiation... (%s:%s) %s" % (webserver.decode(client_encoding), str(port), str(e)))
                 except Exception as e:
-                    raise Exception("SSL negotiation failed. (%s:%s) %s" % (webserver.decode(client_encoding), str(port), str(e)))
+                    raise Exception(
+                        "SSL negotiation failed. (%s:%s) %s" % (webserver.decode(client_encoding), str(port), str(e)))
 
         # override data
         if is_ssl:
             _, _, _, method, url = parse_first_data(data)
 
         # https://stackoverflow.com/questions/44343739/python-sockets-ssl-eof-occurred-in-violation-of-protocol
-        def sock_close(sock, is_ssl = False):
+        def sock_close(sock, is_ssl=False):
             #if is_ssl:
             #    sock = sock.unwrap()
             #sock.shutdown(socket.SHUT_RDWR)
@@ -253,8 +262,8 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                         sock_close(sock, is_ssl)
                         raise Exception("Filtered request")
                     sock.send(chunk)
-                    if len(buffered) > buffer_size*2:
-                        buffered = buffered[-buffer_size*2:]
+                    if len(buffered) > buffer_size * 2:
+                        buffered = buffered[-buffer_size * 2:]
                 except:
                     break
 
@@ -292,8 +301,8 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                     add_filtered_host(webserver.decode(client_encoding), '127.0.0.1')
                     raise Exception("Filtered response")
                 conn.send(chunk)
-                if len(buffered) > buffer_size*2:
-                    buffered = buffered[-buffer_size*2:]
+                if len(buffered) > buffer_size * 2:
+                    buffered = buffered[-buffer_size * 2:]
                 i += 1
 
             # when blocked
@@ -319,7 +328,8 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
 
                 if is_ssl and method == b'GET':
                     logger.info("[*] Trying to bypass blocked request...")
-                    remote_url = "%s://%s%s" % (scheme.decode(client_encoding), webserver.decode(client_encoding), url.decode(client_encoding))
+                    remote_url = "%s://%s%s" % (
+                    scheme.decode(client_encoding), webserver.decode(client_encoding), url.decode(client_encoding))
                     requests.get(remote_url, stream=True, verify=False, hooks={'response': bypass_callback})
                 else:
                     conn.sendall(b"HTTP/1.1 403 Forbidden\r\n\r\n{\"status\":403}")
@@ -351,7 +361,8 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
             while len(resolved_address_list) == 0:
                 try:
                     _, query_data = jsonrpc2_encode('get_client_address')
-                    query = requests.post(server_url, headers=proxy_data['headers'], data=query_data, timeout=1, auth=auth)
+                    query = requests.post(server_url, headers=proxy_data['headers'], data=query_data, timeout=1,
+                                          auth=auth)
                     if query.status_code == 200:
                         result = query.json()['result']
                         resolved_address_list.append(result['data'])
@@ -364,14 +375,17 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
             def relay_connect(id, raw_data, proxy_data):
                 try:
                     # The tunnel connect forever until the client destroy it
-                    relay = requests.post(server_url, headers=proxy_data['headers'], data=raw_data, stream=True, timeout=None, auth=auth)
+                    relay = requests.post(server_url, headers=proxy_data['headers'], data=raw_data, stream=True,
+                                          timeout=None, auth=auth)
                     for chunk in relay.iter_content(chunk_size=buffer_size):
                         jsondata = json.loads(chunk.decode(client_encoding, errors='ignore'))
                         if jsondata['jsonrpc'] == "2.0" and ("error" in jsondata):
                             e = jsondata['error']
-                            logger.error("[*] Error received from the relay server: (%s) %s" % (str(e['code']), str(e['message'])))
+                            logger.error("[*] Error received from the relay server: (%s) %s" % (
+                            str(e['code']), str(e['message'])))
                 except requests.exceptions.ReadTimeout as e:
                     pass
+
             id, raw_data = jsonrpc2_encode('relay_connect', proxy_data['data'])
             start_new_thread(relay_connect, (id, raw_data, proxy_data))
 
@@ -405,8 +419,8 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                     add_filtered_host(webserver.decode(client_encoding), '127.0.0.1')
                     raise Exception("Filtered response")
                 conn.send(chunk)
-                if len(buffered) > buffer_size*2:
-                    buffered = buffered[-buffer_size*2:]
+                if len(buffered) > buffer_size * 2:
+                    buffered = buffered[-buffer_size * 2:]
                 i += 1
 
             sock_close(sock, is_ssl)
@@ -445,8 +459,8 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                     add_filtered_host(webserver.decode(client_encoding), '127.0.0.1')
                     raise Exception("Filtered response")
                 conn.send(chunk)
-                if len(buffered) > buffer_size*2:
-                    buffered = buffered[-buffer_size*2:]
+                if len(buffered) > buffer_size * 2:
+                    buffered = buffered[-buffer_size * 2:]
                 i += 1
 
             logger.info("[*] Received %s chunks. (%s bytes per chunk)" % (str(i), str(buffer_size)))
@@ -467,6 +481,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
         conn.sendall(b"HTTP/1.1 403 Forbidden\r\n\r\n{\"status\":403}")
         conn.close()
 
+
 # journaling a filtered hosts
 def add_filtered_host(domain, ip_address):
     hosts_path = './filtered.hosts'
@@ -479,7 +494,8 @@ def add_filtered_host(domain, ip_address):
         with open(hosts_path, 'w') as file:
             file.writelines(lines)
 
-def start():    #Main Program
+
+def start():  #Main Program
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.bind(('', listening_port))
@@ -491,15 +507,16 @@ def start():    #Main Program
 
     while True:
         try:
-            conn, addr = sock.accept() #Accept connection from client browser
-            data = conn.recv(buffer_size) #Recieve client data
-            start_new_thread(conn_string, (conn, data, addr)) #Starting a thread
+            conn, addr = sock.accept()  #Accept connection from client browser
+            data = conn.recv(buffer_size)  #Recieve client data
+            start_new_thread(conn_string, (conn, data, addr))  #Starting a thread
         except KeyboardInterrupt:
             sock.close()
             logger.info("[*] Graceful Shutdown")
             sys.exit(1)
 
-if __name__== "__main__":
+
+if __name__ == "__main__":
     # load extensions
     for s in use_extensions.split(','):
         Extension.register(s)
