@@ -4,6 +4,7 @@ logs/
 settings.ini
 .env
 *.crt
+*.key
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
