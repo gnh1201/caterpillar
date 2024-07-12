@@ -1,26 +1,26 @@
 #!/usr/bin/python3
 #
 # smtp.py
-# SMTP over HTTP gateway
+# SMTP mail sender over HTTP/S
 #
 # Caterpillar Proxy - The simple web debugging proxy (formerly, php-httpproxy)
 # Namyheon Go (Catswords Research) <gnh1201@gmail.com>
 # https://github.com/gnh1201/caterpillar
 # Created at: 2024-03-01
-# Updated at: 2024-05-20
+# Updated at: 2024-07-12
 #
-
-import asyncore
-from smtpd import SMTPServer
-
+import asyncio
+from aiosmtpd.controller import Controller
+from aiosmtpd.handlers import Message
+from email.message import EmailMessage
 import re
 import sys
 import json
 import requests
-
+from platform import python_version
 from decouple import config
 from requests.auth import HTTPBasicAuth
-from base import extract_credentials, jsonrpc2_create_id, jsonrpc2_encode, jsonrpc2_result_encode, Logger
+from base import extract_credentials, jsonrpc2_create_id, jsonrpc2_encode, jsonrpc2_decode, jsonrpc2_result_encode, Logger
 
 logger = Logger(name="smtp")
 
@@ -37,30 +37,25 @@ auth = None
 if _username:
     auth = HTTPBasicAuth(_username, _password)
 
-class CaterpillarSMTPServer(SMTPServer):
-    def __init__(self, localaddr, remoteaddr):
-        self.__class__.smtpd_hostname = "CaterpillarSMTPServer"
-        self.__class__.smtp_version = "0.1.6"
-        super().__init__(localaddr, remoteaddr)
+class CaterpillarSMTPHandler:
+    def __init__(self):
+        self.smtpd_hostname = "CaterpillarSMTPServer"
+        self.smtp_version = "0.1.6"
 
-    def process_message(self, peer, mailfrom, rcpttos, data, **kwargs):
-        message_lines = data.decode('utf-8').split('\n')
-        subject = ''
-        to = ''
-        for line in message_lines:
-            pos = line.find(':')
-            if pos > -1:
-                k = line[0:pos]
-                v = line[pos+1:]
-                if k == 'Subject':
-                    subject = v
-                elif k == 'To':
-                    to = v
+    async def handle_DATA(self, server, session, envelope):
+        mailfrom = envelope.mail_from
+        rcpttos = envelope.rcpt_tos
+        data = envelope.content
 
-        # build a data
+        message = EmailMessage()
+        message.set_content(data)
+
+        subject = message.get('Subject', '')
+        to = message.get('To', '')
+
         proxy_data = {
             'headers': {
-                "User-Agent": "php-httpproxy/0.1.6 (Client; Python " + python_version() + "; Caterpillar; abuse@catswords.net)",
+                "User-Agent": f"php-httpproxy/0.1.6 (Client; Python {python_version()}; Caterpillar; abuse@catswords.net)",
             },
             'data': {
                 "to": to,
@@ -71,22 +66,40 @@ class CaterpillarSMTPServer(SMTPServer):
         }
         _, raw_data = jsonrpc2_encode('relay_sendmail', proxy_data['data'])
 
-        # send HTTP POST request
         try:
-            response = requests.post(server_url, headers=proxy_data['headers'], data=raw_data, auth=auth)
+            response = await asyncio.to_thread(
+                requests.post,
+                server_url,
+                headers=proxy_data['headers'],
+                data=raw_data,
+                auth=auth
+            )
             if response.status_code == 200:
-                type, id, method, rpcdata = jsonrpc2_decode(response.text)
+                type, id, rpcdata = jsonrpc2_decode(response.text)
                 if rpcdata['success']:
                     logger.info("[*] Email sent successfully.")
                 else:
-                    raise Exception("(%s) %s" % (str(rpcdata['code']), rpcdata['message']))
+                    raise Exception(f"({rpcdata['code']}) {rpcdata['message']}")
             else:
-                raise Exception("Status %s" % (str(response.status_code)))
+                raise Exception(f"Status {response.status_code}")
         except Exception as e:
             logger.error("[*] Failed to send email", exc_info=e)
+            return '500 Could not process your message. ' + str(e)
 
-# Start SMTP server
-smtp_server = CaterpillarSMTPServer((smtp_host, smtp_port), None)
+        return '250 OK'
 
-# Start asynchronous event loop
-asyncore.loop()
+# https://aiosmtpd-pepoluan.readthedocs.io/en/latest/migrating.html
+def main():
+    handler = CaterpillarSMTPHandler()
+    controller = Controller(handler, hostname=smtp_host, port=smtp_port)
+    # Run the event loop in a separate thread.
+    controller.start()
+    # Wait for the user to press Return.
+    input('SMTP server running. Press Return to stop server and exit.')
+    controller.stop()
+    logger.warning("[*] User has requested an interrupt")
+    logger.warning("[*] Application Exiting.....")
+    sys.exit()
+
+if __name__ == "__main__":
+    main()
