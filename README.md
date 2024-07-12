@@ -66,8 +66,11 @@ sudo update-ca-certificates
 * Pan Art by [@yeohangdang@i.peacht.art](#): ![Caterpillar Project Pan Art by @yeohangdang@i.peacht.art](assets/img/logo.png)
 * [GitHub Sponsors](https://github.com/sponsors/gnh1201)
 
+## Contributors
+![Contributors Images](https://contrib.rocks/image?repo=gnh1201/caterpillar)
+
 ## Our roadmap
-![roadmap image](assets/img/roadmap.png)
+![Roadmap image](assets/img/roadmap.png)
 
 ## Report abuse
 * ActivityPub [@gnh1201@catswords.social](https://catswords.social/@gnh1201)
