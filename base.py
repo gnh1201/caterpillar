@@ -8,9 +8,8 @@
 # Euiseo Cha (Wonkwang University) <zeroday0619_dev@outlook.com>
 # https://github.com/gnh1201/caterpillar
 # Created at: 2024-05-20
-# Updated at: 2024-07-11
+# Updated at: 2024-07-12
 #
-
 import logging
 import hashlib
 import json
@@ -48,8 +47,16 @@ def jsonrpc2_create_id(data):
 def jsonrpc2_encode(method, params=None):
     data = {"jsonrpc": "2.0", "method": method, "params": params}
     id = jsonrpc2_create_id(data)
-    data["id"] = id
+    id = data.get('id')
     return (id, json.dumps(data))
+
+
+def jsonrpc2_decode(text):
+    data = json.loads(text)
+    type = 'error' if 'error' in data else 'result' if 'result' in data else None
+    id = data.get('id')
+    rpcdata = data.get(type) if type else None
+    return type, id, rpcdata
 
 
 def jsonrpc2_result_encode(result, id=""):
@@ -60,7 +67,6 @@ def jsonrpc2_result_encode(result, id=""):
 def jsonrpc2_error_encode(error, id=""):
     data = {"jsonrpc": "2.0", "error": error, "id": id}
     return json.dumps(data)
-
 
 def find_openssl_binpath():
     system = platform.system()
