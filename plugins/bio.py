@@ -15,6 +15,7 @@ from Bio.SeqUtils import gc_fraction
 
 from base import Extension
 
+
 def _analyze_sequence(sequence) -> dict[str, str]:
     """
     Analyze a given DNA sequence to provide various nucleotide transformations and translations.
@@ -61,7 +62,7 @@ class PyBio(Extension):
         self.exported_methods = ["analyze_sequence", "gc_content_calculation"]
 
     def dispatch(self, type, id, params, conn):
-        conn.send(b'Greeting! dispatch')
+        conn.send(b"Greeting! dispatch")
 
     def analyze_sequence(self, type, id, params, conn):
         """
@@ -88,7 +89,7 @@ class PyBio(Extension):
                            "transcription": "AUGCGUACGUAGCUAGCUAGCGUAGCUAGCUGACU",
                            "translation": "MRT*LASVAS*"}
         """
-        result = _analyze_sequence(params['sequence'])
+        result = _analyze_sequence(params["sequence"])
         return result
 
     def gc_content_calculation(self, type, id, params, conn):
@@ -103,5 +104,5 @@ class PyBio(Extension):
         :return: Dictionary containing the GC content as a float.
                  Example: {"gc_content": 0.5142857142857142}
         """
-        result = _gc_content_calculation(params['sequence'])
+        result = _gc_content_calculation(params["sequence"])
         return result
