@@ -20,14 +20,22 @@ import requests
 from platform import python_version
 from decouple import config
 from requests.auth import HTTPBasicAuth
-from base import extract_credentials, jsonrpc2_create_id, jsonrpc2_encode, jsonrpc2_decode, jsonrpc2_result_encode, Logger
+from base import (
+    extract_credentials,
+    jsonrpc2_create_id,
+    jsonrpc2_encode,
+    jsonrpc2_result_encode,
+    Logger,
+)
 
 logger = Logger(name="smtp")
 
 try:
-    smtp_host = config('SMTP_HOST', default='127.0.0.1')
-    smtp_port = config('SMTP_PORT', default=25, cast=int)
-    _username, _password, server_url = extract_credentials(config('SERVER_URL', default=''))
+    smtp_host = config("SMTP_HOST", default="127.0.0.1")
+    smtp_port = config("SMTP_PORT", default=25, cast=int)
+    _username, _password, server_url = extract_credentials(
+        config("SERVER_URL", default="")
+    )
 except KeyboardInterrupt:
     logger.warning("[*] User has requested an interrupt")
     logger.warning("[*] Application Exiting.....")
@@ -54,17 +62,19 @@ class CaterpillarSMTPHandler:
         to = message.get('To', '')
 
         proxy_data = {
-            'headers': {
-                "User-Agent": f"php-httpproxy/0.1.6 (Client; Python {python_version()}; Caterpillar; abuse@catswords.net)",
+            "headers": {
+                "User-Agent": "php-httpproxy/0.1.6 (Client; Python "
+                + python_version()
+                + "; Caterpillar; abuse@catswords.net)",
             },
-            'data': {
+            "data": {
                 "to": to,
                 "from": mailfrom,
                 "subject": subject,
-                "message": data.decode('utf-8')
-            }
+                "message": data.decode("utf-8"),
+            },
         }
-        _, raw_data = jsonrpc2_encode('relay_sendmail', proxy_data['data'])
+        _, raw_data = jsonrpc2_encode("relay_sendmail", proxy_data["data"])
 
         try:
             response = await asyncio.to_thread(
@@ -87,6 +97,7 @@ class CaterpillarSMTPHandler:
             return '500 Could not process your message. ' + str(e)
 
         return '250 OK'
+
 
 # https://aiosmtpd-pepoluan.readthedocs.io/en/latest/migrating.html
 def main():

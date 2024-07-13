@@ -28,8 +28,8 @@ If you have a server that ***will be parasitized*** and you want to proxy it, yo
 ```
 [settings]
 PORT=5555
-SERVER_URL=http://example.org
-SERVER_CONNECTION_TYPE=stateless
+SERVER_URL=localhost
+SERVER_CONNECTION_TYPE=
 CA_KEY=ca.key
 CA_CERT=ca.crt
 CERT_KEY=cert.key
@@ -38,6 +38,8 @@ OPENSSL_BINPATH=openssl
 CLIENT_ENCODING=utf-8
 USE_EXTENSIONS=wayback.Wayback,bio.PyBio
 ```
+
+***Note***: If using Caterpillar Proxy (Python) alone, set `SERVER_URL=localhost`. Otherwise, use the endpoint URL of the Worker script (PHP or Java), e.g., `SERVER_URL=http://example.org`.
 
 - (Optional) Create a certificate for SSL decryption
 
@@ -63,12 +65,17 @@ sudo update-ca-certificates
 * Wayback (Private browsing with Google or Wayback cache): See the [Wayback (github.com/gnh1201/caterpillar wiki)](https://github.com/gnh1201/caterpillar/wiki/Wayback).
 
 ## Thanks to
-* Pan Art by [@yeohangdang@i.peacht.art](#): ![Caterpillar Project Pan Art by @yeohangdang@i.peacht.art](assets/img/logo.png)
+* Pan Art by [@yeohangdang@i.peacht.art](#): [Image File](assets/img/logo.png)
 * [GitHub Sponsors](https://github.com/sponsors/gnh1201)
 
+## Contributors
+![Contributors Images](https://contrib.rocks/image?repo=gnh1201/caterpillar)
+
 ## Our roadmap
-![roadmap image](assets/img/roadmap.png)
+![Roadmap image](assets/img/roadmap.png)
 
 ## Report abuse
 * ActivityPub [@gnh1201@catswords.social](https://catswords.social/@gnh1201)
 * abuse@catswords.net
+* [Join Catswords on Microsoft Teams](https://teams.live.com/l/community/FEACHncAhq8ldnojAI)
+
