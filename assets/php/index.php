@@ -6,10 +6,10 @@
  * Namhyeon Go (Catswords Research) <abuse@catswords.net>
  * https://github.com/gnh1201/caterpillar
  * Created at: 2022-10-06
- * Updated at: 2024-06-25
+ * Updated at: 2024-07-15
  */
 
-define("PHP_HTTPPROXY_VERSION", "0.1.5.23");
+define("PHP_HTTPPROXY_VERSION", "0.1.5.24");
 define("DEFAULT_SOCKET_TIMEOUT", 1);
 define("STATEFUL_SOCKET_TIMEOUT", 30);
 define("MAX_EXECUTION_TIME", 0);
@@ -294,7 +294,7 @@ function relay_mysql_query($params, $mysqli) {
 
             case "insert":
                 $success = (bool) $query_result;
-                $result['last_id'] = @$mysqli->insert_id();
+                $result['last_id'] = @$mysqli->insert_id;
                 break;
 
             default:
