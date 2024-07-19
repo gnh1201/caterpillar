@@ -69,7 +69,9 @@ sudo update-ca-certificates
 * [GitHub Sponsors](https://github.com/sponsors/gnh1201)
 
 ## Contributors
-![Contributors Images](https://contrib.rocks/image?repo=gnh1201/caterpillar)
+<a href="https://github.com/gnh1201/caterpillar/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=gnh1201/caterpillar" alt="Contributors" />
+</a>
 
 ## Our roadmap
 ![Roadmap image](assets/img/roadmap.png)
