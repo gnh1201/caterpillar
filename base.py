@@ -115,7 +115,7 @@ def find_openssl_binpath():
             path = result.stdout.decode().strip()
             if path:
                 return path
-        except Exception as e:
+        except Exception:
             pass
 
     return "openssl"
@@ -143,7 +143,7 @@ class Extension:
             module = importlib.import_module(module_path)
             _class = getattr(module, class_name)
             cls.extensions.append(_class())
-        except (ImportError, AttributeError) as e:
+        except (ImportError, AttributeError):
             raise ImportError(class_name + " in the extension " + module_name)
 
     @classmethod

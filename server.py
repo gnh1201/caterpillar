@@ -20,13 +20,11 @@ import base64
 import json
 import ssl
 import time
-import hashlib
 import traceback
 import textwrap
 from datetime import datetime
 from platform import python_version
 
-import re
 import requests
 from requests.auth import HTTPBasicAuth
 from urllib.parse import urlparse
@@ -35,9 +33,7 @@ from decouple import config
 from base import (
     Extension,
     extract_credentials,
-    jsonrpc2_create_id,
     jsonrpc2_encode,
-    jsonrpc2_result_encode,
     find_openssl_binpath,
     Logger,
 )
@@ -467,7 +463,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                         result = query.json()["result"]
                         resolved_address_list.append(result["data"])
                     logger.info("[*] resolved IP: %s" % (result["data"]))
-                except requests.exceptions.ReadTimeout as e:
+                except requests.exceptions.ReadTimeout:
                     pass
             proxy_data["data"]["client_address"] = resolved_address_list[0]
 
@@ -503,7 +499,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
             logger.info("[*] waiting for the relay... %s" % id)
             max_reties = 30
             t = 0
-            while t < max_reties and not id in accepted_relay:
+            while t < max_reties and id not in accepted_relay:
                 time.sleep(1)
                 t += 1
             if t < max_reties:

@@ -11,20 +11,15 @@
 #
 import asyncio
 from aiosmtpd.controller import Controller
-from aiosmtpd.handlers import Message
 from email.message import EmailMessage
-import re
 import sys
-import json
 import requests
 from platform import python_version
 from decouple import config
 from requests.auth import HTTPBasicAuth
 from base import (
     extract_credentials,
-    jsonrpc2_create_id,
     jsonrpc2_encode,
-    jsonrpc2_result_encode,
     Logger,
 )
 

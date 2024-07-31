@@ -124,7 +124,7 @@ class AlwaysOnline(Extension):
     def __init__(self):
         self.type = "connector"  # this is a connector
         self.connection_type = "alwaysonline"
-        self.buffer_size = 8192;
+        self.buffer_size = 8192
 
     def connect(self, conn, data, webserver, port, scheme, method, url):
         logger.info("[*] Connecting... Connecting...")
