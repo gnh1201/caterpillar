@@ -50,7 +50,7 @@ try:
     _username, _password, server_url = extract_credentials(
         config("SERVER_URL", default="")
     )
-    server_connection_type = config("SERVER_CONNECTION_TYPE", default="")
+    server_connection_type = config("SERVER_CONNECTION_TYPE", default="proxy")
     cakey = config("CA_KEY", default="ca.key")
     cacert = config("CA_CERT", default="ca.crt")
     certkey = config("CERT_KEY", default="cert.key")
@@ -337,7 +337,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                     break
 
         # localhost mode
-        if server_url == "localhost":
+        if server_url == "localhost" and server_connection_type == "proxy":
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
             if is_ssl:
@@ -593,6 +593,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
         else:
             connector = Extension.get_connector(server_connection_type)
             if connector:
+                logger.info("[*] Connecting...")
                 connector.connect(conn, data, webserver, port, scheme, method, url)
             else:
                 raise Exception("Unsupported connection type")

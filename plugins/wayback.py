@@ -87,6 +87,7 @@ class Wayback(Extension):
         self.connection_type = "wayback"
 
     def connect(self, conn, data, webserver, port, scheme, method, url):
+        logger.info("[*] Connecting... Connecting...")
         connected = False
 
         target_url = url.decode(client_encoding)
