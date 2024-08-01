@@ -9,7 +9,6 @@
 # Updated at: 2024-07-02
 #
 
-import json
 from Bio.Seq import Seq
 from Bio.SeqUtils import gc_fraction
 

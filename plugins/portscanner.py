@@ -11,7 +11,6 @@
 #
 import sys
 import nmap
-import json
 
 from base import Extension
 

@@ -20,13 +20,11 @@ import base64
 import json
 import ssl
 import time
-import hashlib
 import traceback
 import textwrap
 from datetime import datetime
 from platform import python_version
 
-import re
 import requests
 from requests.auth import HTTPBasicAuth
 from urllib.parse import urlparse
@@ -35,9 +33,7 @@ from decouple import config
 from base import (
     Extension,
     extract_credentials,
-    jsonrpc2_create_id,
     jsonrpc2_encode,
-    jsonrpc2_result_encode,
     find_openssl_binpath,
     Logger,
 )
@@ -50,7 +46,7 @@ try:
     _username, _password, server_url = extract_credentials(
         config("SERVER_URL", default="")
     )
-    server_connection_type = config("SERVER_CONNECTION_TYPE", default="")
+    server_connection_type = config("SERVER_CONNECTION_TYPE", default="proxy")
     cakey = config("CA_KEY", default="ca.key")
     cacert = config("CA_CERT", default="ca.crt")
     certkey = config("CERT_KEY", default="cert.key")
@@ -337,7 +333,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                     break
 
         # localhost mode
-        if server_url == "localhost":
+        if server_url == "localhost" and server_connection_type == "proxy":
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
             if is_ssl:
@@ -467,7 +463,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
                         result = query.json()["result"]
                         resolved_address_list.append(result["data"])
                     logger.info("[*] resolved IP: %s" % (result["data"]))
-                except requests.exceptions.ReadTimeout as e:
+                except requests.exceptions.ReadTimeout:
                     pass
             proxy_data["data"]["client_address"] = resolved_address_list[0]
 
@@ -503,7 +499,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
             logger.info("[*] waiting for the relay... %s" % id)
             max_reties = 30
             t = 0
-            while t < max_reties and not id in accepted_relay:
+            while t < max_reties and id not in accepted_relay:
                 time.sleep(1)
                 t += 1
             if t < max_reties:
@@ -593,6 +589,7 @@ def proxy_server(webserver, port, scheme, method, url, conn, addr, data):
         else:
             connector = Extension.get_connector(server_connection_type)
             if connector:
+                logger.info("[*] Connecting...")
                 connector.connect(conn, data, webserver, port, scheme, method, url)
             else:
                 raise Exception("Unsupported connection type")
