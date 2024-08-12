@@ -4,7 +4,7 @@
 # Serial integration plugin for Caterpillar Proxy
 #
 # Caterpillar Proxy - The simple web debugging proxy (formerly, php-httpproxy)
-# Namyheon Go (Catswords Research) <gnh1201@gmail.com>
+# Teakwoo Kim <catry.me@gmail.com>
 # https://github.com/gnh1201/caterpillar
 # Created at: 2024-08-11
 # Updated at: 2024-08-11
