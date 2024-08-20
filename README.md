@@ -14,13 +14,12 @@ You can connect all physical and logical channels with communication capabilitie
 * [K-Anonymity for Spam Filtering: Case with Mastodon, and Misskey](https://qiita.com/gnh1201/items/09f4081f84610db3a9d3)
 * [[YouTube Video] File Upload Vulnerability Attack Test (Caterpillar Proxy)](https://youtu.be/sPZOCgYtLRw)
 
-
-
 ## How it works
 
 ### Basic structure
 ```
-You <-> Proxy client (Python) <-> Parasitized proxy server (Optional, PHP/LAMP) <-> On the Web
+* You <-> Proxy client (Python) <-> Parasitized proxy server (Optional, PHP/LAMP) <-> On the Web
+* You <-> Proxy client (Python) <-> Connector extension (Optional, Python) <-> On the Web
 ```
 
 For example, build a simple web debugging proxy on the shared servers.
