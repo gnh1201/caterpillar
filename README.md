@@ -1,7 +1,7 @@
 # gnh1201/caterpillar
 Caterpillar Proxy - The simple web debugging proxy (formerly, php-httpproxy)
 
-![title image](assets/img/title.jfif)
+![Cover image - Caterpillar on a tree looking at a rocket flying over the clouds](assets/img/cover.png)
 
 ## Use cases
 * [Build a network tunnel using Python and the LAMP(PHP) stack.](https://qiita.com/gnh1201/items/40f9350ca6d308def6d4)
@@ -12,8 +12,9 @@ Caterpillar Proxy - The simple web debugging proxy (formerly, php-httpproxy)
 
 ### Basic structure
 ```
-You <-> Proxy client (Python) <-> Parasitized proxy server (Optional, PHP) <-> On the Web
+You <-> Proxy client (Python) <-> Parasitized proxy server (Optional, PHP/LAMP) <-> On the Web
 ```
+
 For example, build a simple web debugging proxy on the shared servers.
 
 ### Stateful mode
@@ -80,4 +81,3 @@ sudo update-ca-certificates
 * ActivityPub [@gnh1201@catswords.social](https://catswords.social/@gnh1201)
 * abuse@catswords.net
 * [Join Catswords on Microsoft Teams](https://teams.live.com/l/community/FEACHncAhq8ldnojAI)
-
