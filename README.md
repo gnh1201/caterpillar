@@ -7,7 +7,9 @@ Caterpillar Proxy - The simple web debugging proxy (formerly, php-httpproxy)
 
 ![Cover image - Caterpillar on a tree looking at a rocket flying over the clouds](assets/img/cover.png)
 
-You can connect all physical and logical channels with communication capabilities to the web! Imagine various means like time machines, satellites, quantum technology, sound, light, and Excalibur, just like in science fiction movies! Caterpillar Proxy supports the implementation of extensions for Connectors, Filters, and RPC methods to bring your imagination to life.
+You can connect all physical and logical channels with communication capabilities to the web!
+
+Imagine various means like time machines, satellites, quantum technology, sound, light, and Philosopher's Stone or Excalibur, just like in science fiction movies! Caterpillar Proxy supports the implementation of extensions for Connectors, Filters, and RPC methods to bring your imagination to life.
 
 ## Use cases
 * [Build a network tunnel using Python and the LAMP(PHP) stack.](https://qiita.com/gnh1201/items/40f9350ca6d308def6d4)
