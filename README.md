@@ -1,4 +1,7 @@
 # gnh1201/caterpillar
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13346533.svg)](https://doi.org/10.5281/zenodo.13346533)
+
 Caterpillar Proxy - The simple web debugging proxy (formerly, php-httpproxy)
 
 ![Cover image - Caterpillar on a tree looking at a rocket flying over the clouds](assets/img/cover.png)
