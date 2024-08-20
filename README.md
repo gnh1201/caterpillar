@@ -1,16 +1,20 @@
 # gnh1201/caterpillar
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13346533.svg)](https://doi.org/10.5281/zenodo.13346533)
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fgnh1201%2Fcaterpillar.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fgnh1201%2Fcaterpillar?ref=badge_shield)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13346533.svg)](https://doi.org/10.5281/zenodo.13346533)
 
 Caterpillar Proxy - The simple web debugging proxy (formerly, php-httpproxy)
 
 ![Cover image - Caterpillar on a tree looking at a rocket flying over the clouds](assets/img/cover.png)
 
+You can connect all physical and logical channels with communication capabilities to the web! It supports the implementation of extensions for Connectors, Filters, and RPC (JSON-RPC 2.0) methods.
+
 ## Use cases
 * [Build a network tunnel using Python and the LAMP(PHP) stack.](https://qiita.com/gnh1201/items/40f9350ca6d308def6d4)
 * [K-Anonymity for Spam Filtering: Case with Mastodon, and Misskey](https://qiita.com/gnh1201/items/09f4081f84610db3a9d3)
 * [[YouTube Video] File Upload Vulnerability Attack Test (Caterpillar Proxy)](https://youtu.be/sPZOCgYtLRw)
+
+
 
 ## How it works
 
