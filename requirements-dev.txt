@@ -1,5 +1,5 @@
 ruff==0.5.1
 elasticsearch==8.14.0
-biopython==1.84
+#biopython==1.84
 #yara-python==4.5.1
 pyserial==3.5
