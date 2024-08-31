@@ -21,7 +21,17 @@ class Container(Extension):
     def __init__(self):
         self.type = "rpcmethod"
         self.method = "container_init"
-        self.exported_methods = ["container_cteate", "container_start", "container_run", "container_stop", "container_pause", "container_unpause", "container_restart", "container_kill", "container_remove"]
+        self.exported_methods = [
+            "container_cteate",
+            "container_start",
+            "container_run",
+            "container_stop",
+            "container_pause",
+            "container_unpause",
+            "container_restart",
+            "container_kill",
+            "container_remove",
+        ]
 
         # docker
         self.client = docker.from_env()
@@ -33,13 +43,13 @@ class Container(Extension):
     def container_cteate(self, type, id, params, conn):
         # todo: -
         return b"[*] Created"
-        
+
     def container_start(self, type, id, params, conn):
-        name = params['name']
+        name = params["name"]
 
         container = self.client.containers.get(name)
         container.start()
-        
+
     def container_run(self, type, id, params, conn):
         devices = params["devices"]
         image = params["image"]
@@ -68,34 +78,34 @@ class Container(Extension):
 
         logger.info("[*] Stopped")
         return b"[*] Stopped"
-    
+
     def container_pause(self, type, id, params, conn):
-        name = params['name']
+        name = params["name"]
 
         container = self.client.containers.get(name)
         container.pause()
         return b"[*] Paused"
-        
+
     def container_unpause(self, type, id, params, conn):
-        name = params['name']
+        name = params["name"]
 
         container = self.client.containers.get(name)
         container.unpause()
         return b"[*] Unpaused"
-        
+
     def container_restart(self, type, id, params, conn):
-        name = params['name']
+        name = params["name"]
 
         container = self.client.containers.get(name)
         container.restart()
         return b"[*] Restarted"
-        
+
     def container_kill(self, type, id, params, conn):
         # TODO: -
         return b"[*] Killed"
-        
-    def container_remove(self, type, id, params, conn): 
-        name = params['name']
+
+    def container_remove(self, type, id, params, conn):
+        name = params["name"]
 
         container = self.client.containers.get(name)
         container.remove()

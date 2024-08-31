@@ -29,9 +29,11 @@ except Exception as e:
 
 es = Elasticsearch([es_host])
 
+
 def generate_id(url):
     """Generate a unique ID for a URL by hashing it."""
-    return hashlib.sha256(url.encode('utf-8')).hexdigest()
+    return hashlib.sha256(url.encode("utf-8")).hexdigest()
+
 
 def get_cached_page_from_google(url):
     status_code, content = (0, b"")
@@ -49,6 +51,7 @@ def get_cached_page_from_google(url):
         status_code = response.status_code
 
     return status_code, content
+
 
 # API documentation: https://archive.org/help/wayback_api.php
 def get_cached_page_from_wayback(url):
@@ -89,29 +92,36 @@ def get_cached_page_from_wayback(url):
 
     return status_code, content
 
+
 def get_cached_page_from_elasticsearch(url):
     url_id = generate_id(url)
     try:
         result = es.get(index=es_index, id=url_id)
-        logger.info(result['_source'])
-        return 200, result['_source']['content'].encode(client_encoding)
+        logger.info(result["_source"])
+        return 200, result["_source"]["content"].encode(client_encoding)
     except NotFoundError:
         return 404, b""
     except Exception as e:
         logger.error(f"Error fetching from Elasticsearch: {e}")
         return 502, b""
 
+
 def cache_to_elasticsearch(url, data):
     url_id = generate_id(url)
     timestamp = datetime.utcnow().isoformat()
     try:
-        es.index(index=es_index, id=url_id, body={
-            "url": url,
-            "content": data.decode(client_encoding),
-            "timestamp": timestamp
-        })
+        es.index(
+            index=es_index,
+            id=url_id,
+            body={
+                "url": url,
+                "content": data.decode(client_encoding),
+                "timestamp": timestamp,
+            },
+        )
     except Exception as e:
         logger.error(f"Error caching to Elasticsearch: {e}")
+
 
 def get_page_from_origin_server(url):
     try:
@@ -119,6 +129,7 @@ def get_page_from_origin_server(url):
         return response.status_code, response.content
     except Exception as e:
         return 502, str(e).encode(client_encoding)
+
 
 class AlwaysOnline(Extension):
     def __init__(self):
@@ -128,13 +139,13 @@ class AlwaysOnline(Extension):
 
     def connect(self, conn, data, webserver, port, scheme, method, url):
         logger.info("[*] Connecting... Connecting...")
-    
+
         connected = False
-        
+
         is_ssl = scheme in [b"https", b"tls", b"ssl"]
         cache_hit = 0
         buffered = b""
-        
+
         def sendall(sock, conn, data):
             # send first chuck
             sock.send(data)
@@ -151,11 +162,11 @@ class AlwaysOnline(Extension):
                     sock.send(chunk)
                 except:
                     break
-        
+
         target_url = url.decode(client_encoding)
         target_scheme = scheme.decode(client_encoding)
         target_webserver = webserver.decode(client_encoding)
-        
+
         if "://" not in target_url:
             target_url = f"{target_scheme}://{target_webserver}:{port}{target_url}"
 

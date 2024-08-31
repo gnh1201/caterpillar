@@ -40,6 +40,7 @@ auth = None
 if _username:
     auth = HTTPBasicAuth(_username, _password)
 
+
 class CaterpillarSMTPHandler:
     def __init__(self):
         self.smtpd_hostname = "CaterpillarSMTPServer"
@@ -53,8 +54,8 @@ class CaterpillarSMTPHandler:
         message = EmailMessage()
         message.set_content(data)
 
-        subject = message.get('Subject', '')
-        to = message.get('To', '')
+        subject = message.get("Subject", "")
+        to = message.get("To", "")
 
         proxy_data = {
             "headers": {
@@ -75,13 +76,13 @@ class CaterpillarSMTPHandler:
             response = await asyncio.to_thread(
                 requests.post,
                 server_url,
-                headers=proxy_data['headers'],
+                headers=proxy_data["headers"],
                 data=raw_data,
-                auth=auth
+                auth=auth,
             )
             if response.status_code == 200:
                 type, id, rpcdata = jsonrpc2_decode(response.text)
-                if rpcdata['success']:
+                if rpcdata["success"]:
                     logger.info("[*] Email sent successfully.")
                 else:
                     raise Exception(f"({rpcdata['code']}) {rpcdata['message']}")
@@ -89,9 +90,9 @@ class CaterpillarSMTPHandler:
                 raise Exception(f"Status {response.status_code}")
         except Exception as e:
             logger.error("[*] Failed to send email", exc_info=e)
-            return '500 Could not process your message. ' + str(e)
+            return "500 Could not process your message. " + str(e)
 
-        return '250 OK'
+        return "250 OK"
 
 
 # https://aiosmtpd-pepoluan.readthedocs.io/en/latest/migrating.html
@@ -101,11 +102,12 @@ def main():
     # Run the event loop in a separate thread.
     controller.start()
     # Wait for the user to press Return.
-    input('SMTP server running. Press Return to stop server and exit.')
+    input("SMTP server running. Press Return to stop server and exit.")
     controller.stop()
     logger.warning("[*] User has requested an interrupt")
     logger.warning("[*] Application Exiting.....")
     sys.exit()
+
 
 if __name__ == "__main__":
     main()
