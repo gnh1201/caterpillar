@@ -129,7 +129,7 @@ def parse_first_data(data: bytes):
 
 def conn_string(conn: socket.socket, data: bytes, addr: bytes):
     # JSON-RPC 2.0 request
-    def process_jsonrpc2(_data):
+    def process_jsonrpc2(_data: bytes):
         json_data = json.loads(_data.decode(client_encoding, errors="ignore"))
         if json_data["jsonrpc"] == "2.0":
             jsonrpc2_server(
