@@ -20,7 +20,7 @@ from requests.auth import HTTPBasicAuth
 from base import (
     extract_credentials,
     jsonrpc2_encode,
-    Logger,
+    Logger, jsonrpc2_decode,
 )
 
 logger = Logger(name="smtp")
@@ -47,8 +47,8 @@ class CaterpillarSMTPHandler:
         self.smtp_version = "0.1.6"
 
     async def handle_DATA(self, server, session, envelope):
-        mailfrom = envelope.mail_from
-        rcpttos = envelope.rcpt_tos
+        mail_from = envelope.mail_from
+        rcpt_tos = envelope.rcpt_tos
         data = envelope.content
 
         message = EmailMessage()
@@ -65,7 +65,7 @@ class CaterpillarSMTPHandler:
             },
             "data": {
                 "to": to,
-                "from": mailfrom,
+                "from": mail_from,
                 "subject": subject,
                 "message": data.decode("utf-8"),
             },
@@ -81,11 +81,11 @@ class CaterpillarSMTPHandler:
                 auth=auth,
             )
             if response.status_code == 200:
-                type, id, rpcdata = jsonrpc2_decode(response.text)
-                if rpcdata["success"]:
+                _type, _id, rpc_data = jsonrpc2_decode(response.text)
+                if rpc_data["success"]:
                     logger.info("[*] Email sent successfully.")
                 else:
-                    raise Exception(f"({rpcdata['code']}) {rpcdata['message']}")
+                    raise Exception(f"({rpc_data['code']}) {rpc_data['message']}")
             else:
                 raise Exception(f"Status {response.status_code}")
         except Exception as e:

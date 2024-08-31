@@ -15,7 +15,7 @@ import requests
 from decouple import config
 from elasticsearch import Elasticsearch, NotFoundError
 import hashlib
-from datetime import datetime
+from datetime import datetime, UTC
 from base import Extension, Logger
 
 logger = Logger(name="wayback")
@@ -30,12 +30,12 @@ except Exception as e:
 es = Elasticsearch([es_host])
 
 
-def generate_id(url):
+def generate_id(url: str):
     """Generate a unique ID for a URL by hashing it."""
     return hashlib.sha256(url.encode("utf-8")).hexdigest()
 
 
-def get_cached_page_from_google(url):
+def get_cached_page_from_google(url: str):
     status_code, content = (0, b"")
 
     # Google Cache URL
@@ -54,7 +54,7 @@ def get_cached_page_from_google(url):
 
 
 # API documentation: https://archive.org/help/wayback_api.php
-def get_cached_page_from_wayback(url):
+def get_cached_page_from_wayback(url: str):
     status_code, content = (0, b"")
 
     # Wayback Machine API URL
@@ -93,7 +93,7 @@ def get_cached_page_from_wayback(url):
     return status_code, content
 
 
-def get_cached_page_from_elasticsearch(url):
+def get_cached_page_from_elasticsearch(url: str):
     url_id = generate_id(url)
     try:
         result = es.get(index=es_index, id=url_id)
@@ -106,9 +106,9 @@ def get_cached_page_from_elasticsearch(url):
         return 502, b""
 
 
-def cache_to_elasticsearch(url, data):
+def cache_to_elasticsearch(url: str, data: bytes):
     url_id = generate_id(url)
-    timestamp = datetime.utcnow().isoformat()
+    timestamp = datetime.now(UTC).timestamp()
     try:
         es.index(
             index=es_index,
@@ -123,7 +123,7 @@ def cache_to_elasticsearch(url, data):
         logger.error(f"Error caching to Elasticsearch: {e}")
 
 
-def get_page_from_origin_server(url):
+def get_page_from_origin_server(url: str):
     try:
         response = requests.get(url)
         return response.status_code, response.content
@@ -137,7 +137,7 @@ class AlwaysOnline(Extension):
         self.connection_type = "alwaysonline"
         self.buffer_size = 8192
 
-    def connect(self, conn, data, webserver, port, scheme, method, url):
+    def connect(self, conn: socket.socket, data: bytes, webserver: bytes, port: bytes, scheme: bytes, method: bytes, url: bytes):
         logger.info("[*] Connecting... Connecting...")
 
         connected = False
@@ -146,20 +146,20 @@ class AlwaysOnline(Extension):
         cache_hit = 0
         buffered = b""
 
-        def sendall(sock, conn, data):
+        def sendall(_sock: socket.socket, _conn: socket.socket, _data: bytes):
             # send first chuck
-            sock.send(data)
-            if len(data) < self.buffer_size:
+            sock.send(_data)
+            if len(_data) < self.buffer_size:
                 return
 
             # send following chunks
-            conn.settimeout(1)
+            _conn.settimeout(1)
             while True:
                 try:
-                    chunk = conn.recv(self.buffer_size)
+                    chunk = _conn.recv(self.buffer_size)
                     if not chunk:
                         break
-                    sock.send(chunk)
+                    _sock.send(chunk)
                 except:
                     break
 
