@@ -19,6 +19,7 @@ import importlib
 import subprocess
 import platform
 
+from abc import ABC, abstractmethod
 from datetime import datetime, timezone
 from typing import Union, List
 
@@ -47,14 +48,14 @@ def jsonrpc2_create_id(data):
 def jsonrpc2_encode(method, params=None):
     data = {"jsonrpc": "2.0", "method": method, "params": params}
     id = jsonrpc2_create_id(data)
-    id = data.get('id')
+    id = data.get("id")
     return (id, json.dumps(data))
 
 
 def jsonrpc2_decode(text):
     data = json.loads(text)
-    type = 'error' if 'error' in data else 'result' if 'result' in data else None
-    id = data.get('id')
+    type = "error" if "error" in data else "result" if "result" in data else None
+    id = data.get("id")
     rpcdata = data.get(type) if type else None
     return type, id, rpcdata
 
@@ -67,6 +68,7 @@ def jsonrpc2_result_encode(result, id=""):
 def jsonrpc2_error_encode(error, id=""):
     data = {"jsonrpc": "2.0", "error": error, "id": id}
     return json.dumps(data)
+
 
 def find_openssl_binpath():
     system = platform.system()
@@ -121,8 +123,19 @@ def find_openssl_binpath():
     return "openssl"
 
 
+class ExtensionType:
+    def __init__(self):
+        self.type: str = None
+        self.method: str = None
+        self.exported_methods: list[str] = []
+        self.connection_type: str = None
+
+
+type extension_type = ExtensionType
+
+
 class Extension:
-    extensions = []
+    extensions: list[extension_type] = []
     protocols = []
     buffer_size = 8192
 

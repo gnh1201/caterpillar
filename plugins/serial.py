@@ -25,6 +25,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class Serial(Extension):
     def __init__(self):
         self.type = "connector"
@@ -38,7 +39,7 @@ class Serial(Extension):
         connected = False
         ser = None
         try:
-            port_path = url.decode(client_encoding).replace('/', '')
+            port_path = url.decode(client_encoding).replace("/", "")
             if not ser:
                 ser = serial.Serial(port_path, baudrate=9600, timeout=2)
                 connected = True
@@ -49,7 +50,7 @@ class Serial(Extension):
 
             ser_data = ser.read_all()
             logger.debug(f"Data received: {ser_data}")
-          
+
             if ser_data:
                 conn.send(ser_data.decode(client_encoding))
         except serial.SerialException as e:

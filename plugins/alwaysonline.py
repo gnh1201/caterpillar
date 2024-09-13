@@ -15,7 +15,7 @@ import requests
 from decouple import config
 from elasticsearch import Elasticsearch, NotFoundError
 import hashlib
-from datetime import datetime
+from datetime import datetime, UTC
 from base import Extension, Logger
 
 logger = Logger(name="wayback")
@@ -29,11 +29,13 @@ except Exception as e:
 
 es = Elasticsearch([es_host])
 
-def generate_id(url):
-    """Generate a unique ID for a URL by hashing it."""
-    return hashlib.sha256(url.encode('utf-8')).hexdigest()
 
-def get_cached_page_from_google(url):
+def generate_id(url: str):
+    """Generate a unique ID for a URL by hashing it."""
+    return hashlib.sha256(url.encode("utf-8")).hexdigest()
+
+
+def get_cached_page_from_google(url: str):
     status_code, content = (0, b"")
 
     # Google Cache URL
@@ -50,8 +52,9 @@ def get_cached_page_from_google(url):
 
     return status_code, content
 
+
 # API documentation: https://archive.org/help/wayback_api.php
-def get_cached_page_from_wayback(url):
+def get_cached_page_from_wayback(url: str):
     status_code, content = (0, b"")
 
     # Wayback Machine API URL
@@ -89,36 +92,44 @@ def get_cached_page_from_wayback(url):
 
     return status_code, content
 
-def get_cached_page_from_elasticsearch(url):
+
+def get_cached_page_from_elasticsearch(url: str):
     url_id = generate_id(url)
     try:
         result = es.get(index=es_index, id=url_id)
-        logger.info(result['_source'])
-        return 200, result['_source']['content'].encode(client_encoding)
+        logger.info(result["_source"])
+        return 200, result["_source"]["content"].encode(client_encoding)
     except NotFoundError:
         return 404, b""
     except Exception as e:
         logger.error(f"Error fetching from Elasticsearch: {e}")
         return 502, b""
 
-def cache_to_elasticsearch(url, data):
+
+def cache_to_elasticsearch(url: str, data: bytes):
     url_id = generate_id(url)
-    timestamp = datetime.utcnow().isoformat()
+    timestamp = datetime.now(UTC).timestamp()
     try:
-        es.index(index=es_index, id=url_id, body={
-            "url": url,
-            "content": data.decode(client_encoding),
-            "timestamp": timestamp
-        })
+        es.index(
+            index=es_index,
+            id=url_id,
+            body={
+                "url": url,
+                "content": data.decode(client_encoding),
+                "timestamp": timestamp,
+            },
+        )
     except Exception as e:
         logger.error(f"Error caching to Elasticsearch: {e}")
 
-def get_page_from_origin_server(url):
+
+def get_page_from_origin_server(url: str):
     try:
         response = requests.get(url)
         return response.status_code, response.content
     except Exception as e:
         return 502, str(e).encode(client_encoding)
+
 
 class AlwaysOnline(Extension):
     def __init__(self):
@@ -126,36 +137,36 @@ class AlwaysOnline(Extension):
         self.connection_type = "alwaysonline"
         self.buffer_size = 8192
 
-    def connect(self, conn, data, webserver, port, scheme, method, url):
+    def connect(self, conn: socket.socket, data: bytes, webserver: bytes, port: bytes, scheme: bytes, method: bytes, url: bytes):
         logger.info("[*] Connecting... Connecting...")
-    
+
         connected = False
-        
+
         is_ssl = scheme in [b"https", b"tls", b"ssl"]
         cache_hit = 0
         buffered = b""
-        
-        def sendall(sock, conn, data):
+
+        def sendall(_sock: socket.socket, _conn: socket.socket, _data: bytes):
             # send first chuck
-            sock.send(data)
-            if len(data) < self.buffer_size:
+            sock.send(_data)
+            if len(_data) < self.buffer_size:
                 return
 
             # send following chunks
-            conn.settimeout(1)
+            _conn.settimeout(1)
             while True:
                 try:
-                    chunk = conn.recv(self.buffer_size)
+                    chunk = _conn.recv(self.buffer_size)
                     if not chunk:
                         break
-                    sock.send(chunk)
+                    _sock.send(chunk)
                 except:
                     break
-        
+
         target_url = url.decode(client_encoding)
         target_scheme = scheme.decode(client_encoding)
         target_webserver = webserver.decode(client_encoding)
-        
+
         if "://" not in target_url:
             target_url = f"{target_scheme}://{target_webserver}:{port}{target_url}"
 

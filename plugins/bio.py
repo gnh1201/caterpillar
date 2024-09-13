@@ -9,13 +9,14 @@
 # Updated at: 2024-07-02
 #
 
+from socket import socket
 from Bio.Seq import Seq
 from Bio.SeqUtils import gc_fraction
 
 from base import Extension
 
 
-def _analyze_sequence(sequence) -> dict[str, str]:
+def _analyze_sequence(sequence: str) -> dict[str, str]:
     """
     Analyze a given DNA sequence to provide various nucleotide transformations and translations.
 
@@ -41,7 +42,7 @@ def _analyze_sequence(sequence) -> dict[str, str]:
     )
 
 
-def _gc_content_calculation(sequence) -> dict[str, str]:
+def _gc_content_calculation(sequence: str) -> dict[str, str]:
     """
     Calculate the GC content of a given DNA sequence and return it as a float.
 
@@ -63,7 +64,7 @@ class PyBio(Extension):
     def dispatch(self, type, id, params, conn):
         conn.send(b"Greeting! dispatch")
 
-    def analyze_sequence(self, type, id, params, conn):
+    def analyze_sequence(self, type, id, params, conn: socket):
         """
         Analyze a DNA sequence provided in the params dictionary.
 
@@ -91,7 +92,7 @@ class PyBio(Extension):
         result = _analyze_sequence(params["sequence"])
         return result
 
-    def gc_content_calculation(self, type, id, params, conn):
+    def gc_content_calculation(self, type, id, params, conn: socket):
         """
         Calculate the GC content for a given DNA sequence provided in the params dictionary.
 

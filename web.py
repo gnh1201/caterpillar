@@ -49,18 +49,18 @@ def process_jsonrpc2():
     conn = Connection(request)
 
     # JSON-RPC 2.0 request
-    jsondata = request.get_json(silent=True)
-    if jsondata["jsonrpc"] == "2.0":
+    json_data = request.get_json(silent=True)
+    if json_data["jsonrpc"] == "2.0":
         return Extension.dispatch_rpcmethod(
-            jsondata["method"], "call", jsondata["id"], jsondata["params"], conn
+            json_data["method"], "call", json_data["id"], json_data["params"], conn
         )
 
     # when error
-    return jsonrpc2_error_encode({"message": "Not vaild JSON-RPC 2.0 request"})
+    return jsonrpc2_error_encode({"message": "Not valid JSON-RPC 2.0 request"})
 
 
-def jsonrpc2_server(conn, id, method, params):
-    return Extension.dispatch_rpcmethod(method, "call", id, params, conn)
+def jsonrpc2_server(conn, _id, method, params):
+    return Extension.dispatch_rpcmethod(method, "call", _id, params, conn)
 
 
 class Connection:
