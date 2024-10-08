@@ -6,6 +6,7 @@
 # Caterpillar Proxy - The simple and parasitic web proxy with SPAM filter (formerly, php-httpproxy)
 # Namyheon Go (Catswords Research) <abuse@catswords.net>
 # https://github.com/gnh1201/caterpillar
+# https://github.com/gnh1201/caterpillar/wiki/Fediverse
 #
 # Created in: 2022-10-06
 # Updated in: 2024-10-08
