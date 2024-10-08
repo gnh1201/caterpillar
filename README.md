@@ -90,10 +90,11 @@ sudo update-ca-certificates
 ![Roadmap image](assets/img/roadmap.png)
 
 ## Report abuse
-* ActivityPub [@gnh1201@catswords.social](https://catswords.social/@gnh1201)
-* abuse@catswords.net
-* [Join Catswords on Microsoft Teams](https://teams.live.com/l/community/FEACHncAhq8ldnojAI)
-
+- [GitHub Security Advisories](https://github.com/gnh1201/caterpillar/security)
+- abuse@catswords.net
+- ActivityPub [@catswords_oss@catswords.social](https://catswords.social/@catswords_oss)
+- XMPP [catswords@conference.xmpp.catswords.net](xmpp:catswords@conference.xmpp.catswords.net?join)
+- [Join Catswords on Microsoft Teams](https://teams.live.com/l/community/FEACHncAhq8ldnojAI)
 
 ## License
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fgnh1201%2Fcaterpillar.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fgnh1201%2Fcaterpillar?ref=badge_large)
