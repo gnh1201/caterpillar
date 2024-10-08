@@ -219,6 +219,7 @@ class Fediverse(Extension):
             "apikey": truecaptcha_apikey,
             "data": encoded_image,
             "mode": "human",
+            "case": "lower"
         }
         response = requests.post(url=url, json=data)
 
