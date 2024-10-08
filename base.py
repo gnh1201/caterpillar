@@ -8,7 +8,7 @@
 # Euiseo Cha (Wonkwang University) <zeroday0619_dev@outlook.com>
 # https://github.com/gnh1201/caterpillar
 # Created at: 2024-05-20
-# Updated at: 2024-07-12
+# Updated at: 2024-10-08
 #
 import logging
 import hashlib
