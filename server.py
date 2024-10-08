@@ -38,8 +38,7 @@ from base import (
     Logger,
 )
 
-
-logger = Logger(name="server")
+logger = Logger(name="server", 30)
 
 # initialization
 try:
