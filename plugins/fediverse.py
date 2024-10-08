@@ -138,7 +138,7 @@ class Fediverse(Extension):
                     buffered = io.BytesIO()
                     img_png.save(buffered, format="PNG")
                     encoded_image = base64.b64encode(buffered.getvalue()).decode(
-                        client_encoding
+                        "ascii"
                     )
                     return encoded_image
                 except:
