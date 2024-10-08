@@ -130,12 +130,8 @@ class ExtensionType:
         self.exported_methods: list[str] = []
         self.connection_type: str = None
 
-
-type extension_type = ExtensionType
-
-
 class Extension:
-    extensions: list[extension_type] = []
+    extensions: list[ExtensionType] = []
     protocols = []
     buffer_size = 8192
 
