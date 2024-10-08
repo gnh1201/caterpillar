@@ -36,11 +36,12 @@ try:
     librey_apiurl = config(
         "LIBREY_APIURL", default="https://serp.catswords.net"
     )  # https://github.com/Ahwxorg/librey
+    bad_domains = config("BAD_DOMAINS", default="")
 except Exception as e:
     logger.error("[*] Invalid configuration", exc_info=e)
 
 # bad reputation domains
-bad_domains = ["krsw-wiki.org", "midokuriserver.github.io"]
+bad_domains = bad_domains.split(",")
 
 class Fediverse(Extension):
     def __init__(self):
