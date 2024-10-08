@@ -158,7 +158,7 @@ def conn_string(conn: socket.socket, data: bytes, addr: bytes):
     # if it is reverse proxy
     local_domains = list(filter(None, map(str.strip, local_domain.split(','))))
     for domain in local_domains:
-        localserver = local_domain.encode(client_encoding)
+        localserver = domain.encode(client_encoding)
         if webserver == localserver or data.find(b"\nHost: " + localserver) > -1:
             logger.info("[*] Detected the reverse proxy request: %s" % local_domain)
             scheme, _webserver, _port = proxy_pass.encode(client_encoding).split(b":")
