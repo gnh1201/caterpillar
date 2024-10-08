@@ -75,9 +75,10 @@ class Fediverse(Extension):
         pattern = r"\b(?:(?<=\/@)|(?<=acct:))([a-zA-Z0-9]{10})\b"
         matches = list(set(re.findall(pattern, text)))
         if len(matches) > 0:
-            logger.info("[*] Found ID: %s" % (", ".join(matches)))
             try:
                 filtered = not all(map(self.pwnedpasswords_test, matches))
+                if filtered:
+                    logger.warning("[*] Found Suspicious ID: %s" % (", ".join(matches)))
             except Exception as e:
                 logger.error("[*] K-Anonymity strategy not working!", exc_info=e)
                 filtered = True
