@@ -17,13 +17,14 @@ import io
 import re
 import requests
 import os.path
+import logging
 
 from decouple import config
 from PIL import Image
 
 from base import Extension, Logger
 
-logger = Logger(name="fediverse")
+logger = Logger(name="fediverse", level=logging.WARNING)
 
 try:
     client_encoding = config("CLIENT_ENCODING", default="utf-8")
