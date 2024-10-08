@@ -36,7 +36,7 @@ try:
     librey_apiurl = config(
         "LIBREY_APIURL", default="https://serp.catswords.net"
     )  # https://github.com/Ahwxorg/librey
-    bad_domains = config("BAD_DOMAINS", default="")
+    bad_domain = config("BAD_DOMAIN", default="")
 except Exception as e:
     logger.error("[*] Invalid configuration", exc_info=e)
 
@@ -72,7 +72,8 @@ class Fediverse(Extension):
             return False
 
         # check if the text contains any of the bad domains
-        if bool(re.search(r"https?://(" + "|".join(re.escape(domain) for domain in bad_domains.split(",")) + ")", text)):
+        bad_domains = list(filter(None, map(str.strip, bad_domain)))
+        if bool(re.search(r"https?://(" + "|".join(re.escape(domain) for domain in bad_domains) + ")", text)):
             logger.warning("[*] Found a bad reputation domain.")
             logger.warning("[*] BLOCKED MESSAGE: %s" % (text))
             return True
