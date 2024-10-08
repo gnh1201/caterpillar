@@ -75,7 +75,7 @@ class Fediverse(Extension):
 
         # check if the text contains any of the bad domains
         if bool(re.search(r"https://(" + "|".join(re.escape(domain) for domain in bad_domains) + ")", text)):
-            return False
+            return True
 
         # check ID with K-Anonymity strategy
         pattern = r"\b(?:(?<=\/@)|(?<=acct:))([a-zA-Z0-9]{10})\b"
