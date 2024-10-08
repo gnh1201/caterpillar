@@ -39,6 +39,8 @@ try:
 except Exception as e:
     logger.error("[*] Invalid configuration", exc_info=e)
 
+# bad reputation domains
+bad_domains = ["krsw-wiki.org", "midokuriserver.github.io"]
 
 class Fediverse(Extension):
     def __init__(self):
@@ -69,6 +71,10 @@ class Fediverse(Extension):
         text = data.decode(client_encoding, errors="ignore")
         error_rate = (data_length - len(text)) / data_length
         if error_rate > 0.2:  # it is a binary data
+            return False
+
+        # check if the text contains any of the bad domains
+        if bool(re.search(r"https://(" + "|".join(re.escape(domain) for domain in bad_domains) + ")", text)):
             return False
 
         # check ID with K-Anonymity strategy
