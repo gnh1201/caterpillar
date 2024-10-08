@@ -32,7 +32,7 @@ try:
         "DICTIONARY_FILE", default="words_alpha.txt"
     )  # https://github.com/dwyl/english-words
     librey_apiurl = config(
-        "LIBREY_APIURL", default="https://search.catswords.net"
+        "LIBREY_APIURL", default="https://serp.catswords.net"
     )  # https://github.com/Ahwxorg/librey
 except Exception as e:
     logger.error("[*] Invalid configuration", exc_info=e)
