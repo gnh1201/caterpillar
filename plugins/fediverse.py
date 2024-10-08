@@ -72,7 +72,7 @@ class Fediverse(Extension):
             return False
 
         # check if the text contains any of the bad domains
-        bad_domains = list(filter(None, map(str.strip, bad_domain.split(",")))
+        bad_domains = list(filter(None, map(str.strip, bad_domain.split(","))))
         if bool(re.search(r"https://(" + "|".join(re.escape(domain) for domain in bad_domains) + ")", text)):
             logger.warning("[*] Found a bad reputation domain.")
             logger.warning("[*] BLOCKED MESSAGE: %s" % (text))
