@@ -24,6 +24,7 @@ import traceback
 import textwrap
 from datetime import datetime
 from platform import python_version
+import logging
 
 import requests
 from requests.auth import HTTPBasicAuth
@@ -38,7 +39,7 @@ from base import (
     Logger,
 )
 
-logger = Logger(name="server", 30)
+logger = Logger(name="server", level=logging.WARNING)
 
 # initialization
 try:
