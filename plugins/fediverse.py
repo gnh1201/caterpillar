@@ -40,9 +40,6 @@ try:
 except Exception as e:
     logger.error("[*] Invalid configuration", exc_info=e)
 
-# bad reputation domains
-bad_domains = bad_domains.split(",")
-
 class Fediverse(Extension):
     def __init__(self):
         self.type = "filter"  # this is a filter
@@ -75,7 +72,7 @@ class Fediverse(Extension):
             return False
 
         # check if the text contains any of the bad domains
-        if len(bad_domains) > 0 and bool(re.search(r"https://(" + "|".join(re.escape(domain) for domain in bad_domains) + ")", text)):
+        if bool(re.search(r"https?://(" + "|".join(re.escape(domain) for domain in bad_domains.split(",")) + ")", text)):
             logger.warning("[*] Found a bad reputation domain.")
             logger.warning("[*] BLOCKED MESSAGE: %s" % (text))
             return True
