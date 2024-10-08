@@ -8,7 +8,7 @@
 # https://github.com/gnh1201/caterpillar
 #
 # Created in: 2022-10-06
-# Updated in: 2024-07-06
+# Updated in: 2024-10-08
 #
 import base64
 import hashlib
@@ -167,6 +167,9 @@ class Fediverse(Extension):
                                 "[*] Not CAPTCHA strategy not working!", exc_info=e
                             )
 
+        if filtered:
+            logger.info("[*] BLOCKED MESSAGE: %s" % (text))
+        
         return filtered
 
     # Strategy: K-Anonymity test - use api.pwnedpasswords.com
