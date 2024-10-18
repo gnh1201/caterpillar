@@ -1,7 +1,7 @@
 # gnh1201/caterpillar
 
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fgnh1201%2Fcaterpillar.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fgnh1201%2Fcaterpillar?ref=badge_shield)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13346533.svg)](https://doi.org/10.5281/zenodo.13346533)
+[![DOI 10.5281/zenodo.13346533](https://zenodo.org/badge/DOI/10.5281/zenodo.13346533.svg)](https://doi.org/10.5281/zenodo.13346533)
 
 Caterpillar Proxy - The simple web debugging proxy (formerly, php-httpproxy)
 
@@ -74,8 +74,8 @@ sudo update-ca-certificates
 
 ## Extensions
 * [Web Console Available](https://pub-1a7a176eea68479cb5423e44273657ad.r2.dev/console.html)
-* Fediverse (e.g., Mastodon): See the [Fediverse (github.com/gnh1201/caterpillar wiki)](https://github.com/gnh1201/caterpillar/wiki/Fediverse).
-* Wayback (Private browsing with Google or Wayback cache): See the [Wayback (github.com/gnh1201/caterpillar wiki)](https://github.com/gnh1201/caterpillar/wiki/Wayback).
+* Fediverse (e.g., Mastodon): See the [Fediverse (catswords-oss.rdbl.io)] (https://catswords-oss.rdbl.io/1155378128/3821602484).
+* Wayback (Private browsing with Google or Wayback cache): See the [Wayback (catswords-oss.rdbl.io)](https://catswords-oss.rdbl.io/1155378128/6994492654)
 
 ## Thanks to
 * Pan Art by [@yeohangdang@i.peacht.art](#): [Image File](assets/img/logo.png)
