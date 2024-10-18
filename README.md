@@ -27,7 +27,7 @@ Imagine various means such as time machines, satellites, quantum technology, sou
 For example, build a simple web debugging proxy on the shared servers.
 
 ### Stateful mode
-This project supports two modes of connection. The default is stateless. You can use the stateful mode to avoid being constrained by transfer capacity limits. See the [Stateful mode (github.com/gnh1201/caterpillar wiki)](https://github.com/gnh1201/caterpillar/wiki/Stateful-mode).
+This project supports two modes of connection. The default is stateless. You can use the stateful mode to avoid being constrained by transfer capacity limits. See the [Stateful mode (catswords-oss.rdbl.io)](https://catswords-oss.rdbl.io/1155378128/5211324242).
 
 ### Connector extensions
 This project supports the implementation of Connector extensions. The provided basic examples include implementations of web archives (caches) and serial communication as Connector extensions.
@@ -74,7 +74,7 @@ sudo update-ca-certificates
 
 ## Extensions
 * [Web Console Available](https://pub-1a7a176eea68479cb5423e44273657ad.r2.dev/console.html)
-* Fediverse (e.g., Mastodon): See the [Fediverse (catswords-oss.rdbl.io)] (https://catswords-oss.rdbl.io/1155378128/3821602484).
+* Fediverse (e.g., Mastodon): See the [Fediverse (catswords-oss.rdbl.io)](https://catswords-oss.rdbl.io/1155378128/3821602484).
 * Wayback (Private browsing with Google or Wayback cache): See the [Wayback (catswords-oss.rdbl.io)](https://catswords-oss.rdbl.io/1155378128/6994492654)
 
 ## Thanks to
