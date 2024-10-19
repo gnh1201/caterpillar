@@ -637,7 +637,7 @@ def start():  # Main Program
 
         sock.bind(("", listening_port))
         sock.listen(max_connection)
-        logger.info("[*] Server started successfully [ %d ]" % listening_port)
+        logger.warning("[*] Server started successfully [ %d ]" % listening_port)
     except Exception as e:
         logger.error("[*] Unable to Initialize Socket", exc_info=e)
         sys.exit(2)
