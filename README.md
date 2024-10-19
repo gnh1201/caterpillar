@@ -30,7 +30,7 @@ For example, build a simple web debugging proxy on the shared servers.
 This project supports two modes of connection. The default is stateless. You can use the stateful mode to avoid being constrained by transfer capacity limits. See the [Stateful mode (catswords-oss.rdbl.io)](https://catswords-oss.rdbl.io/1155378128/5211324242).
 
 ### Connector extensions
-This project supports the implementation of Connector extensions. The provided basic examples include implementations of web archives (caches) and serial communication as Connector extensions.
+This project supports the implementation of Connector extensions. The provided basic examples include implementations of web archives (caches) and serial communication as Connector extensions. Go to the [caterpillar-plugins repository (github.com)](https://github.com/gnh1201/caterpillar-plugins)
 
 ## (Optional) Before to use
 If you have a server that ***will be parasitized*** and you want to proxy it, you should upload the `index.php` file to a shared server. The index.php file is located in the `assets/php` directory within this repository.
