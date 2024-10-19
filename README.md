@@ -12,9 +12,9 @@ You can connect all physical and logical channels with communication capabilitie
 Imagine various means such as time machines, satellites, quantum technology, sound, light, the Philosopher's Stone, or Excalibur, just like in science fiction movies! Caterpillar Proxy supports the implementation of extensions for Connectors, Filters, and RPC methods to bring your imagination to life.
 
 ## Use cases
-* [Build a network tunnel using Python and the LAMP(PHP) stack.](https://qiita.com/gnh1201/items/40f9350ca6d308def6d4)
-* [K-Anonymity for Spam Filtering: Case with Mastodon, and Misskey](https://qiita.com/gnh1201/items/09f4081f84610db3a9d3)
-* [[YouTube Video] File Upload Vulnerability Attack Test (Caterpillar Proxy)](https://youtu.be/sPZOCgYtLRw)
+* [Build a network tunnel using Python and the LAMP(PHP) stack (qiita.com)](https://qiita.com/gnh1201/items/40f9350ca6d308def6d4)
+* [K-Anonymity for Spam Filtering: Case with Mastodon, and Misskey (qiita.com)](https://qiita.com/gnh1201/items/09f4081f84610db3a9d3)
+* [File Upload Vulnerability Attack Test (Caterpillar Proxy) (youtu.be) ](https://youtu.be/sPZOCgYtLRw)
 
 ## How it works
 
