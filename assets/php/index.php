@@ -6,7 +6,7 @@
  * Namhyeon Go (Catswords Research) <abuse@catswords.net>
  * https://github.com/gnh1201/caterpillar
  * Created at: 2022-10-06
- * Updated at: 2024-07-15
+ * Updated at: 2024-10-25
  */
 
 define("PHP_HTTPPROXY_VERSION", "0.1.5.24");
@@ -289,7 +289,15 @@ function relay_mysql_query($params, $mysqli) {
             case "show":
             case "select":
                 $success = true;
-                $result['data'] = mysqli_fetch_all($query_result, MYSQLI_ASSOC);
+                if (function_exists("mysqli_fetch_all")) {
+                    $result['data'] = mysqli_fetch_all($query_result, MYSQLI_ASSOC);
+                } else {
+                    $data = array();
+                    while ($row = $query_result->fetch_assoc()) {
+                        $data[] = $row;
+                    }
+                    $result['data'] = $data;
+                }
                 break;
 
             case "insert":
