@@ -291,6 +291,28 @@
                             }
                             return;
                         }
+                        
+                        // method(analyze_sequence)
+                        if (env.method == "analyze_sequence") {
+                            var _this = this;
+                            this.read("Enter the sequence:\r\n", function(message) {
+                                jsonrpc2_request(this, env.method, {
+                                    "sequence": message
+                                });
+                            });
+                            return;
+                        }
+                        
+                        // method(gc_content_calculation)
+                        if (env.method == "gc_content_calculation") {
+                            var _this = this;
+                            this.read("Enter the sequence:\r\n", function(message) {
+                                jsonrpc2_request(this, env.method, {
+                                    "sequence": message
+                                });
+                            });
+                            return;
+                        }
 
                         // method(*)
                         jsonrpc2_request(this, env.method, {});
