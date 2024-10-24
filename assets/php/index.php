@@ -9,7 +9,7 @@
  * Updated at: 2024-10-25
  */
 
-define("PHP_HTTPPROXY_VERSION", "0.1.5.24");
+define("PHP_HTTPPROXY_VERSION", "0.1.5.25");
 define("DEFAULT_SOCKET_TIMEOUT", 1);
 define("STATEFUL_SOCKET_TIMEOUT", 30);
 define("MAX_EXECUTION_TIME", 0);
