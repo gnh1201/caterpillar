@@ -2,3 +2,5 @@ python-decouple
 requests
 aiosmtpd
 ruff
+flask
+flask_cors

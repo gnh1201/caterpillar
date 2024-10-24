@@ -7,18 +7,20 @@
 # Namyheon Go (Catswords Research) <gnh1201@gmail.com>
 # https://github.com/gnh1201/caterpillar
 # Created at: 2024-05-20
-# Updated at: 2024-07-10
+# Updated at: 2024-10-25
 #
 
 import os
 import sys
 from decouple import config
 from flask import Flask, request, render_template
+from flask_cors import CORS
 from base import Extension, jsonrpc2_error_encode, Logger
 
 # TODO: 나중에 Flask 커스텀 핸들러 구현 해야 함
 logger = Logger(name="web")
 app = Flask(__name__)
+CORS(app)
 app.config["UPLOAD_FOLDER"] = "data/"
 if not os.path.exists(app.config["UPLOAD_FOLDER"]):
     os.makedirs(app.config["UPLOAD_FOLDER"])
@@ -51,9 +53,16 @@ def process_jsonrpc2():
     # JSON-RPC 2.0 request
     json_data = request.get_json(silent=True)
     if json_data["jsonrpc"] == "2.0":
-        return Extension.dispatch_rpcmethod(
-            json_data["method"], "call", json_data["id"], json_data["params"], conn
-        )
+        result = Extension.dispatch_rpcmethod(
+            json_data["method"], "call", json_data["id"], json_data["params"], conn)
+
+        return {
+            "jsonrpc": "2.0",
+            "result": {
+                "data": result
+            },
+            "id": None
+        }
 
     # when error
     return jsonrpc2_error_encode({"message": "Not valid JSON-RPC 2.0 request"})

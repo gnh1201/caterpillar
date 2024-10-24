@@ -166,9 +166,13 @@ class Extension:
     @classmethod
     def get_rpcmethod(cls, method):
         for extension in cls.extensions:
-            is_exported_method = (method == extension.method) or (
-                method in extension.exported_methods
-            )
+            is_exported_method = False
+            try:
+                is_exported_method = (method == extension.method) or (
+                    method in extension.exported_methods
+                )
+            except:
+                pass
             if extension.type == "rpcmethod" and is_exported_method:
                 return extension
         return None

@@ -296,7 +296,7 @@
                         if (env.method == "analyze_sequence") {
                             var _this = this;
                             this.read("Enter the sequence:\r\n", function(message) {
-                                jsonrpc2_request(this, env.method, {
+                                jsonrpc2_request(_this, env.method, {
                                     "sequence": message
                                 });
                             });
@@ -307,7 +307,7 @@
                         if (env.method == "gc_content_calculation") {
                             var _this = this;
                             this.read("Enter the sequence:\r\n", function(message) {
-                                jsonrpc2_request(this, env.method, {
+                                jsonrpc2_request(_this, env.method, {
                                     "sequence": message
                                 });
                             });
