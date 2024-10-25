@@ -314,6 +314,27 @@
                             return;
                         }
 
+                        // method(container_start)
+                        if ([
+                            "container_start",
+                            "container_stop",
+                            "container_pause",
+                            "container_unpause",
+                            "container_restart",
+                            "container_kill",
+                            "container_remove"
+                        ].indexOf(env.method) > -1) {
+                            if (args.length < 1) {
+                                this.echo("Please set a container name");
+                                return;
+                            }
+                            
+                            jsonrpc2_request(this, env.method, {
+                                "name": args[0]
+                            });
+                            return;
+                        }
+
                         // method(*)
                         jsonrpc2_request(this, env.method, {});
                     }
