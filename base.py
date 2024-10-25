@@ -48,7 +48,7 @@ def jsonrpc2_create_id(data):
 def jsonrpc2_encode(method, params=None):
     data = {"jsonrpc": "2.0", "method": method, "params": params}
     id = jsonrpc2_create_id(data)
-    id = data.get("id")
+    data["id"] = id
     return (id, json.dumps(data))
 
 
