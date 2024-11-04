@@ -162,8 +162,10 @@ def conn_string(conn: socket.socket, data: bytes, addr: bytes):
         localserver = domain.encode(client_encoding)
 
         # Fix a cache overfitting issue: use re.IGNORECASE
-        host_pattern = re.compile(rb"\n\s*host\s*:\s*" + re.escape(localserver), re.IGNORECASE)
-        if webserver == localserver or host_pattern.search(data):
+        header_end = data.find(b"\r\n\r\n")
+        header_section_data = data[:header_end] if header_end > -1 else b''
+        header_host_pattern = re.compile(rb"\n\s*host\s*:\s*" + re.escape(localserver), re.IGNORECASE)
+        if webserver == localserver or header_host_pattern.search(header_section_data):
             logger.info("[*] Reverse proxy requested: %s" % local_domain)
             scheme, _webserver, _port = proxy_pass.encode(client_encoding).split(b":")
             webserver = _webserver[2:]
