@@ -14,6 +14,7 @@ import argparse
 import socket
 import sys
 import os
+import re
 from _thread import *
 from subprocess import PIPE, Popen
 import base64
@@ -159,8 +160,11 @@ def conn_string(conn: socket.socket, data: bytes, addr: bytes):
     local_domains = list(filter(None, map(str.strip, local_domain.split(','))))
     for domain in local_domains:
         localserver = domain.encode(client_encoding)
-        if webserver == localserver or data.find(b"\nHost: " + localserver) > -1:
-            logger.info("[*] Detected the reverse proxy request: %s" % local_domain)
+
+        # Fix a cache overfitting issue: use re.IGNORECASE
+        host_pattern = re.compile(rb"\n\s*host\s*:\s*" + re.escape(localserver), re.IGNORECASE)
+        if webserver == localserver or host_pattern.search(data):
+            logger.info("[*] Reverse proxy requested: %s" % local_domain)
             scheme, _webserver, _port = proxy_pass.encode(client_encoding).split(b":")
             webserver = _webserver[2:]
             port = int(_port.decode(client_encoding))
