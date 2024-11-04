@@ -170,6 +170,7 @@ def conn_string(conn: socket.socket, data: bytes, addr: bytes):
             scheme, _webserver, _port = proxy_pass.encode(client_encoding).split(b":")
             webserver = _webserver[2:]
             port = int(_port.decode(client_encoding))
+            method = b"CONNECT" if scheme == b"https" else method   # proxy pass on HTTPS
             break
 
     proxy_server(webserver, port, scheme, method, url, conn, addr, data)
