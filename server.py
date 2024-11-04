@@ -161,7 +161,7 @@ def conn_string(conn: socket.socket, data: bytes, addr: bytes):
     for domain in local_domains:
         localserver = domain.encode(client_encoding)
 
-        # Fix a cache overfitting issue: use re.IGNORECASE
+        # Resolve a cache mismatch issue when making requests to a local domain.
         header_end = data.find(b"\r\n\r\n")
         header_section_data = data[:header_end] if header_end > -1 else b''
         header_host_pattern = re.compile(rb"\n\s*host\s*:\s*" + re.escape(localserver), re.IGNORECASE)
