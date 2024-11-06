@@ -159,7 +159,7 @@
 
                             term.echo('', {
                                 finalize: function($div) {
-                                    $div.children().last().append($("#map").css("height", "130px"));
+                                    $div.children().last().append($("#map").css("height", "500px"));
                                     map.setView([geodata.lat, geodata.lon], 13);
                                     var circle = L.circle([geodata.lat, geodata.lon], {
                                         color: 'red',
