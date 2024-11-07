@@ -400,17 +400,25 @@
                         }
                     },
                     search: function(...args) {
+                        set_default_env({
+                            "page": 1
+                        });
+
                         var term = this;
                         var q = encodeURIComponent(args.join(' '));
                         var url = "https://serp.catswords.net/api.php?q=" + q;
-                        
+
+                        if (env.page > 1) {
+                            url += "&p=" + env.page + "&t=0";
+                        }
+
                         $.get(url, function(data) {
                             if ("error" in data) {
                                 term.echo(data.error.message);
                                 term.echo('');
                                 return;
                             }
-                            
+
                             var results = Object.values(data);
                             if (results.length > 0) {
                                 results.forEach(function(x) {
