@@ -6,10 +6,10 @@
  * Namhyeon Go (Catswords Research) <abuse@catswords.net>
  * https://github.com/gnh1201/caterpillar
  * Created at: 2022-10-06
- * Updated at: 2024-10-25
+ * Updated at: 2024-11-08
  */
 
-define("PHP_HTTPPROXY_VERSION", "0.1.6.2");
+define("PHP_HTTPPROXY_VERSION", "0.1.6.3-dev");
 define("DEFAULT_SOCKET_TIMEOUT", 1);
 define("STATEFUL_SOCKET_TIMEOUT", 30);
 define("MAX_EXECUTION_TIME", 0);
@@ -489,6 +489,23 @@ function relay_invoke_method($params) {
     }
 }
 
+function relay_web_search($params) {
+    $result = relay_fetch_url(array(
+        "url" => "https://serp.catswords.net/api.php?" . http_build_query($params);
+    ));
+    if ($result['success']) {
+        return array(
+            "success" => true,
+            "result" => array(
+                "status" => 200,
+                "data" => json_decode($result['result']['data'], true)
+            )
+        );
+    } else {
+        return $result;
+    }
+}
+
 function get_client_address() {
     $client_address = '';
     if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
@@ -584,6 +601,15 @@ if ($context['jsonrpc'] == "2.0") {
 
         case "relay_invoke_method":
             $result = relay_invoke_method($context['params']);
+            if ($result['success']) {
+                echo jsonrpc2_result_encode($result['result'], $context['id']);
+            } else {
+                echo jsonrpc2_error_encode($result['error'], $context['id']);
+            }
+            break;
+
+        case "relay_web_search":
+            $result = relay_web_search($context['params']);
             if ($result['success']) {
                 echo jsonrpc2_result_encode($result['result'], $context['id']);
             } else {
