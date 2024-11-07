@@ -168,7 +168,6 @@
                                 text = responseData.result.data;
                             }
                         }
-                        term.echo(text);
 
                         // save as a file
                         if (env.filename != null) {
@@ -177,10 +176,10 @@
                         
                         // method(relay_get_geolocation)
                         if (env.method == "relay_get_geolocation") {
-                            var geodata = responseData.result.data;
-
+                            term.echo(text);
                             term.echo('', {
                                 finalize: function($div) {
+                                    var geodata = responseData.result.data;
                                     var $map = $("#map").css({
                                         "height": "240px"
                                     });
@@ -195,6 +194,39 @@
                                     term.echo();
                                 }
                             });
+                        }
+                        
+                        // method(relay_web_search)
+                        if (env.method == "relay_web_search") {
+                            var searchdata = responseData.result.data;
+                            
+                            if ("error" in searchdata) {
+                                term.echo(searchdata.error.message);
+                                term.echo('');
+                                return;
+                            }
+
+                            var results = Object.values(searchdata);
+                            if (results.length > 0) {
+                                results.forEach(function(x) {
+                                    if (typeof x !== "object") return;
+
+                                    if ("special_response" in x) {
+                                        term.echo("< " + x.special_response.response);
+                                        term.echo("< " + x.special_response.source);
+                                        term.echo('');
+                                    } else {
+                                        var base_domain = (function(s) {
+                                            return s.split("/")[2];
+                                        })(x.base_url);
+                                        term.echo("< [[!;;;;" + x.url + ";{}]" + x.title.trim() + " (" + base_domain + ")]: " + x.description.trim());
+                                    }
+                                });
+                            } else {
+                                term.echo("No any results");
+                            }
+                            
+                            term.echo('');
                         }
                     },
                     error: function(xhr, status, error) {
@@ -234,6 +266,13 @@
                                     "mysql_database": null,
                                     "mysql_port": "3306",
                                     "mysql_charset": "utf8"
+                                });
+                            }
+                            
+                            // method(relay_web_search)
+                            if (env.method == "relay_web_search") {
+                                set_default_env({
+                                    "page": 1
                                 });
                             }
                         }
@@ -279,7 +318,6 @@
                             jsonrpc2_request(this, env.method, {
                                 "hostname": args[0]
                             });
-                            
                             return;
                         }
                         
@@ -293,7 +331,6 @@
                             jsonrpc2_request(this, env.method, {
                                 "url": args[0]
                             });
-                            
                             return;
                         }
                         
@@ -376,6 +413,16 @@
                             });
                             return;
                         }
+                        
+                        // method(relay_web_search)
+                        if (env.method == "relay_web_search") {
+                            jsonrpc2_request(this, env.method, {
+                                "q": args.join(' '),
+                                "p": env.page,
+                                "t": "0"
+                            });
+                            return;
+                        }
 
                         // method(*)
                         jsonrpc2_request(this, env.method, {});
@@ -400,47 +447,8 @@
                         }
                     },
                     search: function(...args) {
-                        set_default_env({
-                            "page": 1
-                        });
-
-                        var term = this;
-                        var q = encodeURIComponent(args.join(' '));
-                        var url = "https://serp.catswords.net/api.php?q=" + q;
-
-                        if (env.page > 1) {
-                            url += "&p=" + env.page + "&t=0";
-                        }
-
-                        $.get(url, function(data) {
-                            if ("error" in data) {
-                                term.echo(data.error.message);
-                                term.echo('');
-                                return;
-                            }
-
-                            var results = Object.values(data);
-                            if (results.length > 0) {
-                                results.forEach(function(x) {
-                                    if (typeof x !== "object") return;
-
-                                    if ("special_response" in x) {
-                                        term.echo("< " + x.special_response.response);
-                                        term.echo("< " + x.special_response.source);
-                                        term.echo('');
-                                    } else {
-                                        var base_domain = (function(s) {
-                                            return s.split("/")[2];
-                                        })(x.base_url);
-                                        term.echo("< [[!;;;;" + x.url + ";{}]" + x.title.trim() + " (" + base_domain + ")]: " + x.description.trim());
-                                    }
-                                });
-                            } else {
-                                term.echo("No any results");
-                            }
-                            
-                            term.echo('');
-                        });
+                        this.exec("set method relay_web_search");
+                        this.exec("do " + args.join(' '));
                     }
                 }, {
                     height: "100%",
