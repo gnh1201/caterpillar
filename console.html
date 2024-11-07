@@ -424,7 +424,7 @@
                                         var base_domain = (function(s) {
                                             return s.split("/")[2];
                                         })(x.base_url);
-                                        term.echo("< [[!;;;;" + x.url + ";{}]" + x.title + " from " + base_domain + "]: " + x.description);
+                                        term.echo("< [[!;;;;" + x.url + ";{}]" + x.title.trim() + " (" + base_domain + ")]: " + x.description.trim());
                                     }
                                 });
                             } else {
