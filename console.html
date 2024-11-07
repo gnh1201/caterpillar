@@ -85,7 +85,25 @@
                 document.body.appendChild(element);
                 element.click();
                 document.body.removeChild(element);
-            }
+            };
+            var show_embed = function(term, url) {
+                term.echo('', {
+                    finalize: function($div) {
+                        $div.children().last().append($("<iframe/>").attr({
+                            "title": "embed web page",
+                            "src": url,
+                            "allow": "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share",
+                            "referrerpolicy": "unsafe-url",
+                            "allowfullscreen": true
+                        }).css({
+                            "width": "100%",
+                            "height": "240px",
+                            "border": "none"
+                        }));
+                        term.echo();
+                    }
+                });
+            };
             var jsonrpc2_request = function(term, method, params) {
                 var requestData = {
                     jsonrpc: "2.0",
@@ -160,7 +178,9 @@
 
                             term.echo('', {
                                 finalize: function($div) {
-                                    $div.children().last().append($("#map").css("height", "500px"));
+                                    $div.children().last().append($("#map").css({
+                                        "height": "240px"
+                                    }));
                                     map.setView([geodata.lat, geodata.lon], 13);
                                     var circle = L.circle([geodata.lat, geodata.lon], {
                                         color: 'red',
@@ -355,6 +375,25 @@
 
                         // method(*)
                         jsonrpc2_request(this, env.method, {});
+                    },
+                    show_embed: function(url) {
+                        show_embed(this, url); 
+                    },
+                    youtube: function(...args) {
+                        if (args.length < 1) {
+                            this.echo("Please let me know what do you want to do.");
+                        }
+
+                        var action = args[0];
+                        switch (action) {
+                            case "play":
+                                if (args.length < 2) {
+                                    this.echo("Please let me know the video ID");
+                                }
+                                var video_id = args[1];
+                                show_embed(this, "https://www.youtube.com/embed/" + video_id);
+                                break;
+                        }
                     }
                 }, {
                     height: "100%",
