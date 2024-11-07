@@ -47,6 +47,7 @@
             <section id="content">
                 <div id="console"></div>
                 <div id="map"></div>
+                <div id="embed"></div>
             </section>
             <section id="cover">
                 <article>
@@ -89,7 +90,8 @@
             var show_embed = function(term, url) {
                 term.echo('', {
                     finalize: function($div) {
-                        $div.children().last().append($("<iframe/>").attr({
+                        var $embed = $("#embed");
+                        $embed.html($("<iframe/>").attr({
                             "title": "embed web page",
                             "src": url,
                             "allow": "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share",
@@ -100,6 +102,7 @@
                             "height": "240px",
                             "border": "none"
                         }));
+                        $div.children().last().append($embed);
                         term.echo();
                     }
                 });
@@ -178,9 +181,10 @@
 
                             term.echo('', {
                                 finalize: function($div) {
-                                    $div.children().last().append($("#map").css({
+                                    var $map = $("#map").css({
                                         "height": "240px"
-                                    }));
+                                    });
+                                    $div.children().last().append($map);
                                     map.setView([geodata.lat, geodata.lon], 13);
                                     var circle = L.circle([geodata.lat, geodata.lon], {
                                         color: 'red',
