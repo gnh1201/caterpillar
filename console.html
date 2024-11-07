@@ -398,6 +398,41 @@
                                 show_embed(this, "https://www.youtube.com/embed/" + video_id);
                                 break;
                         }
+                    },
+                    search: function(...args) {
+                        var term = this;
+                        var q = encodeURIComponent(args.join(' '));
+                        var url = "https://serp.catswords.net/api.php?q=" + q;
+                        
+                        $.get(url, function(data) {
+                            if ("error" in data) {
+                                term.echo(data.error.message);
+                                term.echo('');
+                                return;
+                            }
+                            
+                            var results = Object.values(data);
+                            if (results.length > 0) {
+                                results.forEach(function(x) {
+                                    if (typeof x !== "object") return;
+
+                                    if ("special_response" in x) {
+                                        term.echo("< " + x.special_response.response);
+                                        term.echo("< " + x.special_response.source);
+                                        term.echo('');
+                                    } else {
+                                        var base_domain = (function(s) {
+                                            return s.split("/")[2];
+                                        })(x.base_url);
+                                        term.echo("< [[!;;;;" + x.url + ";{}]" + x.title + " from " + base_domain + "]: " + x.description);
+                                    }
+                                });
+                            } else {
+                                term.echo("No any results");
+                            }
+                            
+                            term.echo('');
+                        });
                     }
                 }, {
                     height: "100%",
