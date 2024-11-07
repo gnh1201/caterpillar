@@ -471,7 +471,7 @@
                     },
                     prev: function() {
                         if (env.method == "relay_web_search") {
-                            var num = (env.page > 1 ? parseInt(env.page) - 1 : 1);
+                            var num = (env.page > 1 ? env.page - 1 : 1);
                             this.exec("set page " + num);
                             this.exec("do");
                         }
