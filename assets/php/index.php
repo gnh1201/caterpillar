@@ -491,7 +491,7 @@ function relay_invoke_method($params) {
 
 function relay_web_search($params) {
     $result = relay_fetch_url(array(
-        "url" => "https://serp.catswords.net/api.php?" . http_build_query($params);
+        "url" => "https://serp.catswords.net/api.php?" . http_build_query($params)
     ));
     if ($result['success']) {
         return array(
