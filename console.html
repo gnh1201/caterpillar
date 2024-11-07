@@ -237,9 +237,18 @@
 
             jQuery(function($, undefined) {
                 $('#console').terminal({
-                    set: function(k, v) {
+                    set: function(...args) {
+                        var k = (args.length > 0 ? args[0] : '');
+                        var v = (args.length > 1 ? args.slice(1) : []).join(' ');
+
                         if (k == "env") {
                             this.echo("env is the reserved word");
+                            return;
+                        }
+                        
+                        // method(relay_web_search)
+                        if (env.method == "relay_web_search" && k == "page") {
+                            env[k] = parseInt(v);
                             return;
                         }
 
@@ -272,6 +281,7 @@
                             // method(relay_web_search)
                             if (env.method == "relay_web_search") {
                                 set_default_env({
+                                    "keyword": "",
                                     "page": 1
                                 });
                             }
@@ -417,9 +427,9 @@
                         // method(relay_web_search)
                         if (env.method == "relay_web_search") {
                             jsonrpc2_request(this, env.method, {
-                                "q": args.join(' '),
-                                "p": env.page,
-                                "t": "0"
+                                "keyword": env.keyword,
+                                "page": env.page,
+                                "type": "text"
                             });
                             return;
                         }
@@ -448,8 +458,24 @@
                     },
                     search: function(...args) {
                         this.exec("set method relay_web_search");
-                        this.exec("do " + args.join(' '));
-                    }
+                        this.exec("set page 1");
+                        this.exec("set keyword " + args.join(' '));
+                        this.exec("do");
+                    },
+                    next: function() {
+                        if (env.method == "relay_web_search") {
+                            var num = parseInt(env.page) + 1;
+                            this.exec("set page " + num);
+                            this.exec("do");
+                        }
+                    },
+                    prev: function() {
+                        if (env.method == "relay_web_search") {
+                            var num = (env.page > 1 ? parseInt(env.page) - 1 : 1);
+                            this.exec("set page " + num);
+                            this.exec("do");
+                        }
+                    },
                 }, {
                     height: "100%",
                     width: "100%",
