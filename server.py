@@ -145,7 +145,7 @@ def conn_string(conn: socket.socket, data: bytes, addr: bytes):
         return
 
     # Check a preludes in connectors
-    connector = test_connectors(data)
+    connector = Extension.test_connectors(data)
     if connector:
         logger.info("[*] Connecting...")
         connector.connect(conn, data, b'', b'', b'', b'', b'')
