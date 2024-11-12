@@ -200,13 +200,16 @@ class Extension:
 
     @classmethod
     def test_connector(cls, data):
-        def test(prelude, data):
-            return data.find(prelude) == 0
+        def test(preludes, data):
+            for prelude in preludes:
+                if data.find(prelude) == 0:
+                    return True
+            return False
         
         for extension in cls.extensions:
             if (
                 extension.type == "connector"
-                and test(extension.prelude, data)
+                and test(extension.preludes, data)
             ):
                 return extension
         return None
