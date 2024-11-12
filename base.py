@@ -199,6 +199,19 @@ class Extension:
         return None
 
     @classmethod
+    def test_connector(cls, data):
+        def test(prelude, data):
+            return data.find(prelude) == 0
+        
+        for extension in cls.extensions:
+            if (
+                extension.type == "connector"
+                and test(extension.prelude, data)
+            ):
+                return extension
+        return None
+    
+    @classmethod
     def send_accept(cls, conn, method, success=True):
         if "tcp" in cls.protocols:
             _, message = jsonrpc2_encode(f"{method}_accept", {"success": success})
