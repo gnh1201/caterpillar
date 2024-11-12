@@ -149,6 +149,7 @@ def conn_string(conn: socket.socket, data: bytes, addr: bytes):
     if connector:
         logger.info("[*] Connecting...")
         connector.connect(conn, data, b'', b'', b'', b'', b'')
+        return
 
     # parse first data (header)
     webserver, port, scheme, method, url = parse_first_data(data)
