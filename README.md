@@ -96,7 +96,8 @@ sudo update-ca-certificates
 - abuse@catswords.net
 - ActivityPub [@catswords_oss@catswords.social](https://catswords.social/@catswords_oss)
 - XMPP [catswords@conference.xmpp.catswords.net](xmpp:catswords@conference.xmpp.catswords.net?join)
-- [Join Catswords on Microsoft Teams](https://teams.live.com/l/community/FEACHncAhq8ldnojAI)
+- [Join Catswords OSS on Microsoft Teams](https://teams.live.com/l/community/FEACHncAhq8ldnojAI)
+- [Join Catswords OSS #caterpillar on Discord](https://discord.gg/9VVTHpfsVW)
 
 ## License
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fgnh1201%2Fcaterpillar.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fgnh1201%2Fcaterpillar?ref=badge_large)
