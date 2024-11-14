@@ -141,7 +141,7 @@ def conn_string(conn: socket.socket, data: bytes, addr: bytes):
 
     # debugging
     logger.debug("@ " + ("%s:%s" % addr))
-    logger.debug("> " + str(data))
+    logger.debug("> " + data.hex(' '))
 
     # JSON-RPC 2.0 request over Socket (stateful)
     if data.find(b"{") == 0 and process_jsonrpc2(data):
