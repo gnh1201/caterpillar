@@ -40,7 +40,7 @@ from base import (
     Logger,
 )
 
-logger = Logger(name="server", level=logging.WARNING)
+logger = Logger(name="server", level=logging.DEBUG)
 
 # initialization
 try:
