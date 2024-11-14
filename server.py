@@ -140,7 +140,7 @@ def conn_string(conn: socket.socket, data: bytes, addr: bytes):
         return False
 
     # debugging
-    logger.debug("@ " + str(addr))
+    logger.debug("@ " + ("%s:%s" % addr))
     logger.debug("> " + str(data))
 
     # JSON-RPC 2.0 request over Socket (stateful)
@@ -625,13 +625,13 @@ def proxy_server(
                 logger.info("[*] Connecting...")
                 connector.connect(conn, data, webserver, port, scheme, method, url)
             else:
-                raise Exception("Unsupported connection type")
+                raise Exception("[*] The request from " + ("%s:%s" % addr) + " is ignored due to an undefined connector type.")
 
         logger.info("[*] Request and received. Done. %s" % (str(addr[0])))
         conn.close()
     except Exception as e:
         print(traceback.format_exc())
-        logger.error("[*] Exception on requesting the data.", exc_info=e)
+        logger.warning("[*] Ignored the request.", exc_info=e)
         conn.sendall(b'HTTP/1.1 403 Forbidden\r\n\r\n{"status":403}')
         conn.close()
 
