@@ -140,8 +140,8 @@ def conn_string(conn: socket.socket, data: bytes, addr: bytes):
         return False
 
     # debugging
-    logger.debug("@", addr)
-    logger.debug(">", data)
+    logger.debug("@ " + str(addr))
+    logger.debug("> " + str(data))
 
     # JSON-RPC 2.0 request over Socket (stateful)
     if data.find(b"{") == 0 and process_jsonrpc2(data):
