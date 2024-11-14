@@ -8,7 +8,7 @@
 # Euiseo Cha (Wonkwang University) <zeroday0619_dev@outlook.com>
 # https://github.com/gnh1201/caterpillar
 # Created at: 2024-05-20
-# Updated at: 2024-10-12
+# Updated at: 2024-11-14
 #
 import logging
 import hashlib
@@ -199,7 +199,7 @@ class Extension:
         return None
 
     @classmethod
-    def test_connector(cls, data):
+    def test_connectors(cls, data):
         def test(preludes, data):
             for prelude in preludes:
                 if data.find(prelude) == 0:
