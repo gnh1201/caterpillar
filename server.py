@@ -139,6 +139,10 @@ def conn_string(conn: socket.socket, data: bytes, addr: bytes):
             return True
         return False
 
+    # debugging
+    logger.debug("@", addr)
+    logger.debug(">", data)
+
     # JSON-RPC 2.0 request over Socket (stateful)
     if data.find(b"{") == 0 and process_jsonrpc2(data):
         # will be close by the client
