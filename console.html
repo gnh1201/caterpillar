@@ -194,6 +194,7 @@
                                     term.echo();
                                 }
                             });
+                            return;
                         }
                         
                         // method(relay_web_search)
@@ -227,7 +228,11 @@
                             }
                             
                             term.echo('');
+                            return;
                         }
+                        
+                        // print a response
+                        term.echo(text);
                     },
                     error: function(xhr, status, error) {
                         term.echo(error);
