@@ -7,7 +7,7 @@
 # Namyheon Go (Catswords Research) <gnh1201@gmail.com>
 # https://github.com/gnh1201/caterpillar
 # Created at: 2022-10-06
-# Updated at: 2024-11-04
+# Updated at: 2024-11-18
 #
 
 import argparse
@@ -48,6 +48,7 @@ try:
     _username, _password, server_url = extract_credentials(
         config("SERVER_URL", default="")
     )
+    connection_timeout = config("CONNECTION_TIMEOUT", default=5, cast=int)
     server_connection_type = config("SERVER_CONNECTION_TYPE", default="proxy")
     ca_key = config("CA_KEY", default="ca.key")
     ca_cert = config("CA_CERT", default="ca.crt")
@@ -652,24 +653,36 @@ def add_filtered_host(domain: str, ip_address: str):
 def start():  # Main Program
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         sock.bind(("", listening_port))
         sock.listen(max_connection)
         logger.warning("[*] Server started successfully [ %d ]" % listening_port)
     except Exception as e:
         logger.error("[*] Unable to Initialize Socket", exc_info=e)
         sys.exit(2)
+        
+    def recv(conn):
+        conn.settimeout(connection_timeout)
+        
+        try:
+            data = conn.recv(buffer_size)
+            if not data:
+                data = b''
+        except socket.timeout:
+            logger.warning(f"No data received from {addr}. Attempting to request data.")
+            data = b''
+        
+        return data
 
     while True:
         try:
             conn, addr = sock.accept()  # Accept connection from client browser
-            data = conn.recv(buffer_size)  # Recieve client data
+            data = recv(conn)  # Recieve client data
             start_new_thread(conn_string, (conn, data, addr))  # Starting a thread
         except KeyboardInterrupt:
             sock.close()
             logger.info("[*] Graceful Shutdown")
             sys.exit(1)
-
 
 if __name__ == "__main__":
     # Fix Value error
