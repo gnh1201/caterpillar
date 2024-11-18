@@ -42,6 +42,7 @@ If you have a server that ***will be parasitized*** and you want to proxy it, yo
 
 ```
 [settings]
+CONNECTION_TIMEOUT=1
 PORT=5555
 SERVER_URL=localhost
 SERVER_CONNECTION_TYPE=
