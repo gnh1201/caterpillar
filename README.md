@@ -1,4 +1,4 @@
-# gnh1201/caterpillar
+# Caterpillar Proxy
 
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fgnh1201%2Fcaterpillar.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fgnh1201%2Fcaterpillar?ref=badge_shield)
 [![DOI 10.5281/zenodo.13346533](https://zenodo.org/badge/DOI/10.5281/zenodo.13346533.svg)](https://doi.org/10.5281/zenodo.13346533)
@@ -7,7 +7,7 @@
 
 Caterpillar Proxy - The simple web debugging proxy (formerly, php-httpproxy)
 
-![Cover image - Caterpillar on a tree looking at a rocket flying over the clouds](assets/img/cover.png)
+![A cover image: Caterpillar on a tree looking at a rocket flying over the clouds](assets/img/cover.png)
 
 You can connect all physical and logical channels with communication capabilities to the web!
 
