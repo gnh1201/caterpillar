@@ -346,7 +346,7 @@ def proxy_server(
 
             # send following chunks
             buffered = b""
-            conn.settimeout(1)
+            conn.settimeout(connection_timeout)
             while True:
                 try:
                     chunk = conn.recv(buffer_size)
@@ -669,7 +669,7 @@ def start():  # Main Program
             if not data:
                 data = b''
         except socket.timeout:
-            logger.warning(f"No data received from {addr}. Attempting to request data.")
+            logger.warning(f"No data received from " + ("%s:%s" % addr) + ". Attempting to request data.")
             data = b''
         
         return data
