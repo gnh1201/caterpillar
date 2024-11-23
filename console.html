@@ -134,7 +134,7 @@
                             // for dirty response (e.g., magic header, advertise logo)
                             try {
                                 var start = s.indexOf('{');
-                                var end = [s.indexOf("}\r\n\r\n"), s.lastIndexOf('}')].reduce(function(x) {
+                                var end = [s.indexOf("}\r\n\r\n"), s.lastIndexOf('}')].reduce(function(a, x) {
                                     if (x > 0 && a < x) {
                                         a = x;  // set new value if x greater than 0 and x less than previous value
                                     }
