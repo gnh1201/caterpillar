@@ -396,8 +396,10 @@ function relay_dns_get_record($params) {
 }
 
 function relay_fetch_url($params) {
+    $method = $params['method'];
     $url = $params['url'];
     $headers = $params['headers'];
+    $data = $params['data'];
 
     $_headers = array();
     if (is_array($headers) && count($header) > 0) {
@@ -419,10 +421,19 @@ function relay_fetch_url($params) {
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        
+        // check the request headers
         if (count($_headers) > 0) {
             curl_setopt($ch, CURLOPT_HTTPHEADER, $_headers);
         }
-
+        
+        // check it is POST request
+        if ($method == "POST") {
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+            curl_setopt($ch, CURLOPT_POST, true);
+        }
+        
+        // make cURL instance
         $response = curl_exec($ch);
         $error_code = curl_errno($ch);
         if ($error_code) {
