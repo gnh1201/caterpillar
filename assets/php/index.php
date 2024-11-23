@@ -6,7 +6,7 @@
  * Namhyeon Go (Catswords Research) <abuse@catswords.net>
  * https://github.com/gnh1201/caterpillar
  * Created at: 2022-10-06
- * Updated at: 2024-11-23
+ * Updated at: 2024-11-24
  */
 
 define("PHP_HTTPPROXY_VERSION", "0.1.6.3-dev");
@@ -15,6 +15,11 @@ define("STATEFUL_SOCKET_TIMEOUT", 30);
 define("MAX_EXECUTION_TIME", 0);
 define("DEFAULT_USER_AGENT", $_SERVER['HTTP_USER_AGENT'] . '</p><hr><p>php-httpproxy/' . PHP_HTTPPROXY_VERSION . ' (Server; PHP ' . phpversion() . '; Caterpillar; abuse@catswords.net)');
 
+error_reporting(E_ALL);
+ini_set("display_errors", 0);
+ini_set("default_socket_timeout", DEFAULT_SOCKET_TIMEOUT);  // must be. because of `feof()` works
+ini_set("max_execution_time", MAX_EXECUTION_TIME);
+
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: *');
 header("Access-Control-Allow-Headers: *");
@@ -22,9 +27,6 @@ header("Access-Control-Allow-Headers: *");
 if (strpos($_SERVER['HTTP_USER_AGENT'], "php-httpproxy/") !== 0 && strpos($_SERVER['HTTP_X_USER_AGENT'], "php-httpproxy/") !== 0) {
     exit('<!DOCTYPE html><html><head><title>It works!</title><meta charset="utf-8"></head><body><h1>It works!</h1><p><a href="https://github.com/gnh1201/caterpillar">Download the client</a></p><p>' . DEFAULT_USER_AGENT . '</p></body></html>');
 }
-
-ini_set("default_socket_timeout", DEFAULT_SOCKET_TIMEOUT);  // must be. because of `feof()` works
-ini_set("max_execution_time", MAX_EXECUTION_TIME);
 
 function jsonrpc2_encode($method, $params, $id = '') {
     $data = array(
@@ -71,7 +73,7 @@ function fatal_handler() {
         $errstr  = $error["message"];
 
         header("HTTP/1.1 200 OK");
-        exit(jsonrpc2_error_encode(array(
+        exit("\r\n\r\n" . jsonrpc2_error_encode(array(
             "status" => 503,
             "code" => $errno,
             "message"=> "Error occurred in file '$errfile' at line $errline: $errstr"
