@@ -428,11 +428,11 @@ function relay_fetch_url($params) {
         }
         
         // check it is POST request
-        if ($method == "POST") {
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        if ($data == "POST") {
+            curl_setopt($ch, CURLOPT_POSTFIELDS, array($data));
             curl_setopt($ch, CURLOPT_POST, true);
         }
-        
+
         // make cURL instance
         $response = curl_exec($ch);
         $error_code = curl_errno($ch);
