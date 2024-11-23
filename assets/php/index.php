@@ -6,7 +6,7 @@
  * Namhyeon Go (Catswords Research) <abuse@catswords.net>
  * https://github.com/gnh1201/caterpillar
  * Created at: 2022-10-06
- * Updated at: 2024-11-08
+ * Updated at: 2024-11-23
  */
 
 define("PHP_HTTPPROXY_VERSION", "0.1.6.3-dev");
@@ -397,6 +397,20 @@ function relay_dns_get_record($params) {
 
 function relay_fetch_url($params) {
     $url = $params['url'];
+    $headers = $params['headers'];
+
+    $_headers = array();
+    if (is_array($headers) && count($header) > 0) {
+        foreach ($headers as $header_line) {
+            $pos = strpos($header_line, ':');
+            if ($pos !== false) {
+                $header_key = trim(substr($header_line, 0, $pos));
+                $header_value = trim(substr($header_line, $pos + 1));
+                $_header_line = sprintf("%s: %s", $header_key, $header_value);
+                array_push($_headers, $_header_line);
+            }
+        }
+    }
 
     try {
         $ch = curl_init();
@@ -405,6 +419,9 @@ function relay_fetch_url($params) {
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        if (count($_headers) > 0) {
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $_headers);
+        }
 
         $response = curl_exec($ch);
         $error_code = curl_errno($ch);
