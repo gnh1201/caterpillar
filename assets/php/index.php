@@ -527,7 +527,7 @@ function relay_web_search($params) {
         "t" => "0"  // text only
     );
     $result = relay_fetch_url(array(
-        "url" => "https://serp.catswords.net/api.php?" . http_build_query($search_params)
+        "url" => "https://farside.link/librex/api.php?" . http_build_query($search_params)
     ));
     if ($result['success']) {
         return array(
