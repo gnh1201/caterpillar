@@ -8,8 +8,8 @@
  * Created at: 2022-10-06
  * Updated at: 2024-11-26
  */
-
-define("PHP_HTTPPROXY_VERSION", "0.1.6.5");
+define("PERF_START_TIME", microtime(true));
+define("PHP_HTTPPROXY_VERSION", "0.1.6.6");
 define("DEFAULT_SOCKET_TIMEOUT", 1);
 define("STATEFUL_SOCKET_TIMEOUT", 30);
 define("MAX_EXECUTION_TIME", 0);
@@ -30,6 +30,11 @@ if (strpos($_SERVER['HTTP_USER_AGENT'], "php-httpproxy/") !== 0 && strpos($_SERV
     exit('<!DOCTYPE html><html><head><title>It works!</title><meta charset="utf-8"></head><body><h1>It works!</h1><p><a href="https://github.com/gnh1201/caterpillar">Download the client</a></p><p>' . $_SERVER['HTTP_USER_AGENT'] . '</p><hr><p>' . DEFAULT_USER_AGENT . '</p></body></html>');
 }
 
+function get_current_execution_time() {
+    $end_time = microtime(true);
+    return $end_time - PERF_START_TIME;
+}
+
 function jsonrpc2_cast_to_array($data) {
     return is_array($data) ? $data : array($data);
 }
@@ -39,7 +44,8 @@ function jsonrpc2_encode($method, $params, $id = '') {
         "jsonrpc" => "2.0",
         "method" => $method,
         "params" => $params,
-        "id" => $id
+        "id" => $id,
+        "_execution_time" => get_current_execution_time()
     );
     return json_encode($data);
 }
@@ -48,7 +54,8 @@ function jsonrpc2_result_encode($result, $id = '') {
     $data = array(
         "jsonrpc" => "2.0",
         "result" => $result,
-        "id" => $id
+        "id" => $id,
+        "_execution_time" => get_current_execution_time()
     );
     return json_encode($data);
 }
@@ -57,7 +64,8 @@ function jsonrpc2_error_encode($error, $id = '') {
     $data = array(
         "jsonrpc" => "2.0",
         "error" => $error,
-        "id" => $id
+        "id" => $id,
+        "_execution_time" => get_current_execution_time()
     );
     return json_encode($data);
 }
@@ -425,13 +433,13 @@ function relay_dns_get_record($params) {
 }
 
 function relay_fetch_url($params) {
-    $method = $params['method'];
-    $url = $params['url'];
-    $headers = $params['headers'];
-    $data = $params['data'];
+	$url = $params['url'];
+    $method = (array_key_exists("method", $params) ? $params['method'] : "GET");
+    $headers = (array_key_exists("headers", $params) ? $params['headers'] : array());
+    $data = (array_key_exists("data", $params) ? $params['data'] : "");
 
     $_headers = array();
-    if (is_array($headers) && count($header) > 0) {
+    if (is_array($headers) && count($headers) > 0) {
         foreach ($headers as $header_line) {
             $pos = strpos($header_line, ':');
             if ($pos !== false) {
