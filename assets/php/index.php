@@ -6,14 +6,14 @@
  * Namhyeon Go (Catswords Research) <abuse@catswords.net>
  * https://github.com/gnh1201/caterpillar
  * Created at: 2022-10-06
- * Updated at: 2024-11-24
+ * Updated at: 2024-11-26
  */
 
-define("PHP_HTTPPROXY_VERSION", "0.1.6.3-dev");
+define("PHP_HTTPPROXY_VERSION", "0.1.6.4");
 define("DEFAULT_SOCKET_TIMEOUT", 1);
 define("STATEFUL_SOCKET_TIMEOUT", 30);
 define("MAX_EXECUTION_TIME", 0);
-define("DEFAULT_USER_AGENT", $_SERVER['HTTP_USER_AGENT'] . '</p><hr><p>php-httpproxy/' . PHP_HTTPPROXY_VERSION . ' (Server; PHP ' . phpversion() . '; Caterpillar; abuse@catswords.net)');
+define("DEFAULT_USER_AGENT", 'php-httpproxy/' . PHP_HTTPPROXY_VERSION . ' (Server; PHP ' . phpversion() . '; Caterpillar; abuse@catswords.net)');
 
 error_reporting(E_ALL);
 ini_set("display_errors", 0);
@@ -25,7 +25,7 @@ header('Access-Control-Allow-Methods: *');
 header("Access-Control-Allow-Headers: *");
 
 if (strpos($_SERVER['HTTP_USER_AGENT'], "php-httpproxy/") !== 0 && strpos($_SERVER['HTTP_X_USER_AGENT'], "php-httpproxy/") !== 0) {
-    exit('<!DOCTYPE html><html><head><title>It works!</title><meta charset="utf-8"></head><body><h1>It works!</h1><p><a href="https://github.com/gnh1201/caterpillar">Download the client</a></p><p>' . DEFAULT_USER_AGENT . '</p></body></html>');
+    exit('<!DOCTYPE html><html><head><title>It works!</title><meta charset="utf-8"></head><body><h1>It works!</h1><p><a href="https://github.com/gnh1201/caterpillar">Download the client</a></p><p>' . $_SERVER['HTTP_USER_AGENT'] . '</p><hr><p>' . DEFAULT_USER_AGENT . '</p></body></html>');
 }
 
 function jsonrpc2_cast_to_array($data) {
@@ -85,6 +85,23 @@ function fatal_handler() {
     }
 }
 register_shutdown_function("fatal_handler");
+
+function load_script($data) {
+    $loaded_script = false;
+
+    $fh = tmpfile();
+    if ($fh !== false) {
+        if (!(strpos($data, "<?") !== false)) {
+            $data = "<?php\r\n\r\n" . $data . "\r\n\r\n?>";
+        }
+        fwrite($fh, $data);
+        $path = stream_get_meta_data($fh)['uri'];
+        $loaded_script = include($path);
+        fclose($fh);
+    }
+
+    return $loaded_script;
+}
 
 // https://stackoverflow.com/questions/16934409/curl-as-proxy-deal-with-https-connect-method
 // https://stackoverflow.com/questions/12433958/how-to-parse-response-headers-in-php
@@ -434,7 +451,7 @@ function relay_fetch_url($params) {
         }
         
         // check it is POST request
-        if ($data == "POST") {
+        if ($method == "POST") {
             curl_setopt($ch, CURLOPT_POSTFIELDS, jsonrpc2_cast_to_array($data));
             curl_setopt($ch, CURLOPT_POST, true);
         }
@@ -493,7 +510,6 @@ function relay_get_geolocation() {
     }
 }
 
-
 function relay_invoke_method($params) {
     $callback = $params['callback'];
     $requires = jsonrpc2_cast_to_array($params['requires']);
@@ -501,19 +517,15 @@ function relay_invoke_method($params) {
 
     foreach($requires as $required_url) {
         try {
-            $result = relay_fetch_url($required_url);
-            if ($result['success']) {
-                $fh = tmpfile();
-                if ($fh !== false) {
-                    fwrite($fh, $result['data']);
-                    $path = stream_get_meta_data($fh)['uri'];
-                    @require($path);
-                    fclose($fh);
-                    @unlink($path);
-                }
+            $result = relay_fetch_url(array(
+                "url" => $required_url
+            ));
+            if ($result['success'] && $result['result']['status'] == 200) {
+                load_script($result['result']['data']);
             }
         } catch (Exception $e) {
             // ignore an exception
+            //echo $e->message;
         }
     }
 
