@@ -251,8 +251,15 @@
                         var k = (args.length > 0 ? args[0] : '');
                         var v = (args.length > 1 ? args.slice(1) : []).join(' ');
 
+                        // "env" is the reserved word
                         if (k == "env") {
                             this.echo("env is the reserved word");
+                            return;
+                        }
+                        
+                        // check a variable is it Array
+                        if (k in env && env[k] instanceof Array) {
+                            env[k].push(v);
                             return;
                         }
                         
@@ -261,11 +268,19 @@
                             env[k] = parseInt(v);
                             return;
                         }
+                        
 
                         env[k] = v || null;
 
                         if (k == "method") {
                             this.set_prompt('method([[b;red;black]' + env.method + '])> ');
+                            
+                            // method(relay_invoke_method)
+                            if (env.method == "relay_invoke_method") {
+                                set_default_env({
+                                    "requires": []
+                                });
+                            }
 
                             // method(relay_sendmail)
                             if (env.method == "relay_sendmail") {
@@ -323,6 +338,7 @@
 
                             jsonrpc2_request(this, env.method, {
                                 "callback": args[0],
+                                "requires": env.requires,
                                 "args": args.slice(1)
                             });
                             return;

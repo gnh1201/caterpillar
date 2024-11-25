@@ -28,6 +28,10 @@ if (strpos($_SERVER['HTTP_USER_AGENT'], "php-httpproxy/") !== 0 && strpos($_SERV
     exit('<!DOCTYPE html><html><head><title>It works!</title><meta charset="utf-8"></head><body><h1>It works!</h1><p><a href="https://github.com/gnh1201/caterpillar">Download the client</a></p><p>' . DEFAULT_USER_AGENT . '</p></body></html>');
 }
 
+function jsonrpc2_cast_to_array($data) {
+    return is_array($data) ? $data : array($data);
+}
+
 function jsonrpc2_encode($method, $params, $id = '') {
     $data = array(
         "jsonrpc" => "2.0",
@@ -431,7 +435,7 @@ function relay_fetch_url($params) {
         
         // check it is POST request
         if ($data == "POST") {
-            curl_setopt($ch, CURLOPT_POSTFIELDS, array($data));
+            curl_setopt($ch, CURLOPT_POSTFIELDS, jsonrpc2_cast_to_array($data));
             curl_setopt($ch, CURLOPT_POST, true);
         }
 
@@ -492,7 +496,26 @@ function relay_get_geolocation() {
 
 function relay_invoke_method($params) {
     $callback = $params['callback'];
-    $args = (is_array($params['args']) ? $params['args'] : array());
+    $requires = jsonrpc2_cast_to_array($params['requires']);
+    $args = jsonrpc2_cast_to_array($params['args']);
+
+    foreach($requires as $required_url) {
+        try {
+            $result = relay_fetch_url($required_url);
+            if ($result['success']) {
+                $fh = tmpfile();
+                if ($fh !== false) {
+                    fwrite($fh, $result['data']);
+                    $path = stream_get_meta_data($fh)['uri'];
+                    @require($path);
+                    fclose($fh);
+                    @unlink($path);
+                }
+            }
+        } catch (Exception $e) {
+            // ignore an exception
+        }
+    }
 
     try {
         $data = call_user_func_array($callback, $args);
