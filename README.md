@@ -17,6 +17,7 @@ Imagine various means such as time machines, satellites, quantum technology, sou
 * [Build a network tunnel using Python and the LAMP(PHP) stack (qiita.com)](https://qiita.com/gnh1201/items/40f9350ca6d308def6d4)
 * [K-Anonymity for Spam Filtering: Case with Mastodon, and Misskey (qiita.com)](https://qiita.com/gnh1201/items/09f4081f84610db3a9d3)
 * [File Upload Vulnerability Attack Test (Caterpillar Proxy) (youtu.be) ](https://youtu.be/sPZOCgYtLRw)
+* Real-time processing of emergency disaster sensor data (e.g., fire detection).
 
 ## How it works
 
