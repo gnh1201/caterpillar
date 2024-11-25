@@ -13,6 +13,8 @@ You can connect all physical and logical channels with communication capabilitie
 
 Imagine various means such as time machines, satellites, quantum technology, sound, light, the Philosopher's Stone, or Excalibur, just like in science fiction movies! Caterpillar Proxy supports the implementation of extensions for Connectors, Filters, and RPC methods to bring your imagination to life.
 
+:rocket: [Open the Caterpillar Proxy Web Console](https://pub-1a7a176eea68479cb5423e44273657ad.r2.dev/console.html)
+
 ## Use cases
 * [Build a network tunnel using Python and the LAMP(PHP) stack (qiita.com)](https://qiita.com/gnh1201/items/40f9350ca6d308def6d4)
 * [K-Anonymity for Spam Filtering: Case with Mastodon, and Misskey (qiita.com)](https://qiita.com/gnh1201/items/09f4081f84610db3a9d3)
@@ -77,7 +79,7 @@ sudo update-ca-certificates
 4. (Optional) With [Cloudflare](https://cloudflare.com), we can expect to accelerate the 4x speed and reduce the network stuck.
 
 ## Extensions
-* [Web Console Available](https://pub-1a7a176eea68479cb5423e44273657ad.r2.dev/console.html)
+* [Web Console](https://pub-1a7a176eea68479cb5423e44273657ad.r2.dev/console.html)
 * Fediverse (e.g., Mastodon): See the [Fediverse (catswords-oss.rdbl.io)](https://catswords-oss.rdbl.io/1155378128/3821602484).
 * Wayback (Private browsing with Google or Wayback cache): See the [Wayback (catswords-oss.rdbl.io)](https://catswords-oss.rdbl.io/1155378128/6994492654)
 
