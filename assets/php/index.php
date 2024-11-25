@@ -9,10 +9,12 @@
  * Updated at: 2024-11-26
  */
 
-define("PHP_HTTPPROXY_VERSION", "0.1.6.4");
+define("PHP_HTTPPROXY_VERSION", "0.1.6.5");
 define("DEFAULT_SOCKET_TIMEOUT", 1);
 define("STATEFUL_SOCKET_TIMEOUT", 30);
 define("MAX_EXECUTION_TIME", 0);
+define("ALLOW_INVOKE_INSECURE_METHOD", false);
+define("ALLOW_LOAD_INSECURE_SCRIPT", true);
 define("DEFAULT_USER_AGENT", 'php-httpproxy/' . PHP_HTTPPROXY_VERSION . ' (Server; PHP ' . phpversion() . '; Caterpillar; abuse@catswords.net)');
 
 error_reporting(E_ALL);
@@ -88,6 +90,10 @@ register_shutdown_function("fatal_handler");
 
 function load_script($data) {
     $loaded_script = false;
+    
+    if (!ALLOW_LOAD_INSECURE_SCRIPT) {
+        return $loaded_script;
+    }
 
     $fh = tmpfile();
     if ($fh !== false) {
@@ -514,7 +520,21 @@ function relay_invoke_method($params) {
     $callback = $params['callback'];
     $requires = jsonrpc2_cast_to_array($params['requires']);
     $args = jsonrpc2_cast_to_array($params['args']);
-
+    
+    if (!ALLOW_INVOKE_INSECURE_METHOD) {
+        $allow_callbacks = array("idn_to_ascii", "idn_to_utf8", "load_script");
+        if (!in_array($callback, $allow_callbacks)) {
+            return array(
+                "success" => false,
+                "error" => array(
+                    "status" => 403,
+                    "code" => -1,
+                    "message" => $callback . " is not allowed"
+                )
+            );
+        }
+    }
+    
     foreach($requires as $required_url) {
         try {
             $result = relay_fetch_url(array(
