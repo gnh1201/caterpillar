@@ -1,11 +1,11 @@
-# Caterpillar Proxy
+# Caterpillar Proxy (Songchoongi Project)
 
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fgnh1201%2Fcaterpillar.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fgnh1201%2Fcaterpillar?ref=badge_shield)
 [![DOI 10.5281/zenodo.13346533](https://zenodo.org/badge/DOI/10.5281/zenodo.13346533.svg)](https://doi.org/10.5281/zenodo.13346533)
 [![ChatGPT available](https://img.shields.io/badge/ChatGPT-74aa9c?logo=openai&logoColor=white)](#)
 [![slideshare.net available](https://img.shields.io/badge/SlideShare-black?logo=slideshare)](https://www.slideshare.net/slideshow/2024-caterpillar-project-in-2024-korea-oss-contest/273031732)
 
-Caterpillar Proxy - The simple web debugging proxy (formerly, php-httpproxy)
+Caterpillar Proxy (Songchoongi Project) - The simple web debugging proxy (formerly, php-httpproxy)
 
 ![A cover image: Caterpillar on a tree looking at a rocket flying over the clouds](assets/img/cover.png)
 
