@@ -643,7 +643,8 @@ if (!$is_httpproxy) {
         // prevent an image file requests
         foreach ($relay_image_file_extensions as $file_extension) {
             if (strpos($proxy_url, $file_extension) !== false) {
-                exit("data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA=");
+                header("Location: https://http.cat/images/200.jpg");
+                exit("");
             }
         }
 
