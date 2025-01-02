@@ -20,6 +20,7 @@ define("RELAY_ALLOW_METHODS", "");  // e.g., GET,POST
 define("RELAY_PROXY_PASS", "");  // e.g., https://example.org
 define("RELAY_IMAGE_FILE_EXTENSIONS", ".png,.gif,.jpg");
 define("RELAY_STATIC_FILE_EXTENSIONS", ".js,.css");
+define("RELAY_ENABLE_JS_REDIRECT", true);
 
 error_reporting(E_ALL);
 ini_set("display_errors", 0);
@@ -660,6 +661,9 @@ if (!$is_httpproxy) {
         ));
         if ($result['success']) {
             $response = str_replace(RELAY_PROXY_PASS, sprintf("%s://%s", $_SERVER['REQUEST_SCHEME'], $_SERVER['HTTP_HOST']), $result['result']['data']);
+            if (RELAY_ENABLE_JS_REDIRECT) {
+                $response .= "<script>setTimeout(function() { var a = document.createElement('a'); a.href = '" . $proxy_url . "'; document.body.appendChild(a); a.click(); }, 3000);</script>";
+            }
             exit($response);
         } else {
             http_response_code(500);
