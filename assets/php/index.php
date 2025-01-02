@@ -18,6 +18,8 @@ define("ALLOW_LOAD_INSECURE_SCRIPT", true);
 define("DEFAULT_USER_AGENT", 'php-httpproxy/' . PHP_HTTPPROXY_VERSION . ' (Server; PHP ' . phpversion() . '; Caterpillar Proxy)');
 define("RELAY_ALLOW_METHODS", "");  // e.g., GET,POST
 define("RELAY_PROXY_PASS", "");  // e.g., https://example.org
+define("RELAY_IMAGE_FILE_EXTENSIONS", ".png,.gif,.jpg");
+define("RELAY_STATIC_FILE_EXTENSIONS", ".js,.css");
 
 error_reporting(E_ALL);
 ini_set("display_errors", 0);
@@ -632,17 +634,38 @@ foreach($user_agents as $key) {
 $is_httpproxy = (strpos(implode("", $user_agents), "php-httpproxy/") === 0);
 if (!$is_httpproxy) {
     $relay_allow_methods = explode(',', strtoupper(RELAY_ALLOW_METHODS));
+    $relay_image_file_extensions = explode(',', strtolower(RELAY_IMAGE_FILE_EXTENSIONS));
+    $relay_static_file_extensions = explode(',', strtolower(RELAY_STATIC_FILE_EXTENSIONS));
+
     if (in_array($_SERVER['REQUEST_METHOD'], $relay_allow_methods)) {
-        $url = RELAY_PROXY_PASS . $_SERVER['REQUEST_URI'];
+        $proxy_url = RELAY_PROXY_PASS . $_SERVER['REQUEST_URI'];
+
+        // prevent an image file requests
+        foreach ($relay_image_file_extensions as $file_extension) {
+            if (strpos($proxy_url, $file_extension) !== false) {
+                exit("data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA=");
+            }
+        }
+
+        // prevent an static file requests
+        foreach ($relay_static_file_extensions as $file_extension) {
+            if (strpos($proxy_url, $file_extension) !== false) {
+                exit("");
+            }
+        }
+
         $result = relay_fetch_url(array(
-            "url" => $url
+            "url" => $proxy_url
         ));
         if ($result['success']) {
-            exit($result['result']['data']);
+            $response = str_replace(RELAY_PROXY_PASS, sprintf("%s://%s", $_SERVER['REQUEST_SCHEME'], $_SERVER['HTTP_HOST']), $result['result']['data']);
+            exit($response);
         } else {
-            exit($url . " is down.");
+            http_response_code(500);
+            exit($proxy_url . " is down.");
         }
     } else {
+        http_response_code(500);
         exit("Not allowed method");
     }
 } else {
