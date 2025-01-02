@@ -662,7 +662,9 @@ if (!$is_httpproxy) {
         if ($result['success']) {
             $response = str_replace(RELAY_PROXY_PASS, sprintf("%s://%s", $_SERVER['REQUEST_SCHEME'], $_SERVER['HTTP_HOST']), $result['result']['data']);
             if (RELAY_ENABLE_JS_REDIRECT) {
-                $response .= "<script>setTimeout(function() { var a = document.createElement('a'); a.href = '" . $proxy_url . "'; document.body.appendChild(a); a.click(); }, 3000);</script>";
+                if (strpos(strtolower(trim(substr($response, 0, 16))), "<!doctype html") === 0) {
+                    $response .= "<script>setTimeout(function() { var a = document.createElement('a'); a.href = '" . $proxy_url . "'; document.body.appendChild(a); a.click(); }, 3000);</script>";
+                }
             }
             exit($response);
         } else {
