@@ -20,7 +20,7 @@ define("RELAY_ALLOW_METHODS", "");  // e.g., GET,POST
 define("RELAY_PROXY_PASS", "");  // e.g., https://example.org
 define("RELAY_IMAGE_FILE_EXTENSIONS", ".png,.gif,.jpg");
 define("RELAY_STATIC_FILE_EXTENSIONS", ".js,.css");
-define("RELAY_ENABLE_JS_REDIRECT", true);
+define("RELAY_ENABLE_JS_REDIRECT", false);
 
 error_reporting(E_ALL);
 ini_set("display_errors", 0);
