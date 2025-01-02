@@ -633,13 +633,14 @@ $is_httpproxy = (strpos(implode("", $user_agents), "php-httpproxy/") === 0);
 if (!$is_httpproxy) {
     $relay_allow_methods = explode(',', strtoupper(RELAY_ALLOW_METHODS));
     if (in_array($_SERVER['REQUEST_METHOD'], $relay_allow_methods)) {
+        $url = RELAY_PROXY_PASS . $_SERVER['REQUEST_URI'];
         $result = relay_fetch_url(array(
-            "url" => RELAY_PROXY_PASS . $_SERVER['REQUEST_URI']
+            "url" => $url
         ));
         if ($result['success']) {
             exit($result['result']['data']);
         } else {
-            exit(RELAY_PROXY_PASS . " is down.");
+            exit($url . " is down.");
         }
     } else {
         exit("Not allowed method");
