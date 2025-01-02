@@ -6,7 +6,7 @@
  * Namhyeon Go (Catswords Research) <abuse@catswords.net>
  * https://github.com/gnh1201/caterpillar
  * Created at: 2022-10-06
- * Updated at: 2024-11-26
+ * Updated at: 2025-01-02
  */
 define("PERF_START_TIME", microtime(true));
 define("PHP_HTTPPROXY_VERSION", "0.1.6.6");
@@ -15,7 +15,9 @@ define("STATEFUL_SOCKET_TIMEOUT", 30);
 define("MAX_EXECUTION_TIME", 0);
 define("ALLOW_INVOKE_INSECURE_METHOD", false);
 define("ALLOW_LOAD_INSECURE_SCRIPT", true);
-define("DEFAULT_USER_AGENT", 'php-httpproxy/' . PHP_HTTPPROXY_VERSION . ' (Server; PHP ' . phpversion() . '; Caterpillar; abuse@catswords.net)');
+define("DEFAULT_USER_AGENT", 'php-httpproxy/' . PHP_HTTPPROXY_VERSION . ' (Server; PHP ' . phpversion() . '; Caterpillar Proxy)');
+define("RELAY_ALLOW_METHODS", "");  // e.g., GET,POST
+define("RELAY_PROXY_PASS", "");  // e.g., https://example.org
 
 error_reporting(E_ALL);
 ini_set("display_errors", 0);
@@ -25,10 +27,6 @@ ini_set("max_execution_time", MAX_EXECUTION_TIME);
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: *');
 header("Access-Control-Allow-Headers: *");
-
-if (strpos($_SERVER['HTTP_USER_AGENT'], "php-httpproxy/") !== 0 && strpos($_SERVER['HTTP_X_USER_AGENT'], "php-httpproxy/") !== 0) {
-    exit('<!DOCTYPE html><html><head><title>It works!</title><meta charset="utf-8"></head><body><h1>It works!</h1><p><a href="https://github.com/gnh1201/caterpillar">Download the client</a></p><p>' . $_SERVER['HTTP_USER_AGENT'] . '</p><hr><p>' . DEFAULT_USER_AGENT . '</p></body></html>');
-}
 
 function get_current_execution_time() {
     $end_time = microtime(true);
@@ -618,6 +616,36 @@ function get_client_address() {
         "data" => $client_address,
         "client_address" => $client_address    // compatible under version 0.1.5.18
     );
+}
+
+// get user agents
+$user_agents = array("HTTP_USER_AGENT", "HTTP_X_USER_AGENT");
+foreach($user_agents as $key) {
+    if (array_key_exists($key, $_SERVER)) {
+        $user_agents[$key] = $_SERVER[$key];
+    } else {
+        $user_agents[$key] = "";
+    }
+}
+
+// check the user agent
+$is_httpproxy = (strpos(implode("", $user_agents), "php-httpproxy/") === 0);
+if (!$is_httpproxy) {
+    $relay_allow_methods = explode(',', strtoupper(RELAY_ALLOW_METHODS));
+    if (in_array($_SERVER['REQUEST_METHOD'], $relay_allow_methods)) {
+        $result = relay_fetch_url(array(
+            "url" => RELAY_PROXY_PASS . $_SERVER['REQUEST_URI']
+        ));
+        if ($result['success']) {
+            exit($result['result']['data']);
+        } else {
+            exit(RELAY_PROXY_PASS . " is down.");
+        }
+    } else {
+        exit("Not allowed method");
+    }
+} else {
+    exit('<!DOCTYPE html><html><head><title>It works!</title><meta charset="utf-8"></head><body><h1>It works!</h1><p><a href="https://github.com/gnh1201/caterpillar">Download the client</a></p><p>' . $_SERVER['HTTP_USER_AGENT'] . '</p><hr><p>' . DEFAULT_USER_AGENT . '</p></body></html>');
 }
 
 // parse a context
