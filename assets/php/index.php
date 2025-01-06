@@ -1,15 +1,15 @@
 <?php
 /* index.php
- * Caterpillar Worker on PHP
+ * Caterpillar Worker on PHP runtime
  *
  * Caterpillar Proxy - The simple web debugging proxy (formerly, php-httpproxy)
  * Namhyeon Go (Catswords Research) <abuse@catswords.net>
  * https://github.com/gnh1201/caterpillar
  * Created at: 2022-10-06
- * Updated at: 2025-01-02
+ * Updated at: 2025-01-06
  */
 define("PERF_START_TIME", microtime(true));
-define("PHP_HTTPPROXY_VERSION", "0.1.6.6");
+define("PHP_HTTPPROXY_VERSION", "0.1.6.7");
 define("DEFAULT_SOCKET_TIMEOUT", 1);
 define("STATEFUL_SOCKET_TIMEOUT", 30);
 define("MAX_EXECUTION_TIME", 0);
@@ -34,6 +34,22 @@ header("Access-Control-Allow-Headers: *");
 function get_current_execution_time() {
     $end_time = microtime(true);
     return $end_time - PERF_START_TIME;
+}
+
+function array_get($key, $arr, $default = null) {
+    return array_key_exists($key, $arr) ? $arr[$key] : $default;
+}
+
+function verity_integrity($data, $integrity) {
+    if (strpos($integrity, 'sha384-') !== 0) {
+        return false;
+    }
+    
+    $encoded_hash = substr($integrity, 7);
+    $decoded_hash = base64_decode($encoded_hash);
+    $calculated_hash = hash('sha384', $data, true);
+    
+    return hash_equals($calculated_hash, $decoded_hash);
 }
 
 function jsonrpc2_cast_to_array($data) {
@@ -256,12 +272,12 @@ function relay_connect($params, $id = '') {
 }
 
 function relay_mysql_connect($params) {
-    $hostname = $params['hostname'];
-    $username = $params['username'];
-    $password = $params['password'];
-    $database = array_key_exists('database', $params) ? $params['database'] : null;
-    $port = array_key_exists('port', $params) ? intval($params['port']) : 3306;
-    $charset = array_key_exists('charset', $params) ? $params['charset'] : "utf8";
+    $hostname = array_get("hostname", $params, "localhost");
+    $username = array_get("username", $params, "root");
+    $password = array_get("password", $params, "");
+    $database = array_get("database", $params, null);
+    $port = intval(array_get("port", $params, 3306));
+    $charset = array_get("charset", $params, "utf8");
 
     try {
         $mysqli = new mysqli($hostname, $username, $password, $database, $port);
@@ -434,10 +450,10 @@ function relay_dns_get_record($params) {
 }
 
 function relay_fetch_url($params) {
-	$url = $params['url'];
-    $method = (array_key_exists("method", $params) ? $params['method'] : "GET");
-    $headers = (array_key_exists("headers", $params) ? $params['headers'] : array());
-    $data = (array_key_exists("data", $params) ? $params['data'] : "");
+    $url = $params['url'];
+    $method = array_get("method", $params, "GET");
+    $headers = array_get("headers", $params, array());
+    $data = array_get("data", $params, '');
 
     $_headers = array();
     if (is_array($headers) && count($headers) > 0) {
@@ -544,17 +560,34 @@ function relay_invoke_method($params) {
         }
     }
     
-    foreach($requires as $required_url) {
+    foreach($requires as $require_ctx) {
+        $resource_url = "";
+        $resource_integrity = "";
+
+        if (is_array($require_ctx)) {
+            $resource_url = array_get("url", $require_ctx, "");
+            $resource_integrity = array_get("integrity", $require_ctx, "");
+        } else {
+            $resource_url = $require_ctx;
+        }
+        
         try {
             $result = relay_fetch_url(array(
                 "url" => $required_url
             ));
+
             if ($result['success'] && $result['result']['status'] == 200) {
-                load_script($result['result']['data']);
+                $response = $result['result']['data'];
+                if (!empty($resource_integrity)) {
+                    if (verify_integrity($response, $resource_integrity)) {
+                        load_script($response);
+                    }
+                } else {
+                    load_script($response);
+                }
             }
         } catch (Exception $e) {
-            // ignore an exception
-            //echo $e->message;
+            //echo $e->message;    // ignore an exception
         }
     }
 
