@@ -106,8 +106,8 @@ sudo update-ca-certificates
 - [Join Catswords OSS #caterpillar on Discord (discord.gg)](https://discord.gg/9VVTHpfsVW)
 
 ## Special channels
-- [A paid consultation channel (m.expert.naver.com)](https://m.expert.naver.com/mobile/expert/product/detail?storeId=100051156&productId=100144540) is available for Korean (한국어) customers.
-- [Join the private operation channel (forms.gle)](https://forms.gle/ZKAAaGTiGamksHoo8) is available for Korea region.
+- [A paid consultation channel (m.expert.naver.com)](https://m.expert.naver.com/mobile/expert/product/detail?storeId=100051156&productId=100144540) is available for Korean (한국어) region.
+- [Join the private operation channel (forms.gle)](https://forms.gle/ZKAAaGTiGamksHoo8) is available for all regions.
 
 ## License
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fgnh1201%2Fcaterpillar.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fgnh1201%2Fcaterpillar?ref=badge_large)
