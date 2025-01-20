@@ -4,6 +4,7 @@
 [![DOI 10.5281/zenodo.13346533](https://zenodo.org/badge/DOI/10.5281/zenodo.13346533.svg)](https://doi.org/10.5281/zenodo.13346533)
 [![ChatGPT available](https://img.shields.io/badge/ChatGPT-74aa9c?logo=openai&logoColor=white)](#)
 [![slideshare.net available](https://img.shields.io/badge/SlideShare-black?logo=slideshare)](https://www.slideshare.net/slideshow/2024-caterpillar-project-in-2024-korea-oss-contest/273031732)
+[![Open to work](https://img.shields.io/badge/%23-OPENTOWORK-green)](https://github.com/gnh1201/welsonjs/discussions/167)
 
 Caterpillar Proxy (Songchoongi Project) - The simple web debugging proxy (formerly, php-httpproxy)
 
