@@ -1,6 +1,6 @@
 <?php
 /* index.php
- * Caterpillar Worker on PHP runtime
+ * Caterpillar Proxy Worker on PHP runtime
  *
  * Caterpillar Proxy - The simple web debugging proxy (formerly, php-httpproxy)
  * Namhyeon Go (Catswords Research) <abuse@catswords.net>
