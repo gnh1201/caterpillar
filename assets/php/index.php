@@ -654,18 +654,20 @@ function get_client_address() {
     );
 }
 
-// get user agents
-$user_agents = array("HTTP_USER_AGENT", "HTTP_X_USER_AGENT");
-foreach($user_agents as $key) {
-    if (array_key_exists($key, $_SERVER)) {
-        $user_agents[$key] = $_SERVER[$key];
-    } else {
-        $user_agents[$key] = "";
+function get_user_agent() {
+    $user_agents = array("HTTP_USER_AGENT", "HTTP_X_USER_AGENT");
+    foreach($user_agents as $key) {
+        if (array_key_exists($key, $_SERVER)) {
+            $user_agents[$key] = $_SERVER[$key];
+        } else {
+            $user_agents[$key] = "";
+        }
     }
+    return implode("", $user_agents);
 }
 
 // check the user agent
-$is_httpproxy = (strpos(implode("", $user_agents), "php-httpproxy/") === 0);
+$is_httpproxy = (strpos(get_user_agent(), "php-httpproxy/") === 0);
 if (!$is_httpproxy) {
     $relay_allow_methods = explode(',', strtoupper(RELAY_ALLOW_METHODS));
     $relay_image_file_extensions = explode(',', strtolower(RELAY_IMAGE_FILE_EXTENSIONS));
@@ -705,11 +707,8 @@ if (!$is_httpproxy) {
             exit($proxy_url . " is down.");
         }
     } else {
-        http_response_code(500);
-        exit("Not allowed method");
+        exit('<!DOCTYPE html><html><head><title>It works!</title><meta charset="utf-8"></head><body><h1>It works!</h1><p><a href="https://github.com/gnh1201/caterpillar">Download the client</a></p><p>' . $_SERVER['HTTP_USER_AGENT'] . '</p><hr><p>' . DEFAULT_USER_AGENT . '</p></body></html>');
     }
-} else {
-    exit('<!DOCTYPE html><html><head><title>It works!</title><meta charset="utf-8"></head><body><h1>It works!</h1><p><a href="https://github.com/gnh1201/caterpillar">Download the client</a></p><p>' . $_SERVER['HTTP_USER_AGENT'] . '</p><hr><p>' . DEFAULT_USER_AGENT . '</p></body></html>');
 }
 
 // parse a context
