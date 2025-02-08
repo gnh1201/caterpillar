@@ -40,6 +40,10 @@ function array_get($key, $arr, $default = null) {
     return array_key_exists($key, $arr) ? $arr[$key] : $default;
 }
 
+function server_env_get($key) {
+    return array_get($key, $_SERVER, "");
+}
+
 function verity_integrity($data, $integrity) {
     if (strpos($integrity, 'sha384-') !== 0) {
         return false;
@@ -655,15 +659,8 @@ function get_client_address() {
 }
 
 function get_user_agent() {
-    $user_agents = array("HTTP_USER_AGENT", "HTTP_X_USER_AGENT");
-    foreach($user_agents as $key) {
-        if (array_key_exists($key, $_SERVER)) {
-            $user_agents[$key] = $_SERVER[$key];
-        } else {
-            $user_agents[$key] = "";
-        }
-    }
-    return implode("", $user_agents);
+    $user_agents = array_map("server_env_get", array("HTTP_X_USER_AGENT", "HTTP_USER_AGENT"));
+    return implode(", ", $user_agents);
 }
 
 // check the user agent
