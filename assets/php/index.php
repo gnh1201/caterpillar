@@ -9,7 +9,7 @@
  * Updated at: 2025-02-09
  */
 define("PERF_START_TIME", microtime(true));
-define("PHP_HTTPPROXY_VERSION", "0.1.6.7");
+define("PHP_HTTPPROXY_VERSION", "0.1.6.8");
 define("DEFAULT_SOCKET_TIMEOUT", 1);
 define("STATEFUL_SOCKET_TIMEOUT", 30);
 define("MAX_EXECUTION_TIME", 0);
@@ -423,6 +423,24 @@ function relay_get_phpversion() {
     );
 }
 
+function relay_get_env_hash() {
+    $params = array(
+        "php_version" => phpversion(),
+        "php_os" => PHP_OS,
+        "php_sapi" => PHP_SAPI,
+        "loaded_extensions" => get_loaded_extensions(),
+        "ini_settings" => ini_get_all(null, false)
+    );
+    $serialized_params = serialize($params);
+
+    return array(
+        "data" => array(
+            sha1($serialized_params),
+            md5($serialized_params)
+        )
+    );
+}
+
 function relay_get_loaded_extensions() {
     return array(
         "data" => get_loaded_extensions()
@@ -753,6 +771,10 @@ if ($context['jsonrpc'] == "2.0") {
 
         case "relay_get_phpversion":
             echo jsonrpc2_result_encode(relay_get_phpversion(), $context['id']);
+            break;
+
+        case "relay_get_env_hash":
+            echo jsonrpc2_result_encode(relay_get_env_hash(), $context['id']);
             break;
 
         case "relay_get_loaded_extensions":
