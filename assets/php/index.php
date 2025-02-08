@@ -6,14 +6,14 @@
  * Namhyeon Go (Catswords Research) <abuse@catswords.net>
  * https://github.com/gnh1201/caterpillar
  * Created at: 2022-10-06
- * Updated at: 2025-01-06
+ * Updated at: 2025-02-09
  */
 define("PERF_START_TIME", microtime(true));
 define("PHP_HTTPPROXY_VERSION", "0.1.6.7");
 define("DEFAULT_SOCKET_TIMEOUT", 1);
 define("STATEFUL_SOCKET_TIMEOUT", 30);
 define("MAX_EXECUTION_TIME", 0);
-define("ALLOW_INVOKE_INSECURE_METHOD", false);
+define("ALLOW_INVOKE_INSECURE_METHOD", false);idn
 define("ALLOW_LOAD_INSECURE_SCRIPT", true);
 define("DEFAULT_USER_AGENT", 'php-httpproxy/' . PHP_HTTPPROXY_VERSION . ' (Server; PHP ' . phpversion() . '; Caterpillar Proxy)');
 define("RELAY_ALLOW_METHODS", "");  // e.g., GET,POST
@@ -547,7 +547,7 @@ function relay_invoke_method($params) {
     $args = jsonrpc2_cast_to_array($params['args']);
     
     if (!ALLOW_INVOKE_INSECURE_METHOD) {
-        $allow_callbacks = array("idn_to_ascii", "idn_to_utf8", "load_script");
+        $allow_callbacks = array("phpinfo", "idn_to_ascii", "idn_to_utf8", "load_script");
         if (!in_array($callback, $allow_callbacks)) {
             return array(
                 "success" => false,
