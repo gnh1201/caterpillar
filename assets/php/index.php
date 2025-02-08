@@ -13,7 +13,7 @@ define("PHP_HTTPPROXY_VERSION", "0.1.6.7");
 define("DEFAULT_SOCKET_TIMEOUT", 1);
 define("STATEFUL_SOCKET_TIMEOUT", 30);
 define("MAX_EXECUTION_TIME", 0);
-define("ALLOW_INVOKE_INSECURE_METHOD", false);idn
+define("ALLOW_INVOKE_INSECURE_METHOD", false);
 define("ALLOW_LOAD_INSECURE_SCRIPT", true);
 define("DEFAULT_USER_AGENT", 'php-httpproxy/' . PHP_HTTPPROXY_VERSION . ' (Server; PHP ' . phpversion() . '; Caterpillar Proxy)');
 define("RELAY_ALLOW_METHODS", "");  // e.g., GET,POST
