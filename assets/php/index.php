@@ -9,7 +9,7 @@
  * Updated at: 2025-02-09
  */
 define("PERF_START_TIME", microtime(true));
-define("PHP_HTTPPROXY_VERSION", "0.1.6.8");
+define("PHP_HTTPPROXY_VERSION", "0.1.6.9");
 define("DEFAULT_SOCKET_TIMEOUT", 1);
 define("STATEFUL_SOCKET_TIMEOUT", 30);
 define("MAX_EXECUTION_TIME", 0);
@@ -592,10 +592,10 @@ function relay_invoke_method($params) {
         } else {
             $resource_url = $require_ctx;
         }
-        
+
         try {
             $result = relay_fetch_url(array(
-                "url" => $required_url
+                "url" => $resource_url
             ));
 
             if ($result['success'] && $result['result']['status'] == 200) {
