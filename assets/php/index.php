@@ -6,7 +6,7 @@
  * Namhyeon Go (Catswords Research) <abuse@catswords.net>
  * https://github.com/gnh1201/caterpillar
  * Created at: 2022-10-06
- * Updated at: 2025-02-09
+ * Updated at: 2025-02-13
  */
 define("PERF_START_TIME", microtime(true));
 define("PHP_HTTPPROXY_VERSION", "0.1.6.9");
