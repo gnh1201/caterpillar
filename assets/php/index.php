@@ -6,10 +6,10 @@
  * Namhyeon Go (Catswords Research) <abuse@catswords.net>
  * https://github.com/gnh1201/caterpillar
  * Created at: 2022-10-06
- * Updated at: 2025-02-13
+ * Updated at: 2025-02-17
  */
 define("PERF_START_TIME", microtime(true));
-define("PHP_HTTPPROXY_VERSION", "0.1.6.9");
+define("PHP_HTTPPROXY_VERSION", "0.1.6.10");
 define("DEFAULT_SOCKET_TIMEOUT", 1);
 define("STATEFUL_SOCKET_TIMEOUT", 30);
 define("MAX_EXECUTION_TIME", 0);
@@ -56,7 +56,7 @@ function verity_integrity($data, $integrity) {
     return hash_equals($calculated_hash, $decoded_hash);
 }
 
-function jsonrpc2_cast_to_array($data) {
+function cast_to_array($data) {
     return is_array($data) ? $data : array($data);
 }
 
@@ -505,7 +505,7 @@ function relay_fetch_url($params) {
         
         // check it is POST request
         if ($method == "POST") {
-            curl_setopt($ch, CURLOPT_POSTFIELDS, jsonrpc2_cast_to_array($data));
+            curl_setopt($ch, CURLOPT_POSTFIELDS, cast_to_array($data));
             curl_setopt($ch, CURLOPT_POST, true);
         }
 
@@ -565,8 +565,8 @@ function relay_get_geolocation() {
 
 function relay_invoke_method($params) {
     $callback = $params['callback'];
-    $requires = jsonrpc2_cast_to_array($params['requires']);
-    $args = jsonrpc2_cast_to_array($params['args']);
+    $requires = cast_to_array($params['requires']);
+    $args = cast_to_array($params['args']);
     
     if (!ALLOW_INVOKE_INSECURE_METHOD) {
         $allow_callbacks = array("phpinfo", "idn_to_ascii", "idn_to_utf8", "load_script");
@@ -662,22 +662,32 @@ function relay_web_search($params) {
 }
 
 function get_client_address() {
-    $client_address = '';
-    if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
-        $client_address = $_SERVER['HTTP_CLIENT_IP'];
-    } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-        $client_address = $_SERVER['HTTP_X_FORWARDED_FOR'];
-    } else {
-        $client_address = $_SERVER['REMOTE_ADDR'];
+    $client_address = "";
+    
+    $client_address_candidates = array_filter(array_map("server_env_get", array(
+        "HTTP_CLIENT_IP",
+        "HTTP_X_FORWARDED_FOR",
+        "HTTP_X_FORWARDED",
+        "HTTP_X_CLUSTER_CLIENT_IP",
+        "HTTP_FORWARDED_FOR",
+        "HTTP_FORWARDED",
+        "REMOTE_ADDR"
+    )));
+    if (count($client_address_candidates) > 0) {
+        $client_address = $client_address_candidates[0];
     }
+    
     return array(
-        "data" => $client_address,
+        "data" => $client_address_candidates,
         "client_address" => $client_address    // compatible under version 0.1.5.18
     );
 }
 
 function get_user_agent() {
-    $user_agents = array_map("server_env_get", array("HTTP_X_USER_AGENT", "HTTP_USER_AGENT"));
+    $user_agents = array_filter(array_map("server_env_get", array(
+        "HTTP_X_USER_AGENT",
+        "HTTP_USER_AGENT"
+    )));
     return implode(", ", $user_agents);
 }
 
