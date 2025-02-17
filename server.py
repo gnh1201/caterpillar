@@ -7,7 +7,7 @@
 # Namyheon Go (Catswords Research) <gnh1201@gmail.com>
 # https://github.com/gnh1201/caterpillar
 # Created at: 2022-10-06
-# Updated at: 2024-11-18
+# Updated at: 2025-02-17
 #
 
 import argparse
@@ -463,6 +463,8 @@ def proxy_server(
 
         # stateful mode
         elif server_connection_type == "stateful":
+            client_address = str(addr[0])
+
             proxy_data = {
                 "headers": {
                     "User-Agent": "php-httpproxy/0.1.5 (Client; Python "
@@ -471,7 +473,7 @@ def proxy_server(
                 },
                 "data": {
                     "buffer_size": str(buffer_size),
-                    "client_address": str(addr[0]),
+                    "client_address": client_address,
                     "client_port": str(listening_port),
                     "client_encoding": client_encoding,
                     "remote_address": webserver.decode(client_encoding),
@@ -482,7 +484,7 @@ def proxy_server(
             }
 
             # get client address
-            logger.info("[*] resolving the client address...")
+            logger.info("[*] Resolving the client address...")
             while len(resolved_address_list) == 0:
                 try:
                     _, query_data = jsonrpc2_encode("get_client_address")
@@ -495,11 +497,23 @@ def proxy_server(
                     )
                     if query.status_code == 200:
                         result = query.json()["result"]
-                        resolved_address_list.append(result["data"])
-                    logger.info("[*] resolved IP: %s" % (result["data"]))
+                        
+                        if isinstance(result["data"], str):
+                            client_address = result["data"]
+                            resolved_address_list.append(client_address)
+                        elif isinstance(result["data"], list):
+                            client_address = result["data"][0]
+                            resolved_address_list.append(client_address)
+                        else:
+                            logger.warn("[*] Failed to resolve a client address. Retrying...")
+                    else:
+                        logger.warn("[*] Failed to resolve a client address. Retrying...")
                 except requests.exceptions.ReadTimeout:
-                    pass
-            proxy_data["data"]["client_address"] = resolved_address_list[0]
+                    logger.warn("[*] Failed to resolve a client address. Retrying...")
+
+            # update the client address
+            logger.info("[*] Use the client address: %s" % (client_address))
+            proxy_data["data"]["client_address"] = client_address
 
             # build a tunnel
             def relay_connect(id, raw_data, proxy_data):
