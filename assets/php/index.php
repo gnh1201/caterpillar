@@ -6,7 +6,7 @@
  * Namhyeon Go (Catswords Research) <abuse@catswords.net>
  * https://github.com/gnh1201/caterpillar
  * Created at: 2022-10-06
- * Updated at: 2025-02-17
+ * Updated at: 2025-03-11
  */
 define("PERF_START_TIME", microtime(true));
 define("PHP_HTTPPROXY_VERSION", "0.1.6.10");
@@ -477,6 +477,46 @@ function relay_fetch_url($params) {
     $headers = array_get("headers", $params, array());
     $data = array_get("data", $params, '');
 
+    // from local source
+    $local_prefix = "file:";
+    $pos = strpos($url, $local_prefix);
+    if ($pos !== false && $pos === 0) {
+        $path = realpath(substr($url, strlen($local_prefix)));
+        $basedir = realpath(__DIR__);
+        
+        if ($path && strpos($path, $basedir) === 0) {
+            if (file_exists($path)) {
+                $response = file_get_contents($path);
+                return array(
+                    "success" => true,
+                    "result" => array(
+                        "status" => 200,
+                        "data" => $response
+                    )
+                );
+            } else {
+                return array(
+                    "success" => false,
+                    "error" => array(
+                        "status" => 404,
+                        "code" => -1,
+                        "message" => "Not found"
+                    )
+                );
+            }
+        } else {
+            return array(
+                "success" => false,
+                "error" => array(
+                    "status" => 403,
+                    "code" => -1,
+                    "message" => "Access denied"
+                )
+            );
+        }
+    }
+
+    // from remote source
     $_headers = array();
     if (is_array($headers) && count($headers) > 0) {
         foreach ($headers as $header_line) {
@@ -495,8 +535,10 @@ function relay_fetch_url($params) {
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_USERAGENT, DEFAULT_USER_AGENT);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_DNS_USE_GLOBAL_CACHE, false);
+        curl_setopt($ch, CURLOPT_DNS_CACHE_TIMEOUT, 30);
         
         // check the request headers
         if (count($_headers) > 0) {
@@ -585,14 +627,17 @@ function relay_invoke_method($params) {
     foreach($requires as $require_ctx) {
         $resource_url = "";
         $resource_integrity = "";
-
-        if (is_array($require_ctx)) {
+        
+        if (is_string($require_ctx)) {
+            $resource_url = $require_ctx;
+        } else if (is_array($require_ctx)) {
             $resource_url = array_get("url", $require_ctx, "");
             $resource_integrity = array_get("integrity", $require_ctx, "");
-        } else {
-            $resource_url = $require_ctx;
         }
-
+        
+        if (empty($resource_url))
+            continue;
+        
         try {
             $result = relay_fetch_url(array(
                 "url" => $resource_url
