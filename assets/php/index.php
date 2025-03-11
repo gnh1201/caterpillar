@@ -480,25 +480,37 @@ function relay_fetch_url($params) {
     // from local source
     $local_prefix = "file:";
     $pos = strpos($url, $local_prefix);
-    if ($pos !== false && $pos == 0) {
-        $path = substr($url, strlen($local_prefix));
+    if ($pos !== false && $pos === 0) {
+        $path = realpath(substr($url, strlen($local_prefix)));
+        $basedir = realpath(__DIR__);
         
-        if (file_exists($path)) {
-            $response = file_get_contents($path);
-            return array(
-                "success" => true,
-                "result" => array(
-                    "status" => 200,
-                    "data" => $response
-                )
-            );
+        if ($path && strpos($path, $basedir) === 0) {
+            if (file_exists($path)) {
+                $response = file_get_contents($path);
+                return array(
+                    "success" => true,
+                    "result" => array(
+                        "status" => 200,
+                        "data" => $response
+                    )
+                );
+            } else {
+                return array(
+                    "success" => false,
+                    "error" => array(
+                        "status" => 404,
+                        "code" => -1,
+                        "message" => "Not found"
+                    )
+                );
+            }
         } else {
             return array(
                 "success" => false,
                 "error" => array(
-                    "status" => 404,
+                    "status" => 403,
                     "code" => -1,
-                    "message" => "Not found"
+                    "message" => "Access denied"
                 )
             );
         }
